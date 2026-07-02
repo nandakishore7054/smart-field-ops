@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import api from '../../app/api';
 import TaskForm from '../../features/tasks/TaskForm';
 import TaskList from '../../features/tasks/TaskList';
+import AdminVerificationView from '../../features/submissions/AdminVerificationView';
 
 export default function DispatchBoard() {
   const [refreshToken, setRefreshToken] = useState(0);
   const [editingTask, setEditingTask] = useState(null);
+  const [selectedReviewTask, setSelectedReviewTask] = useState(null);
+  const [loadingReview, setLoadingReview] = useState(false);
+  const [reviewError, setReviewError] = useState('');
 
   function handleSaved() {
     setEditingTask(null);
@@ -19,6 +24,20 @@ export default function DispatchBoard() {
     setEditingTask(null);
   }
 
+  async function handleReviewTask(task) {
+    setLoadingReview(true);
+    setReviewError('');
+
+    try {
+      const response = await api.get(`/tasks/${task._id}`);
+      setSelectedReviewTask(response.data?.data?.task || null);
+    } catch (error) {
+      setReviewError(error.response?.data?.message || 'Unable to load verification details.');
+    } finally {
+      setLoadingReview(false);
+    }
+  }
+
   return (
     <section className="space-y-6">
       <div>
@@ -31,7 +50,16 @@ export default function DispatchBoard() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <TaskForm editingTask={editingTask} onSaved={handleSaved} onCancel={handleCancelEdit} />
-        <TaskList refreshToken={refreshToken} onEditTask={handleEditTask} onDeleted={handleSaved} />
+        <TaskList refreshToken={refreshToken} onEditTask={handleEditTask} onDeleted={handleSaved} onReviewTask={handleReviewTask} />
+      </div>
+
+      <div className="space-y-4">
+        {reviewError ? <p className="rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{reviewError}</p> : null}
+        {loadingReview ? (
+          <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 text-slate-300">Loading verification details...</div>
+        ) : (
+          <AdminVerificationView task={selectedReviewTask} onVerified={setSelectedReviewTask} />
+        )}
       </div>
     </section>
   );

@@ -15,6 +15,7 @@ router.use(requireRoles('admin'));
 router.post('/', tasksController.createTask);
 router.get('/', tasksController.listTasks);
 router.get('/:id', tasksController.getTaskById);
+router.patch('/:id/verify', tasksController.verifyTask);
 router.put('/:id', tasksController.updateTask);
 router.delete('/:id', tasksController.deleteTask);
 

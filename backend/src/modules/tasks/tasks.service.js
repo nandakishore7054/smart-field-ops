@@ -1,6 +1,7 @@
 const Task = require('./tasks.model');
 const User = require('../auth/auth.model');
 const ApiError = require('../../core/utils/apiError');
+const Submission = require('../submissions/submissions.model');
 
 async function assertValidAssignee(assignedTo) {
   if (!assignedTo) {
@@ -23,6 +24,14 @@ function normalizeTaskDocument(task) {
 
   const plainTask = task.toObject ? task.toObject() : { ...task };
   return plainTask;
+}
+
+function normalizeSubmission(submission) {
+  if (!submission) {
+    return null;
+  }
+
+  return submission.toObject ? submission.toObject() : { ...submission };
 }
 
 async function createTask(payload, actorId) {
@@ -99,6 +108,15 @@ async function getTaskById(taskId) {
     throw new ApiError(404, 'Task not found.');
   }
 
+  const submission = await Submission.findOne({ taskId: task._id })
+    .populate('workerId', 'name email role')
+    .populate('verifiedBy', 'name email role')
+    .lean();
+
+  if (submission) {
+    task.submission = submission;
+  }
+
   return task;
 }
 
@@ -141,6 +159,33 @@ async function deleteTask(taskId) {
   return normalizeTaskDocument(task);
 }
 
+async function verifyTask(taskId, adminId, payload) {
+  const task = await Task.findOne({ _id: taskId, isDeleted: false });
+
+  if (!task) {
+    throw new ApiError(404, 'Task not found.');
+  }
+
+  const submission = await Submission.findOne({ taskId });
+
+  if (!submission) {
+    throw new ApiError(404, 'Submission not found.');
+  }
+
+  submission.isVerified = Boolean(payload.isVerified);
+  submission.verifiedBy = adminId;
+  submission.verificationFeedback = payload.verificationFeedback || '';
+  await submission.save();
+
+  task.status = payload.isVerified ? 'verified' : 'rejected';
+  await task.save();
+
+  return {
+    task: normalizeTaskDocument(task),
+    submission: normalizeSubmission(submission),
+  };
+}
+
 async function updateTaskStatus(taskId, workerId, nextStatus) {
   const task = await Task.findOne({ _id: taskId, isDeleted: false });
 
@@ -169,5 +214,6 @@ module.exports = {
   getTaskById,
   updateTask,
   deleteTask,
+  verifyTask,
   updateTaskStatus,
 };

@@ -56,6 +56,21 @@ const deleteTask = asyncHandler(async (request, response) => {
   return successResponse(response, 200, { task });
 });
 
+const verifyTask = asyncHandler(async (request, response) => {
+  const isVerified = typeof request.body.isVerified === 'boolean' ? request.body.isVerified : null;
+
+  if (isVerified === null) {
+    throw new ApiError(400, 'isVerified must be true or false.');
+  }
+
+  const updated = await tasksService.verifyTask(request.params.id, request.user._id, {
+    isVerified,
+    verificationFeedback: request.body.verificationFeedback || '',
+  });
+
+  return successResponse(response, 200, updated);
+});
+
 const listMyTasks = asyncHandler(async (request, response) => {
   const data = await tasksService.getMyTasks(request.user._id);
 
@@ -81,5 +96,6 @@ module.exports = {
   getTaskById,
   updateTask,
   deleteTask,
+  verifyTask,
   updateTaskStatus,
 };

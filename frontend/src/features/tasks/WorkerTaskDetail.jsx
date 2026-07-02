@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../app/api';
+import ProofSubmissionForm from '../submissions/ProofSubmissionForm';
 
 function formatDate(value) {
   if (!value) {
@@ -67,6 +68,10 @@ export default function WorkerTaskDetail({ task, onStatusUpdated }) {
         <Link to="/worker/dashboard" className="rounded-2xl border border-slate-700 px-5 py-3 font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white">
           Back to tasks
         </Link>
+      </div>
+
+      <div className="mt-6">
+        <ProofSubmissionForm task={task} onSubmitted={onStatusUpdated} />
       </div>
     </section>
   );

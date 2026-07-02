@@ -20,7 +20,7 @@ function LoadingRows() {
   );
 }
 
-export default function TaskList({ refreshToken, onEditTask, onDeleted }) {
+export default function TaskList({ refreshToken, onEditTask, onDeleted, onReviewTask }) {
   const [tasks, setTasks] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1, total: 0 });
   const [statusFilter, setStatusFilter] = useState('');
@@ -138,6 +138,13 @@ export default function TaskList({ refreshToken, onEditTask, onDeleted }) {
                         </button>
                         <button
                           type="button"
+                          onClick={() => onReviewTask?.(task)}
+                          className="rounded-xl border border-emerald-500/40 px-3 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/10"
+                        >
+                          Review
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => handleDelete(task._id)}
                           className="rounded-xl border border-rose-500/40 px-3 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-500/10"
                         >
@@ -194,6 +201,13 @@ export default function TaskList({ refreshToken, onEditTask, onDeleted }) {
                     className="flex-1 rounded-xl border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-200"
                   >
                     Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onReviewTask?.(task)}
+                    className="flex-1 rounded-xl border border-emerald-500/40 px-3 py-2 text-sm font-semibold text-emerald-300"
+                  >
+                    Review
                   </button>
                   <button
                     type="button"
