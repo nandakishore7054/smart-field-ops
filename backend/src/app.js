@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const authRoutes = require('./modules/auth/auth.routes');
+const usersRoutes = require('./modules/users/users.routes');
 const errorMiddleware = require('./core/middlewares/error.middleware');
 const ApiError = require('./core/utils/apiError');
 const { environment } = require('./config/environment');
@@ -32,6 +33,7 @@ app.get('/api/health', (_request, response) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
 
 app.use((_request, _response, next) => {
   next(new ApiError(404, 'The requested resource was not found.'));

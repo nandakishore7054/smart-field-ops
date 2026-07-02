@@ -27,7 +27,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   async function handleSubmit(event) {
@@ -43,11 +43,12 @@ export default function Login() {
     setServerMessage('');
 
     try {
-      await login({
+      const payload = await login({
         email: formState.email.trim(),
         password: formState.password,
       });
-      navigate('/', { replace: true });
+      const nextRoute = payload.user?.role === 'worker' ? '/worker/dashboard' : '/admin/dashboard';
+      navigate(nextRoute, { replace: true });
     } catch (error) {
       setServerMessage(error.response?.data?.message || 'Unable to sign in.');
     } finally {
