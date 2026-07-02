@@ -8,6 +8,7 @@ import Login from './features/auth/Login';
 import Register from './features/auth/Register';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import WorkerDashboard from './pages/worker/WorkerDashboard';
+import DispatchBoard from './pages/admin/DispatchBoard';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
           <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'dispatcher' ]} />}>
             <Route element={<AdminLayout />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/dispatch-board" element={<DispatchBoard />} />
             </Route>
           </Route>
           <Route element={<ProtectedRoute allowedRoles={[ 'worker' ]} />}>

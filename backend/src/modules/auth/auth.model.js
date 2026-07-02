@@ -41,7 +41,6 @@ const authSchema = new mongoose.Schema(
   }
 );
 
-authSchema.index({ email: 1 }, { unique: true });
 authSchema.index({ role: 1, status: 1 });
 
 module.exports = mongoose.model('User', authSchema);
