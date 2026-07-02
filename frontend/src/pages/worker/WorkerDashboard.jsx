@@ -1,22 +1,53 @@
+import { useEffect, useState } from 'react';
+import api from '../../app/api';
+import WorkerTaskList from '../../features/tasks/WorkerTaskList';
+
 export default function WorkerDashboard() {
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadTasks() {
+      setLoading(true);
+      setError('');
+
+      try {
+        const response = await api.get('/tasks/my-tasks');
+        if (isMounted) {
+          setTasks(response.data?.data?.tasks || []);
+        }
+      } catch (requestError) {
+        if (isMounted) {
+          setError(requestError.response?.data?.message || 'Unable to load your tasks.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadTasks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <section className="space-y-6">
       <div>
         <p className="text-sm uppercase tracking-[0.3em] text-sky-300">Worker Dashboard</p>
         <h2 className="mt-2 text-3xl font-semibold text-white">Your task queue</h2>
         <p className="mt-2 max-w-2xl text-slate-400">
-          This placeholder page confirms the worker layout and protected routing for Phase 2.
+          This worker view is limited to assigned tasks and supports offline-friendly shell rendering.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {['Today', 'Upcoming', 'Completed'].map((card) => (
-          <article key={card} className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5">
-            <p className="text-sm text-slate-400">{card}</p>
-            <div className="mt-4 h-28 rounded-2xl border border-dashed border-slate-700 bg-slate-950/60" />
-          </article>
-        ))}
-      </div>
+      <WorkerTaskList tasks={tasks} loading={loading} error={error} />
     </section>
   );
 }

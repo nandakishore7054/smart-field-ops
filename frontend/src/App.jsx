@@ -9,6 +9,7 @@ import Register from './features/auth/Register';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import WorkerDashboard from './pages/worker/WorkerDashboard';
 import DispatchBoard from './pages/admin/DispatchBoard';
+import TaskDetail from './pages/worker/TaskDetail';
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
           <Route element={<ProtectedRoute allowedRoles={[ 'worker' ]} />}>
             <Route element={<WorkerLayout />}>
               <Route path="/worker/dashboard" element={<WorkerDashboard />} />
+              <Route path="/worker/tasks/:id" element={<TaskDetail />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

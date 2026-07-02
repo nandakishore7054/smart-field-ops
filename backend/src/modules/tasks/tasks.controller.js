@@ -56,10 +56,30 @@ const deleteTask = asyncHandler(async (request, response) => {
   return successResponse(response, 200, { task });
 });
 
+const listMyTasks = asyncHandler(async (request, response) => {
+  const data = await tasksService.getMyTasks(request.user._id);
+
+  return successResponse(response, 200, data);
+});
+
+const updateTaskStatus = asyncHandler(async (request, response) => {
+  const { status } = request.body;
+
+  if (status !== 'in-progress') {
+    throw new ApiError(400, 'Status must be in-progress.');
+  }
+
+  const task = await tasksService.updateTaskStatus(request.params.id, request.user._id, status);
+
+  return successResponse(response, 200, { task });
+});
+
 module.exports = {
   createTask,
   listTasks,
+  listMyTasks,
   getTaskById,
   updateTask,
   deleteTask,
+  updateTaskStatus,
 };

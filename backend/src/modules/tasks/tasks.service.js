@@ -76,6 +76,19 @@ async function getTasks({ page, limit, status, sort }) {
   };
 }
 
+async function getMyTasks(workerId) {
+  const tasks = await Task.find({
+    assignedTo: workerId,
+    isDeleted: false,
+  })
+    .populate('assignedTo', 'name email status role')
+    .populate('createdBy', 'name email role')
+    .sort({ deadline: 1, createdAt: -1 })
+    .lean();
+
+  return { tasks };
+}
+
 async function getTaskById(taskId) {
   const task = await Task.findOne({ _id: taskId, isDeleted: false })
     .populate('assignedTo', 'name email status role')
@@ -128,10 +141,33 @@ async function deleteTask(taskId) {
   return normalizeTaskDocument(task);
 }
 
+async function updateTaskStatus(taskId, workerId, nextStatus) {
+  const task = await Task.findOne({ _id: taskId, isDeleted: false });
+
+  if (!task) {
+    throw new ApiError(404, 'Task not found.');
+  }
+
+  if (!task.assignedTo || task.assignedTo.toString() !== workerId.toString()) {
+    throw new ApiError(403, 'You can only update tasks assigned to you.');
+  }
+
+  if (task.status !== 'assigned' || nextStatus !== 'in-progress') {
+    throw new ApiError(400, 'Invalid task status transition.');
+  }
+
+  task.status = nextStatus;
+  await task.save();
+
+  return normalizeTaskDocument(task);
+}
+
 module.exports = {
   createTask,
   getTasks,
+  getMyTasks,
   getTaskById,
   updateTask,
   deleteTask,
+  updateTaskStatus,
 };
