@@ -7,6 +7,7 @@ const authRoutes = require('./modules/auth/auth.routes');
 const usersRoutes = require('./modules/users/users.routes');
 const tasksRoutes = require('./modules/tasks/tasks.routes');
 const submissionsRoutes = require('./modules/submissions/submissions.routes');
+const notificationsRoutes = require('./modules/notifications/notifications.routes');
 const errorMiddleware = require('./core/middlewares/error.middleware');
 const ApiError = require('./core/utils/apiError');
 const { environment } = require('./config/environment');
@@ -37,6 +38,7 @@ app.get('/api/health', (_request, response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/tasks', tasksRoutes);
+app.use('/api/notifications', notificationsRoutes);
 app.use('/api', submissionsRoutes);
 
 app.use((_request, _response, next) => {

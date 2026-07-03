@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './app/auth-context';
 import ProtectedRoute from './common/components/ProtectedRoute';
 import AdminLayout from './common/layouts/AdminLayout';
@@ -34,6 +35,13 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      <Toaster position="top-right" toastOptions={{
+        style: {
+          background: '#1e293b',
+          color: '#f8fafc',
+          border: '1px solid #334155',
+        }
+      }} />
     </AuthProvider>
   );
 }

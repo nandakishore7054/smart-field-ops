@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import api, { clearSession, setAccessToken } from './api';
+import { connectSocket, disconnectSocket } from './socket';
 
 const AuthContext = createContext(null);
 
@@ -62,6 +63,14 @@ export function AuthProvider({ children }) {
     clearSession();
     setUser(null);
   }
+
+  useEffect(() => {
+    if (user) {
+      connectSocket(user);
+    } else {
+      disconnectSocket();
+    }
+  }, [user]);
 
   const value = useMemo(
     () => ({

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../app/api';
+import { socket } from '../../app/socket';
 import TaskForm from '../../features/tasks/TaskForm';
 import TaskList from '../../features/tasks/TaskList';
 import AdminVerificationView from '../../features/submissions/AdminVerificationView';
@@ -10,6 +11,24 @@ export default function DispatchBoard() {
   const [selectedReviewTask, setSelectedReviewTask] = useState(null);
   const [loadingReview, setLoadingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
+
+  useEffect(() => {
+    function handleSubmissionCreated() {
+      setRefreshToken((value) => value + 1);
+    }
+    
+    function handleTaskCreated() {
+      setRefreshToken((value) => value + 1);
+    }
+
+    socket.on('submission:created', handleSubmissionCreated);
+    socket.on('task:created', handleTaskCreated);
+
+    return () => {
+      socket.off('submission:created', handleSubmissionCreated);
+      socket.off('task:created', handleTaskCreated);
+    };
+  }, []);
 
   function handleSaved() {
     setEditingTask(null);

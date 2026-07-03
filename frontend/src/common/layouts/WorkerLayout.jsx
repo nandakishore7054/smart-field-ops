@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const navItems = [{ to: '/worker/dashboard', label: 'Tasks' }];
 
@@ -19,8 +20,11 @@ export default function WorkerLayout() {
             <h1 className="text-2xl font-semibold">Worker Dashboard</h1>
             <p className="text-sm text-slate-400">Your assigned work in one place.</p>
           </div>
-          <div className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-2 text-sm text-slate-300">
-            Mobile first
+          <div className="flex items-center gap-3">
+            <NotificationDropdown />
+            <div className="hidden sm:block rounded-2xl border border-slate-700 bg-slate-950 px-4 py-2 text-sm text-slate-300">
+              Mobile first
+            </div>
           </div>
         </div>
       </header>

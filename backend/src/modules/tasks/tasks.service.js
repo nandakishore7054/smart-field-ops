@@ -2,6 +2,8 @@ const Task = require('./tasks.model');
 const User = require('../auth/auth.model');
 const ApiError = require('../../core/utils/apiError');
 const Submission = require('../submissions/submissions.model');
+const { createNotification } = require('../notifications/notifications.service');
+const { sendEmail } = require('../../config/mailer');
 
 async function assertValidAssignee(assignedTo) {
   if (!assignedTo) {
@@ -36,6 +38,10 @@ function normalizeSubmission(submission) {
 
 async function createTask(payload, actorId) {
   const assignedTo = await assertValidAssignee(payload.assignedTo || null);
+  let worker = null;
+  if (assignedTo) {
+    worker = await User.findById(assignedTo).lean();
+  }
 
   const task = await Task.create({
     title: payload.title,
@@ -49,7 +55,28 @@ async function createTask(payload, actorId) {
     status: assignedTo ? 'assigned' : 'unassigned',
   });
 
-  return normalizeTaskDocument(task);
+  const normalizedTask = normalizeTaskDocument(task);
+
+  if (worker) {
+    const notification = await createNotification({
+      userId: worker._id,
+      message: `You have been assigned a new task: ${task.title}`,
+      type: 'task:created',
+      relatedTaskId: task._id,
+    });
+
+    if (global.io) {
+      global.io.to(worker._id.toString()).emit('task:created', { task: normalizedTask, notification });
+    }
+
+    sendEmail({
+      to: worker.email,
+      subject: 'New Task Assigned',
+      text: `You have been assigned a new task: ${task.title}. Priority: ${task.priority}.`,
+    });
+  }
+
+  return normalizedTask;
 }
 
 async function getTasks({ page, limit, status, sort }) {
@@ -179,6 +206,30 @@ async function verifyTask(taskId, adminId, payload) {
 
   task.status = payload.isVerified ? 'verified' : 'rejected';
   await task.save();
+
+  const worker = await User.findById(task.assignedTo).lean();
+  if (worker) {
+    const statusText = payload.isVerified ? 'verified' : 'rejected';
+    const notification = await createNotification({
+      userId: worker._id,
+      message: `Your submission for task "${task.title}" was ${statusText}.`,
+      type: 'task:verified',
+      relatedTaskId: task._id,
+    });
+
+    if (global.io) {
+      global.io.to(worker._id.toString()).emit('task:verified', {
+        task: normalizeTaskDocument(task),
+        notification,
+      });
+    }
+
+    sendEmail({
+      to: worker.email,
+      subject: `Task Submission ${statusText.charAt(0).toUpperCase() + statusText.slice(1)}`,
+      text: `Your submission for task "${task.title}" has been ${statusText}. Feedback: ${payload.verificationFeedback || 'None'}`,
+    });
+  }
 
   return {
     task: normalizeTaskDocument(task),

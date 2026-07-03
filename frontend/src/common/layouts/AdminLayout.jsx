@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const navItems = [{ to: '/admin/dashboard', label: 'Dashboard' }];
 
@@ -34,8 +35,11 @@ export default function AdminLayout() {
               <p className="text-sm text-slate-400">Role-based access</p>
               <p className="text-lg font-semibold text-white">Operations management</p>
             </div>
-            <div className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-2 text-sm text-slate-300">
-              Admin / Dispatcher
+            <div className="flex items-center gap-4">
+              <NotificationDropdown />
+              <div className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-2 text-sm text-slate-300">
+                Admin / Dispatcher
+              </div>
             </div>
           </div>
         </header>
