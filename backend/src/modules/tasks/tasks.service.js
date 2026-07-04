@@ -79,11 +79,22 @@ async function createTask(payload, actorId) {
   return normalizedTask;
 }
 
-async function getTasks({ page, limit, status, sort }) {
+async function getTasks({ page, limit, status, search, priority, sort }) {
   const filter = { isDeleted: false };
 
   if (status) {
     filter.status = status;
+  }
+  
+  if (priority) {
+    filter.priority = priority;
+  }
+
+  if (search) {
+    filter.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { locationAddress: { $regex: search, $options: 'i' } }
+    ];
   }
 
   const skip = (page - 1) * limit;

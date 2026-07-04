@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './app/auth-context';
+import { ThemeProvider } from './app/theme-context';
 import ProtectedRoute from './common/components/ProtectedRoute';
 import AdminLayout from './common/layouts/AdminLayout';
 import WorkerLayout from './common/layouts/WorkerLayout';
@@ -12,9 +13,13 @@ import WorkerDashboard from './pages/worker/WorkerDashboard';
 import DispatchBoard from './pages/admin/DispatchBoard';
 import TaskDetail from './pages/worker/TaskDetail';
 
+import UserManagement from './pages/admin/UserManagement';
+import Settings from './pages/Settings';
+
 export default function App() {
   return (
-    <AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -22,14 +27,19 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'dispatcher' ]} />}>
             <Route element={<AdminLayout />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<UserManagement />} />
+              </Route>
               <Route path="/admin/dispatch-board" element={<DispatchBoard />} />
+              <Route path="/admin/settings" element={<Settings />} />
             </Route>
           </Route>
           <Route element={<ProtectedRoute allowedRoles={[ 'worker' ]} />}>
             <Route element={<WorkerLayout />}>
               <Route path="/worker/dashboard" element={<WorkerDashboard />} />
               <Route path="/worker/tasks/:id" element={<TaskDetail />} />
+              <Route path="/worker/settings" element={<Settings />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -42,6 +52,7 @@ export default function App() {
           border: '1px solid #334155',
         }
       }} />
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

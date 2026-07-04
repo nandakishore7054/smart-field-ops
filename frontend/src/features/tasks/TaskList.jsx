@@ -24,10 +24,12 @@ export default function TaskList({ refreshToken, onEditTask, onDeleted, onReview
   const [tasks, setTasks] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 1, total: 0 });
   const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [serverMessage, setServerMessage] = useState('');
 
-  async function loadTasks(nextPage = pagination.page, nextStatus = statusFilter) {
+  async function loadTasks(nextPage = pagination.page, nextStatus = statusFilter, nextPriority = priorityFilter, nextSearch = search) {
     setLoading(true);
     setServerMessage('');
 
@@ -37,6 +39,8 @@ export default function TaskList({ refreshToken, onEditTask, onDeleted, onReview
           page: nextPage,
           limit: pagination.limit,
           status: nextStatus || undefined,
+          priority: nextPriority || undefined,
+          search: nextSearch || undefined,
         },
       });
 
@@ -54,9 +58,9 @@ export default function TaskList({ refreshToken, onEditTask, onDeleted, onReview
   }
 
   useEffect(() => {
-    loadTasks(1, statusFilter);
+    loadTasks(1, statusFilter, priorityFilter, search);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshToken, statusFilter]);
+  }, [refreshToken, statusFilter, priorityFilter, search]);
 
   async function handleDelete(taskId) {
     if (!window.confirm('Delete this task?')) {
@@ -73,19 +77,27 @@ export default function TaskList({ refreshToken, onEditTask, onDeleted, onReview
   }
 
   return (
-    <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6">
-      <div className="flex flex-col gap-4 border-b border-slate-800 pb-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-sky-300">Task list</p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">Existing tasks</h3>
+    <section className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 p-5 sm:p-6 shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div className="flex justify-between items-end">
+          <div>
+            <p className="text-sm uppercase tracking-[0.3em] text-sky-500 dark:text-sky-300">Task list</p>
+            <h3 className="mt-2 text-2xl font-semibold">Existing tasks</h3>
+          </div>
         </div>
 
-        <label className="grid gap-2">
-          <span className="text-xs uppercase tracking-[0.2em] text-slate-400">Filter by status</span>
+        <div className="grid sm:grid-cols-3 gap-3">
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2 text-sm outline-none focus:border-sky-500"
+          />
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-sky-400"
+            className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2 text-sm outline-none focus:border-sky-500"
           >
             <option value="">All statuses</option>
             {['unassigned', 'assigned', 'in-progress', 'completed', 'verified'].map((status) => (
@@ -94,15 +106,27 @@ export default function TaskList({ refreshToken, onEditTask, onDeleted, onReview
               </option>
             ))}
           </select>
-        </label>
+          <select
+            value={priorityFilter}
+            onChange={(event) => setPriorityFilter(event.target.value)}
+            className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2 text-sm outline-none focus:border-sky-500"
+          >
+            <option value="">All priorities</option>
+            {['low', 'medium', 'high', 'urgent'].map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {serverMessage ? <p className="mt-4 rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{serverMessage}</p> : null}
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-slate-800">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
         <div className="hidden overflow-x-auto lg:block">
-          <table className="min-w-full divide-y divide-slate-800">
-            <thead className="bg-slate-950/80 text-left text-xs uppercase tracking-[0.2em] text-slate-400">
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-950/80 text-left text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
               <tr>
                 <th className="px-4 py-3">Title</th>
                 <th className="px-4 py-3">Priority</th>
@@ -113,7 +137,7 @@ export default function TaskList({ refreshToken, onEditTask, onDeleted, onReview
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-800 bg-slate-900/60 text-sm text-slate-200">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900/60 text-sm">
               {loading ? (
                 <LoadingRows />
               ) : tasks.length > 0 ? (
@@ -165,10 +189,10 @@ export default function TaskList({ refreshToken, onEditTask, onDeleted, onReview
           </table>
         </div>
 
-        <div className="grid gap-4 bg-slate-900/60 p-4 lg:hidden">
+        <div className="grid gap-4 bg-slate-50 dark:bg-slate-900/60 p-4 lg:hidden">
           {loading ? (
             Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="h-28 animate-pulse rounded-2xl bg-slate-800/80" />
+              <div key={index} className="h-28 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800/80" />
             ))
           ) : tasks.length > 0 ? (
             tasks.map((task) => (

@@ -79,5 +79,6 @@ const taskSchema = new mongoose.Schema(
 taskSchema.index({ assignedTo: 1, status: 1 });
 taskSchema.index({ status: 1, deadline: 1 });
 taskSchema.index({ locationCoordinates: '2dsphere' });
+taskSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Task', taskSchema);

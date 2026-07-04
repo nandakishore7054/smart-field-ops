@@ -48,6 +48,8 @@ const taskQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional().default(1),
   limit: z.coerce.number().int().min(1).max(100).optional().default(10),
   status: taskStatusEnum.optional(),
+  search: z.string().trim().optional(),
+  priority: priorityEnum.optional(),
   sort: z.string().trim().optional().default('-createdAt'),
 });
 

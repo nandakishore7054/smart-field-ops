@@ -2,7 +2,9 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../app/auth-context';
 
 function getDefaultDashboard(role) {
-  return role === 'worker' ? '/worker/dashboard' : '/admin/dashboard';
+  if (role === 'worker') return '/worker/dashboard';
+  if (role === 'dispatcher') return '/admin/dispatch-board';
+  return '/admin/dashboard';
 }
 
 export default function ProtectedRoute({ allowedRoles }) {

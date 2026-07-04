@@ -20,13 +20,15 @@ function validateLoginForm(formState) {
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { user, login, isAuthenticated } = useAuth();
   const [formState, setFormState] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [serverMessage, setServerMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isAuthenticated) {
+    if (user?.role === 'worker') return <Navigate to="/worker/dashboard" replace />;
+    if (user?.role === 'dispatcher') return <Navigate to="/admin/dispatch-board" replace />;
     return <Navigate to="/admin/dashboard" replace />;
   }
 
@@ -47,7 +49,10 @@ export default function Login() {
         email: formState.email.trim(),
         password: formState.password,
       });
-      const nextRoute = payload.user?.role === 'worker' ? '/worker/dashboard' : '/admin/dashboard';
+      let nextRoute = '/admin/dashboard';
+      if (payload.user?.role === 'worker') nextRoute = '/worker/dashboard';
+      if (payload.user?.role === 'dispatcher') nextRoute = '/admin/dispatch-board';
+      
       navigate(nextRoute, { replace: true });
     } catch (error) {
       setServerMessage(error.response?.data?.message || 'Unable to sign in.');

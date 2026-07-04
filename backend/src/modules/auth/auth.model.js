@@ -35,6 +35,15 @@ const authSchema = new mongoose.Schema(
       select: false,
       default: null,
     },
+    avatarUrl: {
+      type: String,
+      default: null,
+    },
+    phone: {
+      type: String,
+      trim: true,
+      default: '',
+    },
   },
   {
     timestamps: true,

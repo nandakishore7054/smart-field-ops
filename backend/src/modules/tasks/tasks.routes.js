@@ -10,13 +10,12 @@ router.use(protect);
 router.get('/my-tasks', requireRoles('worker'), tasksController.listMyTasks);
 router.patch('/:id/status', requireRoles('worker'), tasksController.updateTaskStatus);
 
-router.use(requireRoles('admin'));
+router.post('/', requireRoles('admin', 'dispatcher'), tasksController.createTask);
+router.get('/', requireRoles('admin', 'dispatcher'), tasksController.listTasks);
+router.get('/:id', requireRoles('admin', 'dispatcher'), tasksController.getTaskById);
+router.put('/:id', requireRoles('admin', 'dispatcher'), tasksController.updateTask);
 
-router.post('/', tasksController.createTask);
-router.get('/', tasksController.listTasks);
-router.get('/:id', tasksController.getTaskById);
-router.patch('/:id/verify', tasksController.verifyTask);
-router.put('/:id', tasksController.updateTask);
-router.delete('/:id', tasksController.deleteTask);
+router.patch('/:id/verify', requireRoles('admin'), tasksController.verifyTask);
+router.delete('/:id', requireRoles('admin'), tasksController.deleteTask);
 
 module.exports = router;

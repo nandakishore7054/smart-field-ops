@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('./auth.model');
 const ApiError = require('../../core/utils/apiError');
 const { environment } = require('../../config/environment');
+const { sendEmail } = require('../../config/mailer');
 
 function sanitizeUser(user) {
   const plainUser = user.toObject ? user.toObject() : { ...user };
@@ -49,6 +50,15 @@ async function registerUser({ name, email, password, role }) {
   const tokens = generateTokenPair(user);
   user.refreshToken = tokens.refreshToken;
   await user.save({ validateModifiedOnly: true });
+
+  // Send Welcome Email (Non-blocking)
+  sendEmail({
+    to: user.email,
+    subject: 'Welcome to Smart Field Operations',
+    text: `Hi ${user.name},\n\nYour account has been created successfully.\n\nRole: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}\n\nYou can now login and start using the system.\n\nRegards,\nSmart Field Operations Team`,
+  }).catch((err) => {
+    console.error('Failed to send welcome email:', err);
+  });
 
   return {
     user: sanitizeUser(user),

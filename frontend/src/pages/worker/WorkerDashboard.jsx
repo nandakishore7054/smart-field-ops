@@ -6,6 +6,7 @@ export default function WorkerDashboard() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState('today');
 
   useEffect(() => {
     let isMounted = true;
@@ -37,17 +38,57 @@ export default function WorkerDashboard() {
     };
   }, []);
 
+  const getFilteredTasks = () => {
+    const now = new Date();
+    const todayStr = now.toDateString();
+
+    return tasks.filter(task => {
+      const isCompleted = task.status === 'completed' || task.status === 'verified' || task.status === 'rejected';
+      if (activeTab === 'completed') return isCompleted;
+
+      if (isCompleted) return false;
+
+      if (activeTab === 'today') {
+        if (!task.deadline) return true; // No deadline -> treat as anytime
+        const deadlineDate = new Date(task.deadline);
+        return deadlineDate <= now || deadlineDate.toDateString() === todayStr;
+      }
+
+      if (activeTab === 'upcoming') {
+        if (!task.deadline) return false;
+        const deadlineDate = new Date(task.deadline);
+        return deadlineDate > now && deadlineDate.toDateString() !== todayStr;
+      }
+
+      return true;
+    });
+  };
+
+  const filteredTasks = getFilteredTasks();
+
   return (
     <section className="space-y-6">
       <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-sky-300">Worker Dashboard</p>
-        <h2 className="mt-2 text-3xl font-semibold text-white">Your task queue</h2>
-        <p className="mt-2 max-w-2xl text-slate-400">
-          This worker view is limited to assigned tasks and supports offline-friendly shell rendering.
-        </p>
+        <h2 className="text-3xl font-semibold">Your task queue</h2>
       </div>
 
-      <WorkerTaskList tasks={tasks} loading={loading} error={error} />
+      <div className="flex space-x-2 border-b border-slate-200 dark:border-slate-800 pb-px">
+        {['today', 'upcoming', 'completed'].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition-colors ${
+              activeTab === tab
+                ? 'border-sky-500 text-sky-600 dark:text-sky-400'
+                : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      <WorkerTaskList tasks={filteredTasks} loading={loading} error={error} />
     </section>
   );
 }

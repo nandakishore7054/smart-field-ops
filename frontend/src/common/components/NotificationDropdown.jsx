@@ -37,10 +37,7 @@ export default function NotificationDropdown() {
       }
     }
 
-    function handleSubmissionCreated({ submission, task }) {
-      // In this event, we might not get a 'notification' object directly if it's broad to 'admin' room
-      // Wait, in submissions.service.js we don't emit the notification object. We just emit the submission.
-      // I should update submissions.service.js to emit a message or I can just generate one here.
+    function handleSubmissionCreated({ task }) {
       const message = `Worker has submitted proof for task: ${task.title}`;
       const newNotif = {
         _id: `temp-${Date.now()}`,
@@ -97,46 +94,74 @@ export default function NotificationDropdown() {
     }
   }
 
+  async function markAllAsRead() {
+    const unread = notifications.filter(n => !n.isRead);
+    if (!unread.length) return;
+
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+
+    try {
+      await Promise.all(unread.map(n => {
+        if (!n._id.startsWith('temp-')) {
+          return api.patch(`/notifications/${n._id}/read`, { isRead: true });
+        }
+        return Promise.resolve();
+      }));
+    } catch (error) {
+      console.error('Failed to mark all as read:', error);
+    }
+  }
+
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition"
+        className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
           <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">
+          <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-slate-900">
             {unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 shadow-xl z-50">
-          <div className="border-b border-slate-700 bg-slate-900 px-4 py-3">
-            <h3 className="font-semibold text-white">Notifications</h3>
+        <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl z-50 flex flex-col max-h-[32rem]">
+          <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-4 py-3 flex justify-between items-center">
+            <h3 className="font-semibold text-slate-900 dark:text-white">Notifications</h3>
+            {unreadCount > 0 && (
+              <button 
+                onClick={markAllAsRead}
+                className="text-xs font-medium text-sky-500 hover:text-sky-600 dark:hover:text-sky-400 transition"
+              >
+                Mark all as read
+              </button>
+            )}
           </div>
-          <div className="max-h-96 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             {notifications.length === 0 ? (
-              <p className="p-4 text-center text-sm text-slate-400">No notifications.</p>
+              <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">No notifications.</p>
             ) : (
               notifications.map((notification) => (
                 <div
                   key={notification._id}
                   onClick={() => markAsRead(notification._id)}
-                  className={`cursor-pointer border-b border-slate-700/50 p-4 transition hover:bg-slate-700 ${
-                    notification.isRead ? 'opacity-70' : 'bg-slate-750'
+                  className={`cursor-pointer border-b border-slate-100 dark:border-slate-700/50 p-4 transition hover:bg-slate-50 dark:hover:bg-slate-700 ${
+                    notification.isRead 
+                      ? 'bg-transparent opacity-70' 
+                      : 'bg-sky-50/50 dark:bg-slate-750'
                   }`}
                 >
-                  <p className={`text-sm ${notification.isRead ? 'text-slate-300' : 'font-medium text-white'}`}>
+                  <p className={`text-sm ${notification.isRead ? 'text-slate-600 dark:text-slate-300' : 'font-medium text-slate-900 dark:text-white'}`}>
                     {notification.message}
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     {new Date(notification.createdAt).toLocaleString()}
                   </p>
                 </div>
