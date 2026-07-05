@@ -44,6 +44,19 @@ const authSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    resetPasswordToken: {
+      type: String,
+      select: false,
+    },
+    resetPasswordExpire: {
+      type: Date,
+      select: false,
+    },
+    shiftId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shift',
+      default: null,
+    },
   },
   {
     timestamps: true,

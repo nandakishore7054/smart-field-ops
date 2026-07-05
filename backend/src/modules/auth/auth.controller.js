@@ -69,9 +69,37 @@ const me = asyncHandler(async (request, response) =>
   })
 );
 
+const forgotPassword = asyncHandler(async (request, response) => {
+  if (!request.body.email) {
+    throw new ApiError(400, 'Please provide an email address.');
+  }
+
+  await authService.forgotPassword(request.body.email);
+
+  return successResponse(response, 200, {
+    message: 'Password reset link sent to your email.',
+  });
+});
+
+const resetPassword = asyncHandler(async (request, response) => {
+  const { token, newPassword } = request.body;
+
+  if (!token || !newPassword) {
+    throw new ApiError(400, 'Please provide token and new password.');
+  }
+
+  await authService.resetPassword(token, newPassword);
+
+  return successResponse(response, 200, {
+    message: 'Password has been reset successfully.',
+  });
+});
+
 module.exports = {
   register,
   login,
   refreshToken,
   me,
+  forgotPassword,
+  resetPassword,
 };

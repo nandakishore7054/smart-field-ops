@@ -37,11 +37,15 @@ app.get('/api/health', (_request, response) => {
   });
 });
 
+const { attendanceRouter, shiftsRouter } = require('./modules/attendance/attendance.routes');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/attendance', attendanceRouter);
+app.use('/api/shifts', shiftsRouter);
 app.use('/api', availabilityRoutes);
 app.use('/api', submissionsRoutes);
 

@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('./auth.model');
 const ApiError = require('../../core/utils/apiError');
 const { environment } = require('../../config/environment');
@@ -67,7 +68,7 @@ async function registerUser({ name, email, password, role }) {
 }
 
 async function loginUser({ email, password }) {
-  const user = await User.findOne({ email }).select('+password +refreshToken');
+  const user = await User.findOne({ email }).select('+password +refreshToken').populate('shiftId');
 
   if (!user) {
     throw new ApiError(401, 'Invalid email or password.');
@@ -102,7 +103,7 @@ async function refreshUserSession(refreshToken) {
     throw new ApiError(401, 'Refresh token is invalid or expired.');
   }
 
-  const user = await User.findById(decoded.sub).select('+refreshToken');
+  const user = await User.findById(decoded.sub).select('+refreshToken').populate('shiftId');
 
   if (!user || user.refreshToken !== refreshToken) {
     throw new ApiError(401, 'Refresh token is no longer valid.');
@@ -118,8 +119,49 @@ async function refreshUserSession(refreshToken) {
   };
 }
 
+async function forgotPassword(email) {
+  const user = await User.findOne({ email });
+  if (!user) return; // Fail silently for security
+
+  const resetToken = crypto.randomBytes(20).toString('hex');
+  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+  await user.save({ validateModifiedOnly: true });
+
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+  await sendEmail({
+    to: user.email,
+    subject: 'Password Reset Request',
+    text: `You requested a password reset.\n\nPlease click on the following link to reset your password:\n${resetUrl}\n\nIf you did not request this, please ignore this email.`,
+  });
+}
+
+async function resetPassword(token, newPassword) {
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  }).select('+resetPasswordToken +resetPasswordExpire +password');
+
+  if (!user) {
+    throw new ApiError(400, 'Invalid or expired password reset token.');
+  }
+
+  user.password = await bcrypt.hash(newPassword, 12);
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save({ validateModifiedOnly: true });
+}
+
 module.exports = {
   registerUser,
   loginUser,
   refreshUserSession,
+  forgotPassword,
+  resetPassword,
 };

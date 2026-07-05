@@ -14,7 +14,7 @@ async function protect(request, _response, next) {
 
   try {
     const decoded = jwt.verify(token, environment.accessTokenSecret);
-    const user = await User.findById(decoded.sub).select('-password -refreshToken');
+    const user = await User.findById(decoded.sub).select('-password -refreshToken').populate('shiftId');
 
     if (!user) {
       return next(new ApiError(401, 'The authenticated user no longer exists.'));

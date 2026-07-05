@@ -67,7 +67,6 @@ const submissionSchema = new mongoose.Schema(
   }
 );
 
-submissionSchema.index({ taskId: 1 }, { unique: true });
 submissionSchema.index({ workerId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Submission', submissionSchema);

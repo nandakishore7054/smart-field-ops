@@ -17,6 +17,11 @@ import UserManagement from './pages/admin/UserManagement';
 import Settings from './pages/Settings';
 import MyAvailability from './pages/worker/MyAvailability';
 import AvailabilityManagement from './pages/admin/AvailabilityManagement';
+import AttendanceDashboard from './pages/admin/AttendanceDashboard';
+import CheckIn from './pages/worker/CheckIn';
+
+import ForgotPassword from './features/auth/ForgotPassword';
+import ResetPassword from './features/auth/ResetPassword';
 
 export default function App() {
   return (
@@ -27,6 +32,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'dispatcher' ]} />}>
             <Route element={<AdminLayout />}>
               <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
@@ -35,6 +42,7 @@ export default function App() {
               </Route>
               <Route path="/admin/dispatch-board" element={<DispatchBoard />} />
               <Route path="/admin/availability" element={<AvailabilityManagement />} />
+              <Route path="/admin/attendance" element={<AttendanceDashboard />} />
               <Route path="/admin/settings" element={<Settings />} />
             </Route>
           </Route>
@@ -42,6 +50,7 @@ export default function App() {
             <Route element={<WorkerLayout />}>
               <Route path="/worker/dashboard" element={<WorkerDashboard />} />
               <Route path="/worker/tasks/:id" element={<TaskDetail />} />
+              <Route path="/worker/check-in" element={<CheckIn />} />
               <Route path="/worker/my-availability" element={<MyAvailability />} />
               <Route path="/worker/settings" element={<Settings />} />
             </Route>
