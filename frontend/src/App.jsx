@@ -15,6 +15,8 @@ import TaskDetail from './pages/worker/TaskDetail';
 
 import UserManagement from './pages/admin/UserManagement';
 import Settings from './pages/Settings';
+import MyAvailability from './pages/worker/MyAvailability';
+import AvailabilityManagement from './pages/admin/AvailabilityManagement';
 
 export default function App() {
   return (
@@ -32,6 +34,7 @@ export default function App() {
                 <Route path="/admin/users" element={<UserManagement />} />
               </Route>
               <Route path="/admin/dispatch-board" element={<DispatchBoard />} />
+              <Route path="/admin/availability" element={<AvailabilityManagement />} />
               <Route path="/admin/settings" element={<Settings />} />
             </Route>
           </Route>
@@ -39,6 +42,7 @@ export default function App() {
             <Route element={<WorkerLayout />}>
               <Route path="/worker/dashboard" element={<WorkerDashboard />} />
               <Route path="/worker/tasks/:id" element={<TaskDetail />} />
+              <Route path="/worker/my-availability" element={<MyAvailability />} />
               <Route path="/worker/settings" element={<Settings />} />
             </Route>
           </Route>

@@ -16,6 +16,7 @@ export default function WorkerLayout() {
 
   const navItems = [
     { to: '/worker/dashboard', label: 'Tasks' },
+    { to: '/worker/my-availability', label: 'Availability' },
     { to: '/worker/settings', label: 'Settings' },
   ];
 

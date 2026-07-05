@@ -23,6 +23,8 @@ export default function AdminLayout() {
     navItems.push({ to: '/admin/users', label: 'User Management' });
   }
 
+  navItems.push({ to: '/admin/availability', label: 'Availability' });
+
   navItems.push({ to: '/admin/settings', label: 'Settings' });
 
   const handleLogout = () => {

@@ -40,6 +40,7 @@ export default function TaskForm({ editingTask, onSaved, onCancel }) {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [serverMessage, setServerMessage] = useState('');
+  const [workerAvailabilityStatus, setWorkerAvailabilityStatus] = useState(null);
 
   const isEditing = Boolean(editingTask);
 
@@ -92,6 +93,37 @@ export default function TaskForm({ editingTask, onSaved, onCancel }) {
     () => workers.map((worker) => ({ value: worker._id, label: `${worker.name} (${worker.email})` })),
     [workers]
   );
+
+  useEffect(() => {
+    async function checkAvailability() {
+      if (!formState.assignedTo || !formState.deadline) {
+        setWorkerAvailabilityStatus(null);
+        return;
+      }
+      try {
+        const res = await api.get(`/availability/${formState.assignedTo}`);
+        const availabilities = res.data?.data || [];
+        
+        const date = new Date(formState.deadline);
+        const dayOfWeek = date.getDay();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const timeStr = `${hours}:${minutes}`;
+
+        const dayAvail = availabilities.find(a => a.dayOfWeek === dayOfWeek);
+        
+        if (!dayAvail || timeStr < dayAvail.startTime || timeStr > dayAvail.endTime) {
+          setWorkerAvailabilityStatus('Worker is unavailable during this time.');
+        } else {
+          setWorkerAvailabilityStatus(null);
+        }
+      } catch (e) {
+        console.error('Failed to fetch worker availability', e);
+      }
+    }
+    
+    checkAvailability();
+  }, [formState.assignedTo, formState.deadline]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -214,6 +246,9 @@ export default function TaskForm({ editingTask, onSaved, onCancel }) {
             ))}
           </select>
           {loadingWorkers ? <p className="text-xs text-slate-500">Loading workers...</p> : null}
+          {workerAvailabilityStatus && (
+            <p className="text-sm text-yellow-500 mt-1">{workerAvailabilityStatus}</p>
+          )}
         </label>
 
         {serverMessage ? <p className="rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{serverMessage}</p> : null}
