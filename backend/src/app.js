@@ -39,6 +39,7 @@ app.get('/api/health', (_request, response) => {
 
 const { attendanceRouter, shiftsRouter } = require('./modules/attendance/attendance.routes');
 const trackingRouter = require('./modules/tracking/tracking.routes');
+const geofenceRouter = require('./modules/tracking/geofence.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
@@ -48,6 +49,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/attendance', attendanceRouter);
 app.use('/api/shifts', shiftsRouter);
 app.use('/api/tracking', trackingRouter);
+app.use('/api/geofences', geofenceRouter);
 app.use('/api', availabilityRoutes);
 app.use('/api', submissionsRoutes);
 

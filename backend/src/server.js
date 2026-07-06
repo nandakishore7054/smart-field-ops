@@ -28,6 +28,9 @@ async function startServer() {
     });
   });
 
+  const { setupTrackingSockets } = require('./modules/tracking/tracking.socket');
+  setupTrackingSockets(io);
+
   global.io = io;
 
   server.listen(environment.port, () => {

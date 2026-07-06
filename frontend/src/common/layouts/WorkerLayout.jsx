@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import NotificationDropdown from '../components/NotificationDropdown';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import { useAuth } from '../../app/auth-context';
+import { socket } from '../../app/socket';
 
 function navLinkClassName({ isActive }) {
   return [
@@ -13,6 +15,47 @@ function navLinkClassName({ isActive }) {
 export default function WorkerLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user?._id) return;
+
+    let watchId;
+
+    if ('geolocation' in navigator) {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude, accuracy, speed, heading } = position.coords;
+          
+          socket.emit('worker:location-update', {
+            workerId: user._id,
+            latitude,
+            longitude,
+            accuracy: accuracy || undefined,
+            speed: speed || undefined,
+            heading: heading || undefined,
+            batteryLevel: 100, // Stub since Battery API is deprecated in most modern browsers
+            isMoving: speed !== null ? speed > 0 : undefined,
+            timestamp: new Date()
+          });
+        },
+        (error) => {
+          console.warn('Geolocation error:', error.message);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0
+        }
+      );
+    } else {
+      console.warn('Geolocation is not supported by this browser.');
+    }
+
+    return () => {
+      if (watchId !== undefined && 'geolocation' in navigator) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [user]);
 
   const navItems = [
     { to: '/worker/dashboard', label: 'Tasks' },

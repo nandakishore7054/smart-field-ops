@@ -22,6 +22,8 @@ import CheckIn from './pages/worker/CheckIn';
 
 import ForgotPassword from './features/auth/ForgotPassword';
 import ResetPassword from './features/auth/ResetPassword';
+import SocketTest from './pages/dev/SocketTest';
+import LiveTrackingDashboard from './pages/admin/LiveTrackingDashboard';
 
 export default function App() {
   return (
@@ -34,6 +36,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/dev/socket-test" element={<SocketTest />} />
           <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'dispatcher' ]} />}>
             <Route element={<AdminLayout />}>
               <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
@@ -43,6 +46,7 @@ export default function App() {
               <Route path="/admin/dispatch-board" element={<DispatchBoard />} />
               <Route path="/admin/availability" element={<AvailabilityManagement />} />
               <Route path="/admin/attendance" element={<AttendanceDashboard />} />
+              <Route path="/admin/tracking" element={<LiveTrackingDashboard />} />
               <Route path="/admin/settings" element={<Settings />} />
             </Route>
           </Route>

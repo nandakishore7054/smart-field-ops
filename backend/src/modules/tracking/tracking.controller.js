@@ -1,6 +1,7 @@
 const asyncHandler = require('../../core/utils/asyncHandler');
 const { successResponse } = require('../../core/utils/apiResponse');
 const trackingService = require('./tracking.service');
+const geofenceService = require('./geofence.service');
 const { parseLocation } = require('./tracking.validation');
 
 const submitLocation = asyncHandler(async (req, res) => {
@@ -10,6 +11,12 @@ const submitLocation = asyncHandler(async (req, res) => {
   }
 
   const record = await trackingService.saveLocation(req.user._id, parsed.data);
+  
+  // Trigger async geofence check
+  geofenceService.checkGeofenceTransitions(req.user._id, parsed.data).catch(err => {
+    console.error('Geofence REST check error:', err);
+  });
+
   return successResponse(res, 201, record, 'Location saved successfully.');
 });
 
