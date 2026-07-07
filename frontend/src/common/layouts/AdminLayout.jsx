@@ -21,10 +21,12 @@ export default function AdminLayout() {
 
   if (user?.role === 'admin') {
     navItems.push({ to: '/admin/users', label: 'User Management' });
+    navItems.push({ to: '/admin/geofences', label: 'Geofences' });
   }
 
   navItems.push({ to: '/admin/availability', label: 'Availability' });
   navItems.push({ to: '/admin/attendance', label: 'Attendance' });
+  navItems.push({ to: '/admin/tracking', label: 'Live Tracking' });
   navItems.push({ to: '/admin/settings', label: 'Settings' });
 
   const handleLogout = () => {

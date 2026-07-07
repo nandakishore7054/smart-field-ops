@@ -24,6 +24,7 @@ import ForgotPassword from './features/auth/ForgotPassword';
 import ResetPassword from './features/auth/ResetPassword';
 import SocketTest from './pages/dev/SocketTest';
 import LiveTrackingDashboard from './pages/admin/LiveTrackingDashboard';
+import GeofenceManager from './pages/admin/GeofenceManager';
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
               <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/users" element={<UserManagement />} />
+                <Route path="/admin/geofences" element={<GeofenceManager />} />
               </Route>
               <Route path="/admin/dispatch-board" element={<DispatchBoard />} />
               <Route path="/admin/availability" element={<AvailabilityManagement />} />
