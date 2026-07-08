@@ -8,6 +8,20 @@ async function startServer() {
   validateEnvironment();
   await connectDatabase(environment.mongoUri);
 
+  // One-time migration: backfill category on existing geofences that predate the field
+  try {
+    const Geofence = require('./modules/tracking/geofence.model');
+    const result = await Geofence.updateMany(
+      { category: { $exists: false } },
+      { $set: { category: 'general' } }
+    );
+    if (result.modifiedCount > 0) {
+      console.log(`[MIGRATION] Backfilled category='general' on ${result.modifiedCount} geofence(s).`);
+    }
+  } catch (err) {
+    console.error('[MIGRATION] Failed to backfill geofence categories:', err.message);
+  }
+
   const server = http.createServer(app);
 
   const io = new Server(server, {

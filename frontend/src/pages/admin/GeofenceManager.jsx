@@ -40,6 +40,7 @@ export default function GeofenceManager() {
     // payload has { type: 'polygon', boundary: { type: 'Polygon', coordinates: [...] } }
     setPendingGeofence({
       name: '',
+      category: 'general',
       isActive: true,
       ...payload
     });
@@ -56,6 +57,7 @@ export default function GeofenceManager() {
         await api.put(`/geofences/${update.id}`, { 
           name: gf.name,
           type: gf.type,
+          category: gf.category,
           isActive: gf.isActive,
           boundary: update.boundary 
         });
@@ -100,7 +102,8 @@ export default function GeofenceManager() {
       return toast.error('Name is required');
     }
     try {
-      const res = await api.post('/geofences', pendingGeofence);
+      const payload = { ...pendingGeofence, category: pendingGeofence.category || 'general' };
+      const res = await api.post('/geofences', payload);
       toast.success('Geofence created successfully');
       setPendingGeofence(null);
       fetchGeofences(true);
@@ -118,6 +121,7 @@ export default function GeofenceManager() {
       await api.put(`/geofences/${id}`, { 
         name: gf.name,
         type: gf.type,
+        category: gf.category,
         boundary: gf.boundary,
         isActive 
       });
@@ -181,6 +185,18 @@ export default function GeofenceManager() {
                     placeholder="e.g. North Zone Depot"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
+                  <select 
+                    value={pendingGeofence.category || 'general'}
+                    onChange={e => setPendingGeofence({...pendingGeofence, category: e.target.value})}
+                    className="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm focus:ring-2 focus:ring-sky-500"
+                  >
+                    <option value="general">General</option>
+                    <option value="office">Office (Auto Check-In)</option>
+                    <option value="customer">Customer (Visit Tracking)</option>
+                  </select>
+                </div>
                 <div className="flex items-center gap-2">
                   <input 
                     type="checkbox"
@@ -216,14 +232,20 @@ export default function GeofenceManager() {
                     <p className="capitalize text-slate-700 dark:text-slate-300">{selectedGeofence.type}</p>
                   </div>
                   <div>
+                    <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Category</label>
+                    <p className="capitalize text-slate-700 dark:text-slate-300">
+                      {selectedGeofence.category === 'office' ? '🏢 Office' : selectedGeofence.category === 'customer' ? '🤝 Customer' : '🌐 General'}
+                    </p>
+                  </div>
+                  <div>
                     <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Vertices</label>
                     <p className="text-slate-700 dark:text-slate-300">
                       {selectedGeofence.boundary?.coordinates?.[0]?.length || 0} points
                     </p>
                   </div>
-                  <div className="col-span-2">
+                  <div>
                     <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Created</label>
-                    <p className="text-slate-700 dark:text-slate-300">{new Date(selectedGeofence.createdAt).toLocaleString()}</p>
+                    <p className="text-slate-700 dark:text-slate-300">{new Date(selectedGeofence.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
 
@@ -319,7 +341,7 @@ export default function GeofenceManager() {
                       <div className={`w-2 h-2 rounded-full mt-1.5 ${gf.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`} title={gf.isActive ? 'Active' : 'Inactive'} />
                     </div>
                     <div className="flex justify-between items-center text-xs text-slate-500">
-                      <span className="capitalize">{gf.type}</span>
+                      <span className="capitalize">{gf.category || 'General'}</span>
                       <span>{new Date(gf.createdAt).toLocaleDateString()}</span>
                     </div>
                   </button>

@@ -35,7 +35,10 @@ async function getActiveWorkers() {
   const activeAttendances = await AttendanceRecord.find({
     date,
     checkOut: { $exists: false },
-  }).populate('workerId', 'name');
+  }).populate('workerId', 'name email');
+
+  // Load CustomerVisit model
+  const CustomerVisit = require('./customerVisit.model');
 
   // 2. Fetch the latest location for each active worker
   const activeWorkersWithLocation = await Promise.all(
@@ -47,16 +50,24 @@ async function getActiveWorkers() {
       
       const latestLocation = await WorkerLocation.findOne({ workerId })
         .sort({ timestamp: -1 })
-        .select('location timestamp');
+        .select('location timestamp accuracy speed isMoving batteryLevel');
 
       let latitude = null;
       let longitude = null;
       let timestamp = null;
+      let accuracy = null;
+      let speed = null;
+      let isMoving = null;
+      let batteryLevel = null;
 
       if (latestLocation && latestLocation.location && latestLocation.location.coordinates) {
         longitude = latestLocation.location.coordinates[0];
         latitude = latestLocation.location.coordinates[1];
         timestamp = latestLocation.timestamp;
+        accuracy = latestLocation.accuracy;
+        speed = latestLocation.speed;
+        isMoving = latestLocation.isMoving;
+        batteryLevel = latestLocation.batteryLevel;
       } else if (attendance.checkIn && attendance.checkIn.location) {
         // Fallback to check-in location if no active tracking ping exists
         longitude = attendance.checkIn.location.coordinates[0];
@@ -64,13 +75,34 @@ async function getActiveWorkers() {
         timestamp = attendance.checkIn.time;
       }
 
+      // Check active CustomerVisit
+      const activeVisit = await CustomerVisit.findOne({
+        workerId: workerId,
+        departureTime: null
+      }).populate('geofenceId', 'name category');
+      
+      let currentGeofence = null;
+      let geofenceArrivalTime = null;
+
+      if (activeVisit && activeVisit.geofenceId) {
+        currentGeofence = activeVisit.geofenceId.name;
+        geofenceArrivalTime = activeVisit.arrivalTime;
+      }
+
       return {
         workerId: workerId,
         workerName: attendance.workerId.name,
+        email: attendance.workerId.email,
         latitude,
         longitude,
         timestamp,
+        accuracy,
+        speed,
+        isMoving,
+        batteryLevel,
         attendanceStatus: attendance.status,
+        currentGeofence,
+        geofenceArrivalTime
       };
     })
   );

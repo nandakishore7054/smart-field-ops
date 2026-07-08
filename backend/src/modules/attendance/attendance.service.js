@@ -2,6 +2,8 @@ const AttendanceRecord = require('./attendance.model');
 const Shift = require('./shifts.model');
 const User = require('../auth/auth.model');
 const Notification = require('../notifications/notifications.model');
+const Geofence = require('../tracking/geofence.model');
+const turf = require('@turf/turf');
 
 // Helper to normalize date to midnight UTC for the day
 function getStartOfDay(date) {
@@ -14,20 +16,6 @@ function getStartOfDay(date) {
 function timeToMinutes(timeStr) {
   const [hours, minutes] = timeStr.split(':').map(Number);
   return hours * 60 + minutes;
-}
-
-// Calculates distance between two coordinates in meters (Haversine)
-function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3; // Earth's radius in meters
-  const rad = Math.PI / 180;
-  const dLat = (lat2 - lat1) * rad;
-  const dLon = (lon2 - lon1) * rad;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
 }
 
 async function checkIn(workerId, payload) {
@@ -46,7 +34,47 @@ async function checkIn(workerId, payload) {
 
   let status = 'present';
   
-  if (worker.shiftId) {
+  // Validate Geofence for manual check-in
+  if (payload.method === 'manual' && payload.location) {
+    const point = turf.point([payload.location.longitude, payload.location.latitude]);
+    const officeGeofences = await Geofence.find({ isActive: true, category: 'office' });
+    let inOffice = false;
+    
+    for (const geofence of officeGeofences) {
+      if (geofence.type === 'polygon' && geofence.boundary?.coordinates) {
+        try {
+          const polygon = turf.polygon(geofence.boundary.coordinates);
+          if (turf.booleanPointInPolygon(point, polygon)) {
+            inOffice = true;
+            break;
+          }
+        } catch (e) {}
+      } else if (geofence.type === 'circle' && geofence.center?.coordinates && geofence.radius) {
+        try {
+          const center = turf.point(geofence.center.coordinates);
+          const distance = turf.distance(center, point, { units: 'meters' });
+          if (distance <= geofence.radius) {
+            inOffice = true;
+            break;
+          }
+        } catch (e) {}
+      }
+    }
+    
+    if (!inOffice && officeGeofences.length > 0) {
+      status = 'manual_override';
+      
+      // Notify Manager of manual override outside office
+      global.io?.to('manager').emit('attendance:override', { workerId, workerName: worker.name });
+      await Notification.create({
+        userId: workerId,
+        type: 'attendance_override',
+        message: `${worker.name} performed a manual check-in outside an office zone.`,
+      });
+    }
+  }
+
+  if (worker.shiftId && status !== 'manual_override') {
     const shift = await Shift.findById(worker.shiftId);
     if (shift && shift.isActive) {
       // Calculate late detection

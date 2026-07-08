@@ -12,6 +12,11 @@ const geofenceSchema = new mongoose.Schema(
       enum: ['polygon', 'circle'],
       required: true,
     },
+    category: {
+      type: String,
+      enum: ['office', 'customer', 'general'],
+      default: 'general',
+    },
     boundary: {
       type: {
         type: String,

@@ -14,7 +14,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['task:created', 'submission:created', 'task:verified', 'system', 'leave_request', 'leave_approved', 'leave_rejected', 'attendance_late'],
+      enum: ['task:created', 'submission:created', 'task:verified', 'system', 'leave_request', 'leave_approved', 'leave_rejected', 'attendance_late', 'attendance_auto', 'attendance_override'],
       default: 'system',
     },
     relatedTaskId: {

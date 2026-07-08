@@ -28,6 +28,7 @@ const polygonSchema = z.object({
 const geofenceSchema = z.object({
   name: z.string().min(1, 'Name is required').trim(),
   type: z.enum(['polygon', 'circle']),
+  category: z.enum(['office', 'customer', 'general']).optional().default('general'),
   boundary: polygonSchema.optional(),
   center: pointSchema.optional(),
   radius: z.number().positive('Radius must be greater than 0').optional(),

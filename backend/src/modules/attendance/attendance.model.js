@@ -23,7 +23,7 @@ const checkInOutSchema = new mongoose.Schema(
     location: locationSchema,
     method: {
       type: String,
-      enum: ['gps', 'manual'],
+      enum: ['gps', 'manual', 'auto'],
       default: 'gps',
     },
   },

@@ -107,9 +107,72 @@ export default function LiveTrackingDashboard() {
           [data.workerId]: {
             ...existing,
             ...data,
-            // Keep original workerName and attendanceStatus if socket payload doesn't have it
-            workerName: existing.workerName || 'Unknown Worker',
-            attendanceStatus: existing.attendanceStatus || 'Active'
+            // Keep original workerName, attendanceStatus, and geofence state if not provided
+            workerName: data.workerName || existing.workerName || 'Unknown Worker',
+            attendanceStatus: existing.attendanceStatus || 'Active',
+            currentGeofence: existing.currentGeofence || null,
+            geofenceArrivalTime: existing.geofenceArrivalTime || null
+          }
+        };
+      });
+    }
+
+    function handleGeofenceEntered(data) {
+      if (data.category !== 'customer') return;
+      setWorkers(prev => {
+        const existing = prev[data.workerId];
+        if (!existing) return prev;
+        return {
+          ...prev,
+          [data.workerId]: {
+            ...existing,
+            currentGeofence: data.geofenceName,
+            geofenceArrivalTime: data.timestamp
+          }
+        };
+      });
+    }
+
+    function handleGeofenceExited(data) {
+      if (data.category !== 'customer') return;
+      setWorkers(prev => {
+        const existing = prev[data.workerId];
+        if (!existing) return prev;
+        return {
+          ...prev,
+          [data.workerId]: {
+            ...existing,
+            currentGeofence: null,
+            geofenceArrivalTime: null
+          }
+        };
+      });
+    }
+
+    function handleAttendanceCheckedIn(data) {
+      setWorkers(prev => {
+        const existing = prev[data.workerId] || {};
+        return {
+          ...prev,
+          [data.workerId]: {
+            ...existing,
+            workerId: data.workerId,
+            workerName: data.workerName,
+            attendanceStatus: data.status,
+          }
+        };
+      });
+    }
+
+    function handleAttendanceCheckedOut(data) {
+      setWorkers(prev => {
+        const existing = prev[data.workerId];
+        if (!existing) return prev;
+        return {
+          ...prev,
+          [data.workerId]: {
+            ...existing,
+            attendanceStatus: 'checked-out'
           }
         };
       });
@@ -119,11 +182,19 @@ export default function LiveTrackingDashboard() {
     function handleDisconnect() { setIsConnected(false); }
 
     socket.on('location:updated', handleLocationUpdate);
+    socket.on('geofence:entered', handleGeofenceEntered);
+    socket.on('geofence:exited', handleGeofenceExited);
+    socket.on('attendance:checked-in', handleAttendanceCheckedIn);
+    socket.on('attendance:checked-out', handleAttendanceCheckedOut);
     socket.on('connect', handleConnect);
     socket.on('disconnect', handleDisconnect);
 
     return () => {
       socket.off('location:updated', handleLocationUpdate);
+      socket.off('geofence:entered', handleGeofenceEntered);
+      socket.off('geofence:exited', handleGeofenceExited);
+      socket.off('attendance:checked-in', handleAttendanceCheckedIn);
+      socket.off('attendance:checked-out', handleAttendanceCheckedOut);
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
     };
@@ -310,13 +381,25 @@ export default function LiveTrackingDashboard() {
                           <h4 className="font-bold text-slate-800 dark:text-slate-200 truncate pr-2">{worker.workerName || 'Unknown Worker'}</h4>
                           {worker.attendanceStatus && (
                             <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
-                              worker.attendanceStatus === 'present' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                              worker.attendanceStatus === 'present' ? 'bg-emerald-100 text-emerald-700' : 
+                              worker.attendanceStatus === 'manual_override' ? 'bg-purple-100 text-purple-700' :
+                              'bg-amber-100 text-amber-700'
                             }`}>
-                              {worker.attendanceStatus}
+                              {worker.attendanceStatus === 'manual_override' ? 'Override' : worker.attendanceStatus}
                             </span>
                           )}
                         </div>
                         <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-1.5">ID: {worker.workerId.slice(-6)}</p>
+                        
+                        {worker.currentGeofence && (
+                          <div className="mb-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded p-1.5 flex justify-between items-center text-xs">
+                            <span className="text-indigo-700 dark:text-indigo-300 font-medium flex items-center gap-1 truncate"><span className="text-indigo-500">📍</span> {worker.currentGeofence}</span>
+                            {worker.geofenceArrivalTime && (
+                              <span className="text-indigo-500 dark:text-indigo-400 font-mono pl-2 shrink-0">{new Date(worker.geofenceArrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            )}
+                          </div>
+                        )}
+
                         <div className="flex justify-between items-center text-xs text-slate-400">
                           <span className="flex items-center gap-1"><span className="text-sky-500">🧭</span> {worker.latitude.toFixed(3)}, {worker.longitude.toFixed(3)}</span>
                           <span>{worker.timestamp ? new Date(worker.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
@@ -365,7 +448,7 @@ export default function LiveTrackingDashboard() {
                       <div className="text-right text-xs font-mono">{worker.latitude.toFixed(5)}, {worker.longitude.toFixed(5)}</div>
                       
                       <div className="text-slate-500">Status</div>
-                      <div className="text-right capitalize font-medium">{worker.attendanceStatus || 'Active'}</div>
+                      <div className="text-right capitalize font-medium">{worker.attendanceStatus === 'manual_override' ? 'Override' : (worker.attendanceStatus || 'Active')}</div>
                       
                       {worker.accuracy && (
                         <>
@@ -390,6 +473,23 @@ export default function LiveTrackingDashboard() {
                         </>
                       )}
                     </div>
+
+                    {worker.currentGeofence && (
+                      <div className="mt-3 pt-3 border-t border-slate-100">
+                        <div className="text-xs text-indigo-600 font-bold uppercase tracking-wider mb-1">Current Customer Visit</div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="font-medium truncate pr-2 text-slate-800">{worker.currentGeofence}</span>
+                          {worker.geofenceArrivalTime && (
+                            <span className="text-xs font-mono text-slate-500">{new Date(worker.geofenceArrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          )}
+                        </div>
+                        {worker.geofenceArrivalTime && (
+                          <div className="text-xs text-slate-400 mt-1">
+                            Duration: {Math.floor((new Date().getTime() - new Date(worker.geofenceArrivalTime).getTime()) / 60000)} mins
+                          </div>
+                        )}
+                      </div>
+                    )}
                     
                     <div className="pt-3 mt-1 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
                       <span>Last Ping</span>

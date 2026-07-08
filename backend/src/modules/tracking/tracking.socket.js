@@ -31,20 +31,28 @@ function setupTrackingSockets(io) {
           return;
         }
         
+        console.log(`[TRACE: SOCKET] Location received for worker ${workerIdStr}:`, parsed.data);
         // Update latest location in DB
         const record = await trackingService.saveLocation(workerIdStr, parsed.data);
+        console.log(`[TRACE: DB] Location saved to DB for worker ${workerIdStr}. Timestamp:`, record.timestamp);
+        
+        // Fetch the user to get the name for the socket payload
+        const User = require('../auth/auth.model');
+        const worker = await User.findById(workerIdStr).select('name');
         
         // Broadcast to admin room
         io.to('admin').emit('location:updated', {
           workerId: workerIdStr,
+          workerName: worker ? worker.name : 'Unknown Worker',
           latitude: parsed.data.latitude,
           longitude: parsed.data.longitude,
           timestamp: record.timestamp,
         });
 
         // Trigger geofence logic async
+        console.log(`[TRACE: GEOFENCE] Triggering checkGeofenceTransitions for worker ${workerIdStr}`);
         geofenceService.checkGeofenceTransitions(workerIdStr, parsed.data).catch(err => {
-          console.error('Geofence check error:', err);
+          console.error('[TRACE: ERROR] Geofence check error:', err);
         });
         
       } catch (err) {
