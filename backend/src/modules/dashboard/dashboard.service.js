@@ -4,27 +4,18 @@ const CustomerVisit = require('../tracking/customerVisit.model');
 const WorkerLocation = require('../tracking/location.model');
 const trackingService = require('../tracking/tracking.service');
 const { calculateTotalDistance } = require('../../core/utils/distance.util');
+const { getStartOfDay, getEndOfDay, formatLocalYYYYMMDD } = require('../../core/utils/date.util');
 
 // Add lightweight cache
 let cache = {
   data: null,
   timestamp: 0
 };
+let chartsCache = {
+  data: null,
+  timestamp: 0
+};
 const CACHE_TTL = 30 * 1000; // 30 seconds
-
-// Helpers
-function getStartOfDay(date = new Date()) {
-  const d = new Date(date);
-  d.setUTCHours(0, 0, 0, 0);
-  return d;
-}
-
-function getEndOfDay(date = new Date()) {
-  const d = new Date(date);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
 async function getWorkerKPIs() {
   const totalWorkers = await User.countDocuments({ role: 'worker' });
   const activeWorkersArray = await trackingService.getActiveWorkers();
@@ -38,19 +29,19 @@ async function getAttendanceKPIs(start, end) {
   const attendances = await AttendanceRecord.find({ date: { $gte: start, $lte: end } });
   
   const presentToday = attendances.length;
-  const checkedOutToday = attendances.filter(a => a.checkOut).length;
+  const completedShifts = attendances.filter(a => a.checkOut).length;
 
   let totalWorkingMs = 0;
-  let completedShifts = 0;
 
   for (const a of attendances) {
-    if (a.checkIn && a.checkOut) {
-      completedShifts++;
-      totalWorkingMs += (new Date(a.checkOut.time) - new Date(a.checkIn.time));
+    if (a.checkIn) {
+      const startT = new Date(a.checkIn.time);
+      const endT = a.checkOut ? new Date(a.checkOut.time) : new Date();
+      totalWorkingMs += Math.max(0, endT - startT);
     }
   }
 
-  const averageWorkingMs = completedShifts > 0 ? totalWorkingMs / completedShifts : 0;
+  const averageWorkingMs = presentToday > 0 ? totalWorkingMs / presentToday : 0;
   
   const formatDuration = (ms) => {
     if (ms === 0) return null;
@@ -61,7 +52,7 @@ async function getAttendanceKPIs(start, end) {
 
   return {
     presentToday,
-    checkedOutToday,
+    completedShifts,
     averageWorkingHours: formatDuration(averageWorkingMs)
   };
 }
@@ -145,8 +136,158 @@ async function getDashboardAnalytics() {
   return result;
 }
 
+  getDistanceKPIs
+;
+
+// --- CHARTS LOGIC ---
+
+async function getChartCustomerVisits(startDate, endDate) {
+  const visits = await CustomerVisit.find({ arrivalTime: { $gte: startDate, $lte: endDate } });
+  
+  const days = {};
+  for(let i=0; i<7; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    days[formatLocalYYYYMMDD(d)] = 0;
+  }
+  
+  for(const v of visits) {
+    const dStr = formatLocalYYYYMMDD(v.arrivalTime);
+    if(days[dStr] !== undefined) {
+      days[dStr]++;
+    }
+  }
+  
+  return Object.keys(days).sort().map(date => ({
+    date,
+    visits: days[date]
+  }));
+}
+
+async function getChartDistanceTrend(startDate, endDate) {
+  const locations = await WorkerLocation.find({ timestamp: { $gte: startDate, $lte: endDate } }).sort({ timestamp: 1 });
+  
+  const days = {};
+  for(let i=0; i<7; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    days[formatLocalYYYYMMDD(d)] = {};
+  }
+  
+  for(const loc of locations) {
+    const dStr = formatLocalYYYYMMDD(loc.timestamp);
+    if(days[dStr]) {
+      const wId = loc.workerId.toString();
+      if(!days[dStr][wId]) days[dStr][wId] = [];
+      days[dStr][wId].push(loc);
+    }
+  }
+  
+  const result = [];
+  for(const date in days) {
+    let totalDist = 0;
+    for(const wId in days[date]) {
+      totalDist += calculateTotalDistance(days[date][wId]);
+    }
+    result.push({
+      date,
+      distance: Number(totalDist.toFixed(2))
+    });
+  }
+  
+  return result.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+async function getChartAttendance(todayStart, todayEnd) {
+  const [totalWorkers, attendances] = await Promise.all([
+    User.countDocuments({ role: 'worker' }),
+    AttendanceRecord.find({ date: { $gte: todayStart, $lte: todayEnd } })
+  ]);
+  
+  let onTime = 0;
+  let late = 0;
+  
+  for(const a of attendances) {
+    if (a.status === 'late') late++;
+    else onTime++;
+  }
+  
+  const absent = Math.max(0, totalWorkers - (onTime + late));
+  
+  return [
+    { name: 'On Time', value: onTime, fill: '#3b82f6' },      // blue-500
+    { name: 'Late', value: late, fill: '#f59e0b' },           // amber-500
+    { name: 'Absent', value: absent, fill: '#ef4444' }         // red-500
+  ];
+}
+
+async function getChartWorkerDistance(todayStart, todayEnd) {
+  const [locations, users] = await Promise.all([
+    WorkerLocation.find({ timestamp: { $gte: todayStart, $lte: todayEnd } }).sort({ timestamp: 1 }),
+    User.find({ role: 'worker' }).select('_id name')
+  ]);
+  
+  const userMap = {};
+  users.forEach(u => userMap[u._id.toString()] = u.name);
+
+  const byWorker = {};
+  for (const loc of locations) {
+    const wId = loc.workerId.toString();
+    if (!byWorker[wId]) byWorker[wId] = [];
+    byWorker[wId].push(loc);
+  }
+
+  const result = [];
+  for (const wId in byWorker) {
+    const dist = calculateTotalDistance(byWorker[wId]);
+    if(dist > 0) {
+      result.push({
+        workerName: userMap[wId] || 'Unknown Worker',
+        distance: Number(dist.toFixed(2))
+      });
+    }
+  }
+
+  return result.sort((a, b) => b.distance - a.distance).slice(0, 5);
+}
+
+async function getDashboardCharts() {
+  const now = Date.now();
+  if (chartsCache.data && (now - chartsCache.timestamp < CACHE_TTL)) {
+    return chartsCache.data;
+  }
+
+  const todayEnd = getEndOfDay();
+  const todayStart = getStartOfDay();
+  
+  const sevenDaysAgo = new Date(todayStart);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
+  const [customerVisitsPerDay, distanceTrend, attendanceDistribution, workerDistanceTravelled] = await Promise.all([
+    getChartCustomerVisits(sevenDaysAgo, todayEnd),
+    getChartDistanceTrend(sevenDaysAgo, todayEnd),
+    getChartAttendance(todayStart, todayEnd),
+    getChartWorkerDistance(todayStart, todayEnd)
+  ]);
+
+  const result = {
+    customerVisitsPerDay,
+    attendanceDistribution,
+    workerDistanceTravelled,
+    distanceTrend
+  };
+
+  chartsCache = {
+    data: result,
+    timestamp: now
+  };
+
+  return result;
+}
+
 module.exports = {
   getDashboardAnalytics,
+  getDashboardCharts,
   getWorkerKPIs,
   getAttendanceKPIs,
   getVisitKPIs,

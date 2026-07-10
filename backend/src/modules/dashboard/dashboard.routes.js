@@ -9,5 +9,6 @@ router.use(protect);
 router.use(requireRoles('admin', 'dispatcher'));
 
 router.get('/analytics', dashboardController.getDashboardAnalytics);
+router.get('/charts', dashboardController.getDashboardCharts);
 
 module.exports = router;

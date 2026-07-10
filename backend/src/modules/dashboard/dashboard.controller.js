@@ -7,6 +7,12 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
   return successResponse(res, 200, data);
 });
 
+const getDashboardCharts = asyncHandler(async (req, res) => {
+  const data = await dashboardService.getDashboardCharts();
+  return successResponse(res, 200, data);
+});
+
 module.exports = {
-  getDashboardAnalytics
+  getDashboardAnalytics,
+  getDashboardCharts
 };

@@ -5,12 +5,7 @@ const Notification = require('../notifications/notifications.model');
 const Geofence = require('../tracking/geofence.model');
 const turf = require('@turf/turf');
 
-// Helper to normalize date to midnight UTC for the day
-function getStartOfDay(date) {
-  const d = new Date(date);
-  d.setUTCHours(0, 0, 0, 0);
-  return d;
-}
+const { getStartOfDay, getEndOfDay } = require('../../core/utils/date.util');
 
 // Helper to parse "HH:mm" into minutes from midnight
 function timeToMinutes(timeStr) {
@@ -195,7 +190,9 @@ async function getMyAttendance(workerId) {
 async function getAllAttendance(filters) {
   const query = {};
   if (filters.date) {
-    query.date = getStartOfDay(filters.date);
+    const start = getStartOfDay(filters.date);
+    const end = getEndOfDay(filters.date);
+    query.date = { $gte: start, $lte: end };
   }
   if (filters.status) {
     query.status = filters.status;

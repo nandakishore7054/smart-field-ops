@@ -1,12 +1,7 @@
 const WorkerLocation = require('./location.model');
 const AttendanceRecord = require('../attendance/attendance.model');
 
-// Helper to normalize date to midnight UTC for the day
-function getStartOfDay(date) {
-  const d = new Date(date);
-  d.setUTCHours(0, 0, 0, 0);
-  return d;
-}
+const { getStartOfDay, getEndOfDay } = require('../../core/utils/date.util');
 
 async function saveLocation(workerId, payload) {
   const record = new WorkerLocation({
@@ -115,8 +110,7 @@ async function getWorkerTrail(workerId, dateStr) {
   const date = new Date(dateStr);
   const start = getStartOfDay(date);
   
-  const end = new Date(start);
-  end.setUTCHours(23, 59, 59, 999);
+  const end = getEndOfDay(date);
 
   const locations = await WorkerLocation.find({
     workerId,
@@ -202,8 +196,7 @@ async function getWorkerDailySummary(workerId, dateStr) {
 
   const date = dateStr ? new Date(dateStr) : new Date();
   const start = getStartOfDay(date);
-  const end = new Date(start);
-  end.setUTCHours(23, 59, 59, 999);
+  const end = getEndOfDay(date);
 
   // 1. Worker info
   const worker = await User.findById(workerId).select('name');

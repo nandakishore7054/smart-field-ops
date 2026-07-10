@@ -53,8 +53,8 @@ export default function DashboardKPIs() {
       group: 'Attendance' 
     },
     { 
-      label: 'Checked Out', 
-      value: data?.attendance?.checkedOutToday, 
+      label: 'Completed Shifts', 
+      value: data?.attendance?.completedShifts, 
       color: 'text-indigo-400',
       group: 'Attendance' 
     },
