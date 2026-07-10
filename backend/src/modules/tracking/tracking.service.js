@@ -134,36 +134,28 @@ async function getWorkerTrail(workerId, dateStr) {
   }
 
   const coordinates = [];
-  let totalDistance = 0;
   
   for (let i = 0; i < locations.length; i++) {
     const loc = locations[i];
     if (loc.location && loc.location.coordinates) {
-      // GeoJSON is [longitude, latitude]
       coordinates.push({
         lat: loc.location.coordinates[1],
         lng: loc.location.coordinates[0],
         timestamp: loc.timestamp
       });
-      
-      if (i > 0) {
-        const prevLoc = locations[i - 1];
-        if (prevLoc.location && prevLoc.location.coordinates) {
-          const from = turf.point(prevLoc.location.coordinates);
-          const to = turf.point(loc.location.coordinates);
-          const dist = turf.distance(from, to, { units: 'meters' });
-          totalDistance += dist;
-        }
-      }
     }
   }
+
+  const { calculateTotalDistance } = require('../../core/utils/distance.util');
+  const totalDistanceKm = calculateTotalDistance(locations);
+  const totalDistanceMeters = Math.round(totalDistanceKm * 1000);
 
   return {
     coordinates,
     startTime: locations[0].timestamp,
     endTime: locations[locations.length - 1].timestamp,
     totalPoints: coordinates.length,
-    totalDistance: Math.round(totalDistance)
+    totalDistance: totalDistanceMeters
   };
 }
 
@@ -278,16 +270,8 @@ async function getWorkerDailySummary(workerId, dateStr) {
     timestamp: { $gte: start, $lte: end }
   }).sort({ timestamp: 1 });
 
-  let totalDistance = 0;
-  for (let i = 1; i < locations.length; i++) {
-    const prev = locations[i-1];
-    const curr = locations[i];
-    if (prev.location && curr.location) {
-      const from = turf.point(prev.location.coordinates);
-      const to = turf.point(curr.location.coordinates);
-      totalDistance += turf.distance(from, to, { units: 'kilometers' });
-    }
-  }
+  const { calculateTotalDistance } = require('../../core/utils/distance.util');
+  const totalDistance = calculateTotalDistance(locations);
 
   // 8. Performance Score
   let score = 100;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../app/api';
-import KPICards from './KPICards';
+import DashboardKPIs from '../../pages/admin/components/DashboardKPIs';
 import StatusPieChart from './StatusPieChart';
 import WeeklyTrendChart from './WeeklyTrendChart';
 import WorkerStatsTable from './WorkerStatsTable';
@@ -61,7 +61,7 @@ export default function AnalyticsDashboard() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-white mb-4">Operations Overview</h2>
-        <KPICards data={summary} />
+        <DashboardKPIs />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

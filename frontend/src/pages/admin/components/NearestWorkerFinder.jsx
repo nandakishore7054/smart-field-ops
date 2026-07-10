@@ -30,8 +30,6 @@ export default function NearestWorkerFinder({
   clickedLocation, 
   nearestWorkers 
 }) {
-  console.log("NearestWorkerFinder mounted");
-  
   const map = useMapEvents({
     click(e) {
       console.log("Map clicked", e.latlng);

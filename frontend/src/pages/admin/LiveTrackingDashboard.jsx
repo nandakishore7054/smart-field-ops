@@ -14,7 +14,6 @@ const DEFAULT_ZOOM = 5;
 
 // Floating Map Controls Component
 function MapController({ workers, selectedWorkerId, onResetCenter, isNearestMode, onToggleNearestMode, clickedLocation, nearestWorkers }) {
-  console.log("MapController mounted");
   const map = useMap();
 
   useEffect(() => {
@@ -76,9 +75,17 @@ function MapController({ workers, selectedWorkerId, onResetCenter, isNearestMode
       </button>
       <button onClick={() => {
         if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((pos) => {
-            map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { animate: true, duration: 1.5 });
-          });
+          console.log('[LOCATION] Admin requested Locate Me (getCurrentPosition)');
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              console.log('[LOCATION] Admin located successfully');
+              map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { animate: true, duration: 1.5 });
+            },
+            (error) => {
+              console.warn('[LOCATION] Admin Locate Me error:', error.message);
+            },
+            { enableHighAccuracy: false, maximumAge: 60000, timeout: 10000 }
+          );
         }
       }} className="bg-white hover:bg-emerald-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors" title="Locate Me">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">

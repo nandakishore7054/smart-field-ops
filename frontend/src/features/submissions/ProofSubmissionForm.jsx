@@ -2,25 +2,7 @@ import { useMemo, useState } from 'react';
 import imageCompression from 'browser-image-compression';
 import api from '../../app/api';
 
-function getGeolocation() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by this browser.'));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          type: 'Point',
-          coordinates: [position.coords.longitude, position.coords.latitude],
-        });
-      },
-      (error) => reject(error),
-      { enableHighAccuracy: true, timeout: 15000 }
-    );
-  });
-}
+import { useLocation } from '../../common/contexts/LocationContext';
 
 function toDataUrl(file) {
   return URL.createObjectURL(file);
@@ -33,6 +15,7 @@ export default function ProofSubmissionForm({ task, onSubmitted }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [location, setLocation] = useState(null);
+  const { getFreshLocation } = useLocation();
 
   const previews = useMemo(() => files.map((file) => ({ file, url: toDataUrl(file) })), [files]);
 
@@ -106,7 +89,14 @@ export default function ProofSubmissionForm({ task, onSubmitted }) {
     setLoading(true);
 
     try {
-      const submittedLocation = location || (await getGeolocation());
+      let submittedLocation = location;
+      if (!submittedLocation) {
+        const position = await getFreshLocation();
+        submittedLocation = {
+          type: 'Point',
+          coordinates: [position.coords.longitude, position.coords.latitude],
+        };
+      }
       const imageUrls = [];
 
       for (const file of files) {
@@ -136,7 +126,11 @@ export default function ProofSubmissionForm({ task, onSubmitted }) {
   async function captureLocation() {
     setError('');
     try {
-      const nextLocation = await getGeolocation();
+      const position = await getFreshLocation();
+      const nextLocation = {
+        type: 'Point',
+        coordinates: [position.coords.longitude, position.coords.latitude],
+      };
       setLocation(nextLocation);
     } catch (locationError) {
       setError(locationError.message || 'Unable to capture location.');

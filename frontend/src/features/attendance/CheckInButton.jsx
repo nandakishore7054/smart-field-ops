@@ -2,48 +2,36 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import api from '../../app/api';
 
+import { useLocation } from '../../common/contexts/LocationContext';
+
 export default function CheckInButton({ currentStatus, onStatusChange }) {
   const [loading, setLoading] = useState(false);
+  const { getFreshLocation } = useLocation();
 
   const handleAction = async (action) => {
     setLoading(true);
     
-    if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by your browser.');
-      setLoading(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const endpoint = action === 'check-in' ? '/attendance/check-in' : '/attendance/check-out';
-          const res = await api.post(endpoint, {
-            location: { latitude, longitude },
-            method: 'gps',
-          });
-          toast.success(res.data.message);
-          if (onStatusChange) onStatusChange(res.data.data);
-        } catch (error) {
-          toast.error(error.response?.data?.message || `Failed to ${action}.`);
-        } finally {
-          setLoading(false);
-        }
-      },
-      (error) => {
-        console.error('Geolocation error:', error);
-        if (error.code === error.PERMISSION_DENIED) {
-          toast.error('Location permission denied. Please enable location services to check in.');
-        }
-        setLoading(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+    try {
+      const position = await getFreshLocation();
+      const { latitude, longitude } = position.coords;
+      
+      const endpoint = action === 'check-in' ? '/attendance/check-in' : '/attendance/check-out';
+      const res = await api.post(endpoint, {
+        location: { latitude, longitude },
+        method: 'gps',
+      });
+      toast.success(res.data.message);
+      if (onStatusChange) onStatusChange(res.data.data);
+    } catch (error) {
+      console.error('Geolocation error:', error);
+      if (error.code === 1 || error.code === error.PERMISSION_DENIED) {
+        toast.error('Location permission denied. Please enable location services to check in.');
+      } else {
+        toast.error(error.response?.data?.message || `Failed to ${action}.`);
       }
-    );
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (currentStatus === 'checked-out') {
