@@ -33,7 +33,9 @@ export default function CheckInButton({ currentStatus, onStatusChange }) {
       },
       (error) => {
         console.error('Geolocation error:', error);
-        toast.error('Location permission denied. Please enable location services to check in.');
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error('Location permission denied. Please enable location services to check in.');
+        }
         setLoading(false);
       },
       {

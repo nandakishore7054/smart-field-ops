@@ -7,6 +7,7 @@ import { Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import WorkerTrailMapLayer from './components/WorkerTrailMapLayer';
 import NearestWorkerFinder from './components/NearestWorkerFinder';
+import WorkerDailySummaryCard from './components/WorkerDailySummaryCard';
 
 const INDIA_CENTER = [22.5937, 78.9629];
 const DEFAULT_ZOOM = 5;
@@ -619,6 +620,7 @@ export default function LiveTrackingDashboard() {
           </div>
           
           {selectedWorkerId && (
+            <>
             <div className="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
@@ -667,6 +669,12 @@ export default function LiveTrackingDashboard() {
                 </div>
               )}
             </div>
+            <WorkerDailySummaryCard 
+              workerId={selectedWorkerId}
+              date={trailDate}
+              onClose={() => setSelectedWorkerId(null)}
+            />
+            </>
           )}
         </div>
 

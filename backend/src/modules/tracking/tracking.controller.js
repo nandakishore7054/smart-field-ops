@@ -48,9 +48,18 @@ const findNearestWorkers = asyncHandler(async (req, res) => {
   return successResponse(res, 200, nearest);
 });
 
+const getWorkerDailySummary = asyncHandler(async (req, res) => {
+  const { workerId } = req.params;
+  const { date } = req.query;
+
+  const summary = await trackingService.getWorkerDailySummary(workerId, date);
+  return successResponse(res, 200, summary);
+});
+
 module.exports = {
   submitLocation,
   getActiveWorkers,
   getWorkerTrail,
   findNearestWorkers,
+  getWorkerDailySummary,
 };

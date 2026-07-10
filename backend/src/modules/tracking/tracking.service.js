@@ -204,9 +204,150 @@ async function getNearestWorkers(lat, lng, limit = 3) {
   return workersWithDistance.slice(0, limit);
 }
 
+async function getWorkerDailySummary(workerId, dateStr) {
+  const User = require('../users/users.model');
+  const CustomerVisit = require('./customerVisit.model');
+
+  const date = dateStr ? new Date(dateStr) : new Date();
+  const start = getStartOfDay(date);
+  const end = new Date(start);
+  end.setUTCHours(23, 59, 59, 999);
+
+  // 1. Worker info
+  const worker = await User.findById(workerId).select('name');
+  if (!worker) throw new Error('Worker not found');
+
+  // 2. Attendance
+  const attendance = await AttendanceRecord.findOne({
+    workerId,
+    date: { $gte: start, $lte: end }
+  });
+
+  let checkIn = null;
+  let checkOut = null;
+  let attendanceStatus = 'Absent';
+
+  if (attendance) {
+    attendanceStatus = attendance.status;
+    if (attendance.checkIn) checkIn = attendance.checkIn.time;
+    if (attendance.checkOut) checkOut = attendance.checkOut.time;
+  }
+
+  // 3. Latest GPS & Online Status
+  const latestLoc = await WorkerLocation.findOne({ workerId }).sort({ timestamp: -1 });
+  let isOnline = false;
+  let lastGPSUpdate = null;
+  let latitude = null;
+  let longitude = null;
+  
+  if (latestLoc) {
+    lastGPSUpdate = latestLoc.timestamp;
+    latitude = latestLoc.location.coordinates[1];
+    longitude = latestLoc.location.coordinates[0];
+    const msSinceLastPing = new Date() - new Date(latestLoc.timestamp);
+    isOnline = msSinceLastPing < 5 * 60 * 1000;
+  }
+
+  // 4. Working Hours (in ms)
+  let workingHoursMs = 0;
+  if (checkIn) {
+    const endCalc = checkOut || new Date();
+    workingHoursMs = Math.max(0, new Date(endCalc) - new Date(checkIn));
+  }
+
+  // 5. Customer Visits & Time
+  const visits = await CustomerVisit.find({
+    workerId,
+    arrivalTime: { $gte: start, $lte: end }
+  });
+
+  let customerVisits = visits.length;
+  let customerTimeMs = 0;
+
+  for (const v of visits) {
+    const vEnd = v.departureTime || new Date();
+    customerTimeMs += Math.max(0, new Date(vEnd) - new Date(v.arrivalTime));
+  }
+
+  // 6. Travel Time
+  let travelTimeMs = Math.max(0, workingHoursMs - customerTimeMs);
+
+  // 7. Distance
+  const locations = await WorkerLocation.find({
+    workerId,
+    timestamp: { $gte: start, $lte: end }
+  }).sort({ timestamp: 1 });
+
+  let totalDistance = 0;
+  for (let i = 1; i < locations.length; i++) {
+    const prev = locations[i-1];
+    const curr = locations[i];
+    if (prev.location && curr.location) {
+      const from = turf.point(prev.location.coordinates);
+      const to = turf.point(curr.location.coordinates);
+      totalDistance += turf.distance(from, to, { units: 'kilometers' });
+    }
+  }
+
+  // 8. Performance Score
+  let score = 100;
+  if (attendanceStatus.toLowerCase() === 'absent') {
+    score = 0;
+  } else {
+    if (attendanceStatus.toLowerCase() === 'late') score -= 15;
+    else if (attendanceStatus.toLowerCase() !== 'present') score -= 5;
+    
+    const hoursWorked = workingHoursMs / (1000 * 60 * 60);
+    if (hoursWorked < 6) score -= 20;
+    else if (hoursWorked < 8) score -= 10;
+    
+    if (customerVisits === 0) score -= 20;
+  }
+
+  score = Math.max(0, Math.min(100, score));
+
+  let rating = 'Needs Attention';
+  if (score >= 90) rating = 'Excellent';
+  else if (score >= 75) rating = 'Good';
+  else if (score >= 60) rating = 'Average';
+
+  // Format helpers
+  const formatDuration = (ms) => {
+    const totalMinutes = Math.floor(ms / (1000 * 60));
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    return `${h}h ${m}m`;
+  };
+
+  const formatTime = (d) => {
+    if (!d) return null;
+    return new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  return {
+    workerId,
+    workerName: worker.name,
+    attendanceStatus,
+    checkIn: formatTime(checkIn),
+    checkOut: formatTime(checkOut),
+    workingHours: formatDuration(workingHoursMs),
+    distanceTravelled: `${totalDistance.toFixed(2)} km`,
+    customerVisits,
+    customerTime: formatDuration(customerTimeMs),
+    travelTime: formatDuration(travelTimeMs),
+    performanceScore: score,
+    performanceRating: rating,
+    lastGPSUpdate,
+    latitude,
+    longitude,
+    isOnline
+  };
+}
+
 module.exports = {
   saveLocation,
   getActiveWorkers,
   getWorkerTrail,
   getNearestWorkers,
+  getWorkerDailySummary,
 };

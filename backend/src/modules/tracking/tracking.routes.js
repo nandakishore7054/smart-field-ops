@@ -14,5 +14,6 @@ trackingRouter.post('/location', requireRoles('worker'), trackingController.subm
 trackingRouter.get('/active-workers', requireRoles('admin', 'dispatcher'), trackingController.getActiveWorkers);
 trackingRouter.get('/trail/:workerId', requireRoles('admin', 'dispatcher'), trackingController.getWorkerTrail);
 trackingRouter.get('/nearest', requireRoles('admin', 'dispatcher'), trackingController.findNearestWorkers);
+trackingRouter.get('/daily-summary/:workerId', requireRoles('admin', 'dispatcher'), trackingController.getWorkerDailySummary);
 
 module.exports = trackingRouter;
