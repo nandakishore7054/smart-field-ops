@@ -474,18 +474,32 @@ export default function LiveTrackingDashboard() {
               ) : nearestWorkers.length > 0 ? (
                 <div className="space-y-2">
                   {nearestWorkers.map((worker, idx) => {
-                    const medals = ['🥇', '🥈', '🥉'];
-                    const medal = medals[idx] || '';
                     const isSelected = selectedWorkerId === worker.workerId;
+                    
+                    const borderColors = ['border-orange-500 ring-1 ring-orange-500/30', 'border-violet-500 ring-1 ring-violet-500/30', 'border-blue-500 ring-1 ring-blue-500/30'];
+                    const badgeColors = ['bg-orange-500 text-white', 'bg-violet-500 text-white', 'bg-blue-500 text-white'];
+                    const distanceColors = [
+                      'text-orange-700 bg-orange-100 dark:text-orange-300 dark:bg-orange-900/40',
+                      'text-violet-700 bg-violet-100 dark:text-violet-300 dark:bg-violet-900/40',
+                      'text-blue-700 bg-blue-100 dark:text-blue-300 dark:bg-blue-900/40'
+                    ];
+
+                    const borderClass = borderColors[idx] || 'border-slate-200 dark:border-slate-700';
+                    const badgeClass = badgeColors[idx] || 'bg-slate-500 text-white';
+                    const distClass = distanceColors[idx] || 'text-slate-700 bg-slate-100 dark:text-slate-300 dark:bg-slate-800';
                     
                     return (
                       <div 
                         key={worker.workerId}
                         onClick={() => setSelectedWorkerId(worker.workerId)}
-                        className={`cursor-pointer bg-white dark:bg-slate-800 p-3 rounded-xl border flex justify-between items-center shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-violet-500 border-violet-300' : idx === 0 ? 'border-yellow-400 dark:border-yellow-600 ring-1 ring-yellow-400/50' : 'border-violet-100 dark:border-slate-700'}`}
+                        className={`cursor-pointer p-3 rounded-xl border flex justify-between items-center shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 bg-white dark:bg-slate-800 ${
+                          isSelected ? 'ring-2 ring-sky-500 border-sky-300' : borderClass
+                        }`}
                       >
                         <div className="flex items-start gap-3">
-                          <div className="text-2xl mt-0.5" title={`Rank #${idx+1}`}>{medal}</div>
+                          <div className="mt-0.5">
+                            <div className={`${badgeClass} font-black text-xs px-2 py-1 rounded shadow-sm`}>#{idx + 1}</div>
+                          </div>
                           <div>
                             <div className="font-bold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
                               {worker.workerName}
@@ -501,7 +515,7 @@ export default function LiveTrackingDashboard() {
                           </div>
                         </div>
                         <div className="text-right flex flex-col items-end gap-1.5">
-                          <div className={`font-black text-sm px-2 py-0.5 rounded-full ${idx === 0 ? 'text-yellow-700 bg-yellow-50 dark:text-yellow-300 dark:bg-yellow-900/30' : 'text-violet-700 bg-violet-50 dark:text-violet-300 dark:bg-violet-900/30'}`}>
+                          <div className={`font-black text-sm px-2 py-0.5 rounded-full ${distClass}`}>
                             {worker.distance.toFixed(2)} km
                           </div>
                           <div className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${worker.attendanceStatus === 'present' ? 'text-emerald-700 bg-emerald-50 border border-emerald-100' : 'text-amber-700 bg-amber-50 border border-amber-100'}`}>
