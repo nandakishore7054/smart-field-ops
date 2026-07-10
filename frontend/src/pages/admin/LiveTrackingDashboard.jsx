@@ -6,12 +6,14 @@ import LiveMap from '../../features/tracking/LiveMap';
 import { Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import WorkerTrailMapLayer from './components/WorkerTrailMapLayer';
+import NearestWorkerFinder from './components/NearestWorkerFinder';
 
 const INDIA_CENTER = [22.5937, 78.9629];
 const DEFAULT_ZOOM = 5;
 
 // Floating Map Controls Component
-function MapController({ workers, selectedWorkerId, onResetCenter }) {
+function MapController({ workers, selectedWorkerId, onResetCenter, isNearestMode, onToggleNearestMode, clickedLocation, nearestWorkers }) {
+  console.log("MapController mounted");
   const map = useMap();
 
   useEffect(() => {
@@ -24,7 +26,17 @@ function MapController({ workers, selectedWorkerId, onResetCenter }) {
   }, [selectedWorkerId, workers, map]);
 
   useEffect(() => {
-    if (!selectedWorkerId) {
+    if (isNearestMode && clickedLocation && nearestWorkers && nearestWorkers.length > 0) {
+      const bounds = L.latLngBounds([
+        [clickedLocation.lat, clickedLocation.lng],
+        ...nearestWorkers.map(w => [w.latitude, w.longitude])
+      ]);
+      map.fitBounds(bounds, { padding: [80, 80], maxZoom: 15, animate: true, duration: 1.5 });
+    }
+  }, [isNearestMode, clickedLocation, nearestWorkers, map]);
+
+  useEffect(() => {
+    if (!selectedWorkerId && !isNearestMode) {
       const validWorkers = Object.values(workers).filter(w => w.latitude != null && w.longitude != null);
       if (validWorkers.length > 0) {
         const bounds = L.latLngBounds(validWorkers.map(w => [w.latitude, w.longitude]));
@@ -33,10 +45,24 @@ function MapController({ workers, selectedWorkerId, onResetCenter }) {
         map.flyTo(INDIA_CENTER, DEFAULT_ZOOM, { animate: true, duration: 1.5 });
       }
     }
-  }, [workers, selectedWorkerId, map]);
+  }, [workers, selectedWorkerId, isNearestMode, map]);
 
   return (
     <div className="leaflet-bottom leaflet-right mb-6 mr-2 flex flex-col gap-2 pointer-events-auto" style={{ zIndex: 1000 }}>
+      <button 
+        onClick={() => {
+          console.log("Nearest Mode:", isNearestMode);
+          onToggleNearestMode();
+        }} 
+        className={`${isNearestMode ? 'bg-violet-600 text-white hover:bg-violet-700 ring-4 ring-violet-200 dark:ring-violet-900' : 'bg-white text-violet-600 hover:bg-violet-50'} shadow-lg p-3 rounded-full transition-all group relative`} 
+        title="Find Nearest Workers"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </button>
       <button onClick={() => onResetCenter(true)} className="bg-white hover:bg-sky-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors group relative" title="Center on Workers">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-sky-600" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
@@ -50,12 +76,13 @@ function MapController({ workers, selectedWorkerId, onResetCenter }) {
       <button onClick={() => {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition((pos) => {
-            map.flyTo([pos.coords.latitude, pos.coords.longitude], 15, { animate: true });
+            map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { animate: true, duration: 1.5 });
           });
         }
-      }} className="bg-white hover:bg-slate-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors" title="Locate Me">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-600" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+      }} className="bg-white hover:bg-emerald-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors" title="Locate Me">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+          <circle cx="10" cy="11" r="2" fill="currentColor" />
         </svg>
       </button>
     </div>
@@ -80,23 +107,66 @@ export default function LiveTrackingDashboard() {
   const [filterOnline, setFilterOnline] = useState('all');
   const [filterAttendance, setFilterAttendance] = useState('all');
 
+  // Nearest Worker State
+  const [isNearestMode, setIsNearestMode] = useState(false);
+  const [clickedLocation, setClickedLocation] = useState(null);
+  const [nearestWorkers, setNearestWorkers] = useState([]);
+  const [nearestLoading, setNearestLoading] = useState(false);
+
   const markerRefs = useRef({});
+
+  // Auto-open popup when selectedWorkerId changes
+  useEffect(() => {
+    if (selectedWorkerId && markerRefs.current[selectedWorkerId]) {
+      markerRefs.current[selectedWorkerId].openPopup();
+    }
+  }, [selectedWorkerId]);
 
   const fetchWorkers = async (isMounted = true) => {
     try {
-      setLoading(true);
       const response = await api.get('/tracking/active-workers');
-      const data = response.data?.data || [];
       if (isMounted) {
         const workersMap = {};
-        data.forEach(worker => { workersMap[worker.workerId] = worker; });
+        response.data.data.forEach(w => workersMap[w.workerId] = w);
         setWorkers(workersMap);
       }
     } catch (err) {
-      console.error('Failed to fetch active workers', err);
+      console.error('Failed to fetch workers', err);
     } finally {
       if (isMounted) setLoading(false);
     }
+  };
+
+  const handleMapClick = async (latlng) => {
+    console.log("handleMapClick entered");
+    console.log("Clicked lat/lng:", latlng);
+
+    if (!isNearestMode) {
+      console.log("Exiting early: isNearestMode is false");
+      return;
+    }
+    
+    setClickedLocation(latlng);
+    console.log("clickedLocation state updated");
+    setNearestLoading(true);
+    
+    try {
+      console.log("Sending GET /tracking/nearest");
+      const response = await api.get(`/tracking/nearest?lat=${latlng.lat}&lng=${latlng.lng}`);
+      console.log("Response data:", response.data);
+      setNearestWorkers(response.data.data || []);
+      console.log("nearestWorkers state updated");
+    } catch (err) {
+      console.error('Failed to fetch nearest workers', err);
+      setNearestWorkers([]);
+    } finally {
+      setNearestLoading(false);
+    }
+  };
+
+  const clearNearestSearch = () => {
+    setClickedLocation(null);
+    setNearestWorkers([]);
   };
 
   useEffect(() => {
@@ -236,16 +306,13 @@ export default function LiveTrackingDashboard() {
       });
     }
 
-    function handleConnect() { setIsConnected(true); }
-    function handleDisconnect() { setIsConnected(false); }
-
     socket.on('location:updated', handleLocationUpdate);
     socket.on('geofence:entered', handleGeofenceEntered);
     socket.on('geofence:exited', handleGeofenceExited);
     socket.on('attendance:checked-in', handleAttendanceCheckedIn);
     socket.on('attendance:checked-out', handleAttendanceCheckedOut);
-    socket.on('connect', handleConnect);
-    socket.on('disconnect', handleDisconnect);
+    socket.on('connect', () => setIsConnected(true));
+    socket.on('disconnect', () => setIsConnected(false));
 
     return () => {
       socket.off('location:updated', handleLocationUpdate);
@@ -253,32 +320,28 @@ export default function LiveTrackingDashboard() {
       socket.off('geofence:exited', handleGeofenceExited);
       socket.off('attendance:checked-in', handleAttendanceCheckedIn);
       socket.off('attendance:checked-out', handleAttendanceCheckedOut);
-      socket.off('connect', handleConnect);
-      socket.off('disconnect', handleDisconnect);
+      socket.off('connect');
+      socket.off('disconnect');
     };
   }, [showTrail, selectedWorkerId, trailDate]);
 
-  // Sync Popup with Sidebar Selection
-  useEffect(() => {
-    if (selectedWorkerId && markerRefs.current[selectedWorkerId]) {
-      markerRefs.current[selectedWorkerId].openPopup();
-    }
-  }, [selectedWorkerId]);
-
-  // Derived state
-  const activeWorkersList = Object.values(workers).filter(w => w.latitude != null && w.longitude != null);
+  const activeWorkersList = useMemo(() => {
+    return Object.values(workers).filter(w => w.latitude != null && w.longitude != null);
+  }, [workers]);
   
   const filteredWorkers = useMemo(() => {
     return activeWorkersList.filter(w => {
       const matchesSearch = (w.workerName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            w.workerId.includes(searchQuery);
+                           (w.workerId || '').toLowerCase().includes(searchQuery.toLowerCase());
       
       const isOnline = w.timestamp && (new Date() - new Date(w.timestamp) < 5 * 60 * 1000);
-      const matchesOnline = filterOnline === 'all' ? true :
-                            filterOnline === 'online' ? isOnline : !isOnline;
-                            
-      const matchesAttendance = filterAttendance === 'all' ? true : w.attendanceStatus === filterAttendance;
+      const matchesOnline = filterOnline === 'all' || 
+                           (filterOnline === 'online' && isOnline) || 
+                           (filterOnline === 'offline' && !isOnline);
       
+      const matchesAttendance = filterAttendance === 'all' || 
+                               (w.attendanceStatus || '').toLowerCase() === filterAttendance.toLowerCase();
+                               
       return matchesSearch && matchesOnline && matchesAttendance;
     });
   }, [activeWorkersList, searchQuery, filterOnline, filterAttendance]);
@@ -330,14 +393,13 @@ export default function LiveTrackingDashboard() {
           { label: 'Offline', value: activeWorkersList.length - onlineCount, icon: 'wifi-off', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-100 dark:bg-rose-500/20' },
           { label: 'Map Status', value: isConnected ? 'Live' : 'Stale', icon: 'activity', color: isConnected ? 'text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-400', bg: isConnected ? 'bg-sky-100 dark:bg-sky-500/20' : 'bg-slate-100 dark:bg-slate-800' },
         ].map((stat, idx) => (
-          <div key={idx} className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-4 hover:shadow-md transition-shadow">
+          <div key={idx} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-4">
             <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
-              {/* Dummy Icon logic for brevity */}
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="5" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-white">{stat.value}</h3>
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-0.5">{stat.value}</h3>
             </div>
           </div>
         ))}
@@ -383,6 +445,78 @@ export default function LiveTrackingDashboard() {
               </select>
             </div>
           </div>
+
+          {isNearestMode && (
+            <div className="bg-violet-50 dark:bg-violet-900/20 border-b border-violet-100 dark:border-violet-800 p-4 transition-all duration-300">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h3 className="font-bold text-violet-800 dark:text-violet-300 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+                    Nearest Workers
+                  </h3>
+                  <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">
+                    {!clickedLocation ? 'Click map to find nearest active workers.' : 'Top 3 closest workers shown.'}
+                  </p>
+                </div>
+                <button 
+                  onClick={clearNearestSearch}
+                  className="text-xs font-medium text-violet-600 hover:text-white hover:bg-violet-600 bg-white dark:bg-slate-800 px-2.5 py-1.5 rounded-lg shadow-sm border border-violet-200 dark:border-slate-700 transition-colors"
+                >
+                  Clear
+                </button>
+              </div>
+
+              {nearestLoading ? (
+                <div className="flex items-center gap-3 text-sm text-violet-600 bg-white dark:bg-slate-800 p-3 rounded-xl border border-violet-100 dark:border-slate-700 shadow-sm">
+                  <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+                  Calculating distances...
+                </div>
+              ) : nearestWorkers.length > 0 ? (
+                <div className="space-y-2">
+                  {nearestWorkers.map((worker, idx) => {
+                    const medals = ['🥇', '🥈', '🥉'];
+                    const medal = medals[idx] || '';
+                    const isSelected = selectedWorkerId === worker.workerId;
+                    
+                    return (
+                      <div 
+                        key={worker.workerId}
+                        onClick={() => setSelectedWorkerId(worker.workerId)}
+                        className={`cursor-pointer bg-white dark:bg-slate-800 p-3 rounded-xl border flex justify-between items-center shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-violet-500 border-violet-300' : idx === 0 ? 'border-yellow-400 dark:border-yellow-600 ring-1 ring-yellow-400/50' : 'border-violet-100 dark:border-slate-700'}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="text-2xl mt-0.5" title={`Rank #${idx+1}`}>{medal}</div>
+                          <div>
+                            <div className="font-bold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
+                              {worker.workerName}
+                            </div>
+                            <div className="text-[10px] text-slate-500 mt-1 space-y-0.5">
+                              {worker.currentGeofence ? (
+                                <div className="text-indigo-600 dark:text-indigo-400 font-medium truncate w-32">📍 {worker.currentGeofence}</div>
+                              ) : (
+                                <div>No active assignment</div>
+                              )}
+                              <div className="text-slate-400">Last seen: {new Date(worker.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right flex flex-col items-end gap-1.5">
+                          <div className={`font-black text-sm px-2 py-0.5 rounded-full ${idx === 0 ? 'text-yellow-700 bg-yellow-50 dark:text-yellow-300 dark:bg-yellow-900/30' : 'text-violet-700 bg-violet-50 dark:text-violet-300 dark:bg-violet-900/30'}`}>
+                            {worker.distance.toFixed(2)} km
+                          </div>
+                          <div className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${worker.attendanceStatus === 'present' ? 'text-emerald-700 bg-emerald-50 border border-emerald-100' : 'text-amber-700 bg-amber-50 border border-amber-100'}`}>
+                            {worker.attendanceStatus}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : clickedLocation ? (
+                <div className="text-sm text-slate-500 bg-white p-3 rounded-xl border border-slate-200 text-center shadow-sm">No active workers found within range.</div>
+              ) : null}
+            </div>
+          )}
           
           <div className="flex-1 overflow-y-auto p-3 space-y-2 relative">
             {loading ? (
@@ -530,8 +664,23 @@ export default function LiveTrackingDashboard() {
             </div>
           )}
           <LiveMap center={INDIA_CENTER} zoom={DEFAULT_ZOOM}>
-            <MapController workers={workers} selectedWorkerId={selectedWorkerId} onResetCenter={() => setSelectedWorkerId(null)} />
+            <MapController 
+              workers={workers} 
+              selectedWorkerId={selectedWorkerId} 
+              onResetCenter={() => setSelectedWorkerId(null)} 
+              isNearestMode={isNearestMode}
+              onToggleNearestMode={() => {
+                setIsNearestMode(!isNearestMode);
+                if (isNearestMode) clearNearestSearch();
+              }}
+            />
             <WorkerTrailMapLayer trailData={trailData} isVisible={showTrail} />
+            <NearestWorkerFinder 
+              isNearestMode={isNearestMode}
+              onMapClick={handleMapClick}
+              clickedLocation={clickedLocation}
+              nearestWorkers={nearestWorkers}
+            />
             
             {activeWorkersList.map(worker => (
               <Marker 

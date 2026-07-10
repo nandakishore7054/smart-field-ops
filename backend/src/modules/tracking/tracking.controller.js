@@ -37,8 +37,20 @@ const getWorkerTrail = asyncHandler(async (req, res) => {
   return successResponse(res, 200, trail);
 });
 
+const findNearestWorkers = asyncHandler(async (req, res) => {
+  const { lat, lng } = req.query;
+  
+  if (!lat || !lng) {
+    return res.status(400).json({ status: 'fail', error: 'lat and lng query parameters are required' });
+  }
+
+  const nearest = await trackingService.getNearestWorkers(parseFloat(lat), parseFloat(lng));
+  return successResponse(res, 200, nearest);
+});
+
 module.exports = {
   submitLocation,
   getActiveWorkers,
   getWorkerTrail,
+  findNearestWorkers,
 };

@@ -31,9 +31,8 @@ async function getActiveWorkers() {
   const now = new Date();
   const date = getStartOfDay(now);
 
-  // 1. Get all workers who are checked in today and haven't checked out
+  // 1. Get all workers who are checked in and haven't checked out (regardless of whether they checked in before midnight)
   const activeAttendances = await AttendanceRecord.find({
-    date,
     checkOut: { $exists: false },
   }).populate('workerId', 'name email');
 
@@ -168,8 +167,46 @@ async function getWorkerTrail(workerId, dateStr) {
   };
 }
 
+async function getNearestWorkers(lat, lng, limit = 3) {
+  const activeWorkers = await getActiveWorkers();
+  console.log(`Number of active workers returned by getActiveWorkers: ${activeWorkers.length}`);
+  
+  const targetPoint = turf.point([lng, lat]);
+  const workersWithDistance = [];
+  
+  for (const worker of activeWorkers) {
+    console.log(`Worker: ${worker.workerId}`);
+    console.log(`- latitude: ${worker.latitude}`);
+    console.log(`- longitude: ${worker.longitude}`);
+    console.log(`- attendance status: ${worker.attendanceStatus}`);
+    console.log(`- current assignment: ${worker.currentGeofence}`);
+
+    if (worker.latitude == null || worker.longitude == null) {
+      console.log(`-> Skipping worker ${worker.workerId} because latitude or longitude missing`);
+      continue;
+    }
+
+    // Attempt to calculate distance
+    try {
+      const workerPoint = turf.point([worker.longitude, worker.latitude]);
+      const distance = turf.distance(targetPoint, workerPoint, { units: 'kilometers' });
+      workersWithDistance.push({
+        ...worker,
+        distance
+      });
+      console.log(`-> Kept worker ${worker.workerId}, distance: ${distance}`);
+    } catch (err) {
+      console.log(`-> Skipping worker ${worker.workerId} due to turf error: ${err.message}`);
+    }
+  }
+
+  workersWithDistance.sort((a, b) => a.distance - b.distance);
+  return workersWithDistance.slice(0, limit);
+}
+
 module.exports = {
   saveLocation,
   getActiveWorkers,
   getWorkerTrail,
+  getNearestWorkers,
 };
