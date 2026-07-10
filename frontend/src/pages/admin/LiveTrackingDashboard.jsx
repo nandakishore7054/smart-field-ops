@@ -5,6 +5,7 @@ import { socket } from '../../app/socket';
 import LiveMap from '../../features/tracking/LiveMap';
 import { Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import WorkerTrailMapLayer from './components/WorkerTrailMapLayer';
 
 const INDIA_CENTER = [22.5937, 78.9629];
 const DEFAULT_ZOOM = 5;
@@ -68,6 +69,12 @@ export default function LiveTrackingDashboard() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
   
+  // Trail State
+  const [showTrail, setShowTrail] = useState(false);
+  const [trailDate, setTrailDate] = useState(new Date().toISOString().split('T')[0]);
+  const [trailData, setTrailData] = useState(null);
+  const [trailLoading, setTrailLoading] = useState(false);
+  
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [filterOnline, setFilterOnline] = useState('all');
@@ -99,6 +106,41 @@ export default function LiveTrackingDashboard() {
   }, []);
 
   useEffect(() => {
+    async function fetchTrail(isAutoRefresh = false) {
+      if (!showTrail || !selectedWorkerId) {
+        if (!isAutoRefresh) setTrailData(null);
+        return;
+      }
+      if (!isAutoRefresh) setTrailLoading(true);
+      try {
+        const response = await api.get(`/tracking/trail/${selectedWorkerId}?date=${trailDate}`);
+        setTrailData(response.data.data);
+      } catch (err) {
+        console.error('Failed to fetch worker trail', err);
+        if (!isAutoRefresh) setTrailData(null);
+      } finally {
+        if (!isAutoRefresh) setTrailLoading(false);
+      }
+    }
+    
+    // Initial fetch on change
+    fetchTrail();
+
+    // Auto-refresh interval (5 seconds)
+    let intervalId;
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (showTrail && selectedWorkerId && trailDate === todayStr) {
+      intervalId = setInterval(() => {
+        fetchTrail(true); // silent background refresh
+      }, 5000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [showTrail, selectedWorkerId, trailDate]);
+
+  useEffect(() => {
     function handleLocationUpdate(data) {
       setWorkers(prev => {
         const existing = prev[data.workerId] || {};
@@ -115,6 +157,22 @@ export default function LiveTrackingDashboard() {
           }
         };
       });
+
+      // If trail is showing for this worker for TODAY, append the point
+      if (showTrail && selectedWorkerId === data.workerId) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (trailDate === todayStr) {
+          setTrailData(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              coordinates: [...prev.coordinates, { lat: data.latitude, lng: data.longitude, timestamp: data.timestamp }],
+              endTime: data.timestamp,
+              totalPoints: prev.totalPoints + 1
+            };
+          });
+        }
+      }
     }
 
     function handleGeofenceEntered(data) {
@@ -198,7 +256,7 @@ export default function LiveTrackingDashboard() {
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
     };
-  }, []);
+  }, [showTrail, selectedWorkerId, trailDate]);
 
   // Sync Popup with Sidebar Selection
   useEffect(() => {
@@ -411,6 +469,57 @@ export default function LiveTrackingDashboard() {
               })
             )}
           </div>
+          
+          {selectedWorkerId && (
+            <div className="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                  <span className="text-sky-500">🗺️</span> Worker Trail
+                </h3>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" checked={showTrail} onChange={(e) => setShowTrail(e.target.checked)} />
+                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-sky-500"></div>
+                </label>
+              </div>
+              
+              {showTrail && (
+                <div className="space-y-3 animate-in slide-in-from-top-2 duration-200 fade-in">
+                  <input 
+                    type="date" 
+                    value={trailDate} 
+                    onChange={(e) => setTrailDate(e.target.value)} 
+                    className="w-full text-sm px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-shadow" 
+                  />
+                  
+                  {trailLoading ? (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                      <div className="w-3 h-3 border-2 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+                      Loading trail data...
+                    </div>
+                  ) : trailData && trailData.coordinates.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
+                        <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Distance</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{(trailData.totalDistance / 1000).toFixed(2)} km</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
+                        <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Points</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{trailData.totalPoints} ping(s)</span>
+                      </div>
+                      <div className="col-span-2 bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
+                        <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Last Updated</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{new Date(trailData.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-rose-500 bg-rose-50 dark:bg-rose-900/20 p-2 rounded border border-rose-100 dark:border-rose-800">
+                      No trail data found for this date.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Map Area */}
@@ -422,6 +531,7 @@ export default function LiveTrackingDashboard() {
           )}
           <LiveMap center={INDIA_CENTER} zoom={DEFAULT_ZOOM}>
             <MapController workers={workers} selectedWorkerId={selectedWorkerId} onResetCenter={() => setSelectedWorkerId(null)} />
+            <WorkerTrailMapLayer trailData={trailData} isVisible={showTrail} />
             
             {activeWorkersList.map(worker => (
               <Marker 

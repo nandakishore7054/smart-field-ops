@@ -110,7 +110,66 @@ async function getActiveWorkers() {
   return activeWorkersWithLocation.filter(w => w !== null);
 }
 
+const turf = require('@turf/turf');
+
+async function getWorkerTrail(workerId, dateStr) {
+  const date = new Date(dateStr);
+  const start = getStartOfDay(date);
+  
+  const end = new Date(start);
+  end.setUTCHours(23, 59, 59, 999);
+
+  const locations = await WorkerLocation.find({
+    workerId,
+    timestamp: { $gte: start, $lte: end }
+  }).sort({ timestamp: 1 });
+
+  if (!locations || locations.length === 0) {
+    return {
+      coordinates: [],
+      startTime: null,
+      endTime: null,
+      totalPoints: 0,
+      totalDistance: 0
+    };
+  }
+
+  const coordinates = [];
+  let totalDistance = 0;
+  
+  for (let i = 0; i < locations.length; i++) {
+    const loc = locations[i];
+    if (loc.location && loc.location.coordinates) {
+      // GeoJSON is [longitude, latitude]
+      coordinates.push({
+        lat: loc.location.coordinates[1],
+        lng: loc.location.coordinates[0],
+        timestamp: loc.timestamp
+      });
+      
+      if (i > 0) {
+        const prevLoc = locations[i - 1];
+        if (prevLoc.location && prevLoc.location.coordinates) {
+          const from = turf.point(prevLoc.location.coordinates);
+          const to = turf.point(loc.location.coordinates);
+          const dist = turf.distance(from, to, { units: 'meters' });
+          totalDistance += dist;
+        }
+      }
+    }
+  }
+
+  return {
+    coordinates,
+    startTime: locations[0].timestamp,
+    endTime: locations[locations.length - 1].timestamp,
+    totalPoints: coordinates.length,
+    totalDistance: Math.round(totalDistance)
+  };
+}
+
 module.exports = {
   saveLocation,
   getActiveWorkers,
+  getWorkerTrail,
 };

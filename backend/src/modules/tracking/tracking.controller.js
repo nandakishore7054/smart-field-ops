@@ -25,7 +25,20 @@ const getActiveWorkers = asyncHandler(async (req, res) => {
   return successResponse(res, 200, workers);
 });
 
+const getWorkerTrail = asyncHandler(async (req, res) => {
+  const { workerId } = req.params;
+  const { date } = req.query;
+  
+  if (!date) {
+    return res.status(400).json({ status: 'fail', error: 'Date query parameter is required (YYYY-MM-DD)' });
+  }
+
+  const trail = await trackingService.getWorkerTrail(workerId, date);
+  return successResponse(res, 200, trail);
+});
+
 module.exports = {
   submitLocation,
   getActiveWorkers,
+  getWorkerTrail,
 };

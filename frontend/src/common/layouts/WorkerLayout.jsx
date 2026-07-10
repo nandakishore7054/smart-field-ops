@@ -43,7 +43,8 @@ export default function WorkerLayout() {
         },
         {
           enableHighAccuracy: true,
-          maximumAge: 0
+          maximumAge: 10000, // allow up to 10 second old cached location
+          timeout: 30000     // 30 seconds timeout to prevent code 3 errors
         }
       );
     } else {

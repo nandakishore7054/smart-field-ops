@@ -12,5 +12,6 @@ trackingRouter.post('/location', requireRoles('worker'), trackingController.subm
 
 // Admin / Dispatcher only
 trackingRouter.get('/active-workers', requireRoles('admin', 'dispatcher'), trackingController.getActiveWorkers);
+trackingRouter.get('/trail/:workerId', requireRoles('admin', 'dispatcher'), trackingController.getWorkerTrail);
 
 module.exports = trackingRouter;
