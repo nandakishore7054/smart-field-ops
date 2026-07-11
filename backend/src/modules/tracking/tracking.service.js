@@ -127,10 +127,13 @@ async function getWorkerTrail(workerId, dateStr) {
     };
   }
 
+  const { calculateTotalDistance, filterValidLocations } = require('../../core/utils/distance.util');
+  const validLocations = filterValidLocations(locations);
+
   const coordinates = [];
   
-  for (let i = 0; i < locations.length; i++) {
-    const loc = locations[i];
+  for (let i = 0; i < validLocations.length; i++) {
+    const loc = validLocations[i];
     if (loc.location && loc.location.coordinates) {
       coordinates.push({
         lat: loc.location.coordinates[1],
@@ -140,14 +143,13 @@ async function getWorkerTrail(workerId, dateStr) {
     }
   }
 
-  const { calculateTotalDistance } = require('../../core/utils/distance.util');
-  const totalDistanceKm = calculateTotalDistance(locations);
+  const totalDistanceKm = calculateTotalDistance(validLocations);
   const totalDistanceMeters = Math.round(totalDistanceKm * 1000);
 
   return {
     coordinates,
-    startTime: locations[0].timestamp,
-    endTime: locations[locations.length - 1].timestamp,
+    startTime: validLocations.length > 0 ? validLocations[0].timestamp : null,
+    endTime: validLocations.length > 0 ? validLocations[validLocations.length - 1].timestamp : null,
     totalPoints: coordinates.length,
     totalDistance: totalDistanceMeters
   };

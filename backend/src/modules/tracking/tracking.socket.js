@@ -8,10 +8,17 @@ const lastUpdateMap = new Map();
 function setupTrackingSockets(io) {
   io.on('connection', (socket) => {
     socket.on('worker:location-update', async (data) => {
-      if (!data || !data.workerId) return; // Drop if no workerId provided
+      // Enforce: only workers can send GPS updates
+      if (!socket.user || socket.user.role !== 'worker') {
+        return; // Silently drop non-worker GPS updates
+      }
+
+      // Use the authenticated user's ID — never trust the client payload
+      const workerIdStr = socket.user._id;
+
+      if (!data) return;
       
-      const { workerId, ...locationData } = data;
-      const workerIdStr = workerId.toString();
+      const { workerId: _untrusted, ...locationData } = data;
       
       const now = Date.now();
       const lastUpdate = lastUpdateMap.get(workerIdStr) || 0;
@@ -36,14 +43,10 @@ function setupTrackingSockets(io) {
         const record = await trackingService.saveLocation(workerIdStr, parsed.data);
         console.log(`[TRACE: DB] Location saved to DB for worker ${workerIdStr}. Timestamp:`, record.timestamp);
         
-        // Fetch the user to get the name for the socket payload
-        const User = require('../auth/auth.model');
-        const worker = await User.findById(workerIdStr).select('name');
-        
-        // Broadcast to admin room
+        // Broadcast to admin room — use the verified identity
         io.to('admin').emit('location:updated', {
           workerId: workerIdStr,
-          workerName: worker ? worker.name : 'Unknown Worker',
+          workerName: socket.user.name,
           latitude: parsed.data.latitude,
           longitude: parsed.data.longitude,
           timestamp: record.timestamp,
@@ -63,3 +66,4 @@ function setupTrackingSockets(io) {
 }
 
 module.exports = { setupTrackingSockets };
+

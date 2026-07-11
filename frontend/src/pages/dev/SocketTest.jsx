@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import LiveMap from '../../features/tracking/LiveMap';
+import { getAccessToken } from '../../app/api';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -43,9 +44,15 @@ export default function SocketTest() {
   const connect = () => {
     if (socket) socket.disconnect();
     
-    addLog('INFO', `Connecting to ${SOCKET_URL}...`);
+    const token = getAccessToken();
+    if (!token) {
+      addLog('ERROR', 'No JWT found in localStorage. Please login first.');
+      return;
+    }
+    addLog('INFO', `Connecting to ${SOCKET_URL} with JWT auth...`);
     const newSocket = io(SOCKET_URL, {
-      withCredentials: true
+      withCredentials: true,
+      auth: { token },
     });
 
     newSocket.on('connect', () => {
@@ -89,16 +96,11 @@ export default function SocketTest() {
   };
 
   const joinAsAdmin = () => {
-    if (!socket) return alert('Connect first');
-    socket.emit('join', { role: 'admin' });
-    addLog('ACTION', "Emitted join with { role: 'admin' }");
+    addLog('INFO', 'Room assignment is now automatic. If your JWT belongs to an admin/dispatcher, you are already in the admin room.');
   };
 
   const joinAsWorker = () => {
-    if (!socket) return alert('Connect first');
-    if (!workerId) return alert('Enter Worker ID');
-    socket.emit('join', { userId: workerId, role: 'worker' });
-    addLog('ACTION', `Emitted join with { userId: '${workerId}', role: 'worker' }`);
+    addLog('INFO', 'Room assignment is now automatic. Your JWT identity determines your room membership.');
   };
 
   const sendLocation = (customLat = lat, customLng = lng) => {
@@ -147,7 +149,7 @@ export default function SocketTest() {
           <button onClick={disconnect}>Disconnect</button>
           
           <hr />
-          <h3>2. Authentication (Join Rooms)</h3>
+          <h3>2. Authentication (JWT-based, auto-joined)</h3>
           <button onClick={joinAsAdmin}>Join as Admin</button>
           
           <div style={{ marginTop: '10px' }}>

@@ -96,9 +96,14 @@ async function getDistanceKPIs(start, end) {
   }
 
   let totalDistanceToday = 0;
+  console.log(`\n--- Dashboard KPIs: getDistanceKPIs START ---`);
   for (const wId in byWorker) {
-    totalDistanceToday += calculateTotalDistance(byWorker[wId]);
+    const workerLocs = byWorker[wId];
+    const dist = calculateTotalDistance(workerLocs);
+    console.log(`Worker ID: ${wId} | Fetched records: ${workerLocs.length} | Passed to util: ${workerLocs.length} | Final distance: ${dist.toFixed(3)} km`);
+    totalDistanceToday += dist;
   }
+  console.log(`--- Dashboard KPIs END | Total Distance KPI: ${totalDistanceToday.toFixed(3)} km ---\n`);
 
   return {
     totalDistanceToday: totalDistanceToday > 0 ? `${totalDistanceToday.toFixed(2)} km` : null
@@ -276,6 +281,11 @@ async function getDashboardCharts() {
     workerDistanceTravelled,
     distanceTrend
   };
+
+  console.log(`\n--- Dashboard Charts Log ---`);
+  console.log(`Top 5 Worker Distance values:`, JSON.stringify(workerDistanceTravelled, null, 2));
+  console.log(`Distance Trend values:`, JSON.stringify(distanceTrend, null, 2));
+  console.log(`----------------------------\n`);
 
   chartsCache = {
     data: result,
