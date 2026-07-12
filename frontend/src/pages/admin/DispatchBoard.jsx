@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../app/api';
 import { socket } from '../../app/socket';
 import TaskForm from '../../features/tasks/TaskForm';
@@ -58,28 +59,64 @@ export default function DispatchBoard() {
   }
 
   return (
-    <section className="space-y-6">
-      <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-sky-300">Task management</p>
-        <h2 className="mt-2 text-3xl font-semibold text-white">Dispatch Board</h2>
-        <p className="mt-2 max-w-2xl text-slate-400">
-          Create, update, and remove tasks from the admin workspace. This page is limited to Phase 3 functionality.
-        </p>
+    <motion.section 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-8 p-2 md:p-6"
+    >
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">Dispatch Board</h2>
+          <p className="mt-1 text-sm text-muted-foreground max-w-2xl">
+            Create, update, and remove tasks from the admin workspace. Monitor real-time status and proofs of work.
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <TaskForm editingTask={editingTask} onSaved={handleSaved} onCancel={handleCancelEdit} />
-        <TaskList refreshToken={refreshToken} onEditTask={handleEditTask} onDeleted={handleSaved} onReviewTask={handleReviewTask} />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,2fr)]">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <TaskForm editingTask={editingTask} onSaved={handleSaved} onCancel={handleCancelEdit} />
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
+          <TaskList refreshToken={refreshToken} onEditTask={handleEditTask} onDeleted={handleSaved} onReviewTask={handleReviewTask} />
+        </motion.div>
       </div>
 
-      <div className="space-y-4">
-        {reviewError ? <p className="rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{reviewError}</p> : null}
-        {loadingReview ? (
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 text-slate-300">Loading verification details...</div>
-        ) : (
-          <AdminVerificationView task={selectedReviewTask} onVerified={setSelectedReviewTask} />
+      <AnimatePresence>
+        {(reviewError || loadingReview || selectedReviewTask) && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="space-y-4 pt-4 border-t border-border"
+          >
+            {reviewError ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive font-medium border border-destructive/20">
+                {reviewError}
+              </motion.div>
+            ) : null}
+            
+            {loadingReview ? (
+              <div className="rounded-2xl border border-border bg-surface p-8 text-center flex flex-col items-center justify-center">
+                 <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3" />
+                 <p className="text-muted-foreground font-medium text-sm">Loading verification details...</p>
+              </div>
+            ) : selectedReviewTask ? (
+              <AdminVerificationView task={selectedReviewTask} onVerified={setSelectedReviewTask} />
+            ) : null}
+          </motion.div>
         )}
-      </div>
-    </section>
+      </AnimatePresence>
+    </motion.section>
   );
 }

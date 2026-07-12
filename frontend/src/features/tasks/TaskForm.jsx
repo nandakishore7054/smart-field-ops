@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Type, AlignLeft, Flag, Clock, MapPin, User, AlertCircle 
+} from 'lucide-react';
 import api from '../../app/api';
+import { Card } from '../../common/components/ui/Card';
+import { Input } from '../../common/components/ui/Input';
+import { Button } from '../../common/components/ui/Button';
 
 const initialFormState = {
   title: '',
@@ -90,7 +97,10 @@ export default function TaskForm({ editingTask, onSaved, onCancel }) {
   }, []);
 
   const workerOptions = useMemo(
-    () => workers.map((worker) => ({ value: worker._id, label: `${worker.name} (${worker.email})` })),
+    () => [
+      { value: '', label: 'Unassigned' },
+      ...workers.map((w) => ({ value: w._id, label: `${w.name} (${w.email})` }))
+    ],
     [workers]
   );
 
@@ -163,115 +173,149 @@ export default function TaskForm({ editingTask, onSaved, onCancel }) {
   }
 
   return (
-    <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6">
-      <div className="mb-5">
-        <p className="text-sm uppercase tracking-[0.3em] text-sky-300">Task form</p>
-        <h3 className="mt-2 text-2xl font-semibold text-white">{isEditing ? 'Edit task' : 'Create task'}</h3>
+    <Card className="p-5 sm:p-6 sticky top-24 shadow-sm bg-surface/50 border-border/50">
+      <div className="mb-6 pb-4 border-b border-border/50">
+        <h3 className="text-xl font-bold text-foreground">
+          {isEditing ? 'Edit Task' : 'Create Task'}
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          {isEditing ? 'Update task details and assignment.' : 'Fill out the form below to dispatch a new task.'}
+        </p>
       </div>
 
-      <form className="grid gap-4" onSubmit={handleSubmit} noValidate>
-        <label className="grid gap-2">
-          <span className="text-sm text-slate-300">Title</span>
-          <input
-            value={formState.title}
-            onChange={(event) => setFormState({ ...formState, title: event.target.value })}
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-sky-400"
+      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+        
+        <div className="space-y-4">
+          <Input
+            label="Title"
+            leftIcon={<Type className="w-4 h-4 text-muted-foreground" />}
             placeholder="Inspect north warehouse"
+            value={formState.title}
+            onChange={(e) => setFormState({ ...formState, title: e.target.value })}
+            error={errors.title}
           />
-          {errors.title ? <p className="text-sm text-rose-400">{errors.title}</p> : null}
-        </label>
 
-        <label className="grid gap-2">
-          <span className="text-sm text-slate-300">Description</span>
-          <textarea
-            rows={4}
-            value={formState.description}
-            onChange={(event) => setFormState({ ...formState, description: event.target.value })}
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-sky-400"
-            placeholder="Provide any important instructions"
-          />
-        </label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Description</label>
+            <div className="relative">
+              <div className="absolute left-3 top-3.5 pointer-events-none">
+                <AlignLeft className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <textarea
+                rows={4}
+                value={formState.description}
+                onChange={(e) => setFormState({ ...formState, description: e.target.value })}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-input bg-surface text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow resize-none"
+                placeholder="Provide any important instructions..."
+              />
+            </div>
+          </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2">
-            <span className="text-sm text-slate-300">Priority</span>
-            <select
-              value={formState.priority}
-              onChange={(event) => setFormState({ ...formState, priority: event.target.value })}
-              className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-sky-400"
-            >
-              {priorityOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Priority</label>
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Flag className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <select
+                  value={formState.priority}
+                  onChange={(e) => setFormState({ ...formState, priority: e.target.value })}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-input bg-surface text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow appearance-none"
+                >
+                  {priorityOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-          <label className="grid gap-2">
-            <span className="text-sm text-slate-300">Deadline</span>
-            <input
+            <Input
               type="datetime-local"
+              label="Deadline"
+              leftIcon={<Clock className="w-4 h-4 text-muted-foreground" />}
               value={formState.deadline}
-              onChange={(event) => setFormState({ ...formState, deadline: event.target.value })}
-              className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-sky-400"
+              onChange={(e) => setFormState({ ...formState, deadline: e.target.value })}
+              error={errors.deadline}
             />
-            {errors.deadline ? <p className="text-sm text-rose-400">{errors.deadline}</p> : null}
-          </label>
+          </div>
+
+          <Input
+            label="Location Address"
+            leftIcon={<MapPin className="w-4 h-4 text-muted-foreground" />}
+            placeholder="Warehouse 14, Industrial Park"
+            value={formState.locationAddress}
+            onChange={(e) => setFormState({ ...formState, locationAddress: e.target.value })}
+          />
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Assignee</label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <User className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <select
+                value={formState.assignedTo}
+                onChange={(e) => setFormState({ ...formState, assignedTo: e.target.value })}
+                disabled={loadingWorkers}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-input bg-surface text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {workerOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            
+            <AnimatePresence>
+              {workerAvailabilityStatus && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex items-center gap-1.5 text-xs text-warning mt-1"
+                >
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  <span>{workerAvailabilityStatus}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
-        <label className="grid gap-2">
-          <span className="text-sm text-slate-300">Location address</span>
-          <input
-            value={formState.locationAddress}
-            onChange={(event) => setFormState({ ...formState, locationAddress: event.target.value })}
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-sky-400"
-            placeholder="Warehouse 14, Industrial Park"
-          />
-        </label>
-
-        <label className="grid gap-2">
-          <span className="text-sm text-slate-300">Assignee</span>
-          <select
-            value={formState.assignedTo}
-            onChange={(event) => setFormState({ ...formState, assignedTo: event.target.value })}
-            disabled={loadingWorkers}
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <option value="">Unassigned</option>
-            {workerOptions.map((worker) => (
-              <option key={worker.value} value={worker.value}>
-                {worker.label}
-              </option>
-            ))}
-          </select>
-          {loadingWorkers ? <p className="text-xs text-slate-500">Loading workers...</p> : null}
-          {workerAvailabilityStatus && (
-            <p className="text-sm text-yellow-500 mt-1">{workerAvailabilityStatus}</p>
-          )}
-        </label>
-
-        {serverMessage ? <p className="rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{serverMessage}</p> : null}
-
-        <div className="flex flex-wrap gap-3 pt-2">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="rounded-2xl bg-sky-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {submitting ? 'Saving...' : isEditing ? 'Update task' : 'Create task'}
-          </button>
-          {isEditing ? (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="rounded-2xl border border-slate-700 px-5 py-3 font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white"
+        <AnimatePresence>
+          {serverMessage && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20"
             >
-              Cancel edit
-            </button>
-          ) : null}
+              {serverMessage}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex flex-col sm:flex-row gap-3 pt-4 mt-6 border-t border-border/50">
+          <Button
+            type="submit"
+            isLoading={submitting}
+            className="w-full sm:flex-1"
+          >
+            {isEditing ? 'Update Task' : 'Create Task'}
+          </Button>
+          
+          {isEditing && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              className="w-full sm:flex-1"
+            >
+              Cancel Edit
+            </Button>
+          )}
         </div>
       </form>
-    </section>
+    </Card>
   );
 }
