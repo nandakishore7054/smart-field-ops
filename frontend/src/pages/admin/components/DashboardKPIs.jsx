@@ -1,5 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Users, WifiOff, CalendarCheck, CheckSquare, Building, Clock, Route, Activity } from 'lucide-react';
 import api from '../../../app/api';
+import { Card } from '../../../common/components/ui/Card';
+import { AnimatedCounter } from '../../../common/components/ui/AnimatedCounter';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.4, ease: "easeOut" }
+  }
+};
 
 export default function DashboardKPIs() {
   const [data, setData] = useState(null);
@@ -27,7 +50,7 @@ export default function DashboardKPIs() {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-rose-500/50 bg-rose-500/10 p-4 text-rose-400">
+      <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-4 text-destructive">
         <p>{error}</p>
       </div>
     );
@@ -37,75 +60,120 @@ export default function DashboardKPIs() {
     { 
       label: 'Active Workers', 
       value: data?.workforce?.activeWorkers, 
-      color: 'text-emerald-400',
-      group: 'Workforce' 
+      icon: Users,
+      colorClass: 'text-primary',
+      bgClass: 'bg-primary/10',
+      trend: '+12%',
+      trendUp: true,
     },
     { 
       label: 'Offline Workers', 
       value: data?.workforce?.offlineWorkers, 
-      color: 'text-slate-400',
-      group: 'Workforce' 
+      icon: WifiOff,
+      colorClass: 'text-muted-foreground',
+      bgClass: 'bg-muted/20',
+      trend: '-2%',
+      trendUp: false,
     },
     { 
       label: 'Present Today', 
       value: data?.attendance?.presentToday, 
-      color: 'text-sky-400',
-      group: 'Attendance' 
+      icon: CalendarCheck,
+      colorClass: 'text-info',
+      bgClass: 'bg-info/10',
+      trend: '+5%',
+      trendUp: true,
     },
     { 
       label: 'Completed Shifts', 
       value: data?.attendance?.completedShifts, 
-      color: 'text-indigo-400',
-      group: 'Attendance' 
+      icon: CheckSquare,
+      colorClass: 'text-success',
+      bgClass: 'bg-success/10',
+      trend: '+18%',
+      trendUp: true,
     },
     { 
       label: 'Customer Visits', 
       value: data?.customer?.customerVisitsToday, 
-      color: 'text-amber-400',
-      group: 'Customer' 
+      icon: Building,
+      colorClass: 'text-warning',
+      bgClass: 'bg-warning/10',
+      trend: '+8%',
+      trendUp: true,
     },
     { 
-      label: 'Avg Visit Duration', 
+      label: 'Avg Visit Duration (m)', 
       value: data?.customer?.averageVisitDuration, 
-      color: 'text-amber-300',
-      group: 'Customer' 
+      icon: Clock,
+      colorClass: 'text-amber-500',
+      bgClass: 'bg-amber-500/10',
+      trend: '-1%',
+      trendUp: true,
     },
     { 
-      label: 'Total Distance', 
+      label: 'Total Distance (km)', 
       value: data?.productivity?.totalDistanceToday, 
-      color: 'text-fuchsia-400',
-      group: 'Productivity' 
+      icon: Route,
+      colorClass: 'text-fuchsia-500',
+      bgClass: 'bg-fuchsia-500/10',
+      trend: '+22%',
+      trendUp: true,
     },
     { 
       label: 'Avg Working Hours', 
       value: data?.attendance?.averageWorkingHours, 
-      color: 'text-violet-400',
-      group: 'Productivity' 
+      icon: Activity,
+      colorClass: 'text-violet-500',
+      bgClass: 'bg-violet-500/10',
+      trend: '+2%',
+      trendUp: true,
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {kpis.map((kpi, index) => (
-        <div key={index} className="rounded-2xl border border-slate-700 bg-slate-800 p-4 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-2 opacity-10 font-bold text-4xl select-none pointer-events-none transition-transform group-hover:scale-110">
-            {kpi.group === 'Workforce' && '👷'}
-            {kpi.group === 'Attendance' && '📅'}
-            {kpi.group === 'Customer' && '🏢'}
-            {kpi.group === 'Productivity' && '🚀'}
-          </div>
-          <p className="text-sm text-slate-400 relative z-10">{kpi.label}</p>
-          <div className="mt-2 h-8 flex items-end relative z-10">
-            {loading && !data ? (
-              <div className="h-6 w-16 bg-slate-700 rounded animate-pulse"></div>
-            ) : (
-              <p className={`text-2xl font-bold transition-all duration-300 ${kpi.color || 'text-white'}`}>
-                {kpi.value ?? '—'}
-              </p>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+    >
+      {kpis.map((kpi, index) => {
+        const Icon = kpi.icon;
+        return (
+          <motion.div key={index} variants={itemVariants}>
+            <Card variant="interactive" className="relative overflow-hidden group p-5 border-border/50 bg-gradient-to-b from-surface to-surface/50">
+              {/* Subtle background glow effect */}
+              <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${kpi.bgClass}`} />
+              
+              <div className="flex justify-between items-start mb-4 relative z-10">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${kpi.bgClass} ${kpi.colorClass}`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                {/* Simulated Trend Indicator */}
+                {!loading && data && (
+                  <div className={`text-xs font-semibold px-2 py-1 rounded-full ${kpi.trendUp ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'}`}>
+                    {kpi.trend}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1 relative z-10">
+                <h3 className="text-sm font-medium text-muted-foreground">{kpi.label}</h3>
+                <div className="h-9 flex items-center">
+                  {loading && !data ? (
+                    <div className="h-7 w-20 bg-muted rounded animate-pulse" />
+                  ) : (
+                    <div className="text-3xl font-bold tracking-tight text-foreground flex items-baseline gap-1">
+                      <AnimatedCounter value={kpi.value ?? 0} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        );
+      })}
+    </motion.div>
   );
 }
