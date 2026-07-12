@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import api from '../../app/api';
+import { Card } from '../../common/components/ui/Card';
+import { Button } from '../../common/components/ui/Button';
+import { Input } from '../../common/components/ui/Input';
 
 export default function LeaveRequestForm({ onSuccess }) {
 
@@ -40,16 +43,16 @@ export default function LeaveRequestForm({ onSuccess }) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Request Time Off</h2>
+    <Card className="p-6">
+      <h2 className="text-xl font-bold mb-6 text-foreground">Request Time Off</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
+          <label className="block text-sm font-semibold text-foreground mb-1.5">Type</label>
           <select
             name="type"
             value={formState.type}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
           >
             <option value="vacation">Vacation</option>
             <option value="sick">Sick Leave</option>
@@ -60,52 +63,50 @@ export default function LeaveRequestForm({ onSuccess }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
-            <input
+            <label className="block text-sm font-semibold text-foreground mb-1.5">Start Date</label>
+            <Input
               type="date"
               name="startDate"
               value={formState.startDate}
               onChange={handleChange}
               min={new Date().toISOString().split('T')[0]}
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
-            <input
+            <label className="block text-sm font-semibold text-foreground mb-1.5">End Date</label>
+            <Input
               type="date"
               name="endDate"
               value={formState.endDate}
               onChange={handleChange}
               min={formState.startDate || new Date().toISOString().split('T')[0]}
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               required
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Reason (Optional)</label>
+          <label className="block text-sm font-semibold text-foreground mb-1.5">Reason (Optional)</label>
           <textarea
             name="reason"
             value={formState.reason}
             onChange={handleChange}
             rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            placeholder="Add any additional details..."
+            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
           ></textarea>
         </div>
 
-        <div className="flex justify-end">
-          <button
+        <div className="flex justify-end pt-4">
+          <Button
             type="submit"
-            disabled={loading}
-            className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+            isLoading={loading}
           >
-            {loading ? 'Submitting...' : 'Submit Request'}
-          </button>
+            Submit Request
+          </Button>
         </div>
       </form>
-    </div>
+    </Card>
   );
 }

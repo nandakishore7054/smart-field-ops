@@ -9,6 +9,19 @@ import WorkerTrailMapLayer from './components/WorkerTrailMapLayer';
 import NearestWorkerFinder from './components/NearestWorkerFinder';
 import WorkerDailySummaryCard from './components/WorkerDailySummaryCard';
 
+// Design System & Motion
+import { Card } from '../../common/components/ui/Card';
+import { Badge } from '../../common/components/ui/Badge';
+import { Input } from '../../common/components/ui/Input';
+import { Button } from '../../common/components/ui/Button';
+import { EmptyState } from '../../common/components/ui/EmptyState';
+import { Skeleton } from '../../common/components/ui/Skeleton';
+import { motion } from 'framer-motion';
+import { 
+  Users, Wifi, WifiOff, Activity, Navigation, LocateFixed, Globe, Target, MapPin, 
+  Map, Battery, ShieldAlert, Gauge, XCircle, Filter, Search, RotateCcw
+} from 'lucide-react';
+
 const INDIA_CENTER = [22.5937, 78.9629];
 const DEFAULT_ZOOM = 5;
 
@@ -54,24 +67,16 @@ function MapController({ workers, selectedWorkerId, onResetCenter, isNearestMode
           console.log("Nearest Mode:", isNearestMode);
           onToggleNearestMode();
         }} 
-        className={`${isNearestMode ? 'bg-violet-600 text-white hover:bg-violet-700 ring-4 ring-violet-200 dark:ring-violet-900' : 'bg-white text-violet-600 hover:bg-violet-50'} shadow-lg p-3 rounded-full transition-all group relative`} 
+        className={`${isNearestMode ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-surface text-primary hover:bg-primary/5'} shadow-lg p-3 rounded-full transition-all group relative border border-border/50`} 
         title="Find Nearest Workers"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
+        <Target className="w-5 h-5" />
       </button>
-      <button onClick={() => onResetCenter(true)} className="bg-white hover:bg-sky-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors group relative" title="Center on Workers">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-sky-600" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-        </svg>
+      <button onClick={() => onResetCenter(true)} className="bg-surface hover:bg-sky-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors border border-border/50" title="Center on Workers">
+        <Users className="w-5 h-5 text-sky-600" />
       </button>
-      <button onClick={() => map.flyTo(INDIA_CENTER, DEFAULT_ZOOM, { animate: true })} className="bg-white hover:bg-slate-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors" title="Center on India">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-        </svg>
+      <button onClick={() => map.flyTo(INDIA_CENTER, DEFAULT_ZOOM, { animate: true })} className="bg-surface hover:bg-slate-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors border border-border/50" title="Center on Region">
+        <Globe className="w-5 h-5 text-indigo-600" />
       </button>
       <button onClick={() => {
         if (navigator.geolocation) {
@@ -87,11 +92,8 @@ function MapController({ workers, selectedWorkerId, onResetCenter, isNearestMode
             { enableHighAccuracy: false, maximumAge: 60000, timeout: 10000 }
           );
         }
-      }} className="bg-white hover:bg-emerald-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors" title="Locate Me">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-          <circle cx="10" cy="11" r="2" fill="currentColor" />
-        </svg>
+      }} className="bg-surface hover:bg-emerald-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors border border-border/50" title="Locate Me">
+        <LocateFixed className="w-5 h-5 text-emerald-600" />
       </button>
     </div>
   );
@@ -360,123 +362,169 @@ export default function LiveTrackingDashboard() {
     : null;
 
   return (
-    <div className="flex flex-col gap-6 min-h-[calc(100vh-80px)]">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-            <span className="p-2 bg-sky-100 dark:bg-sky-500/20 rounded-xl text-sky-600 dark:text-sky-400">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-            </span>
-            Live Tracking Dashboard
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 ml-12">Monitor field workers in real-time across the region</p>
-        </div>
+    <div className="flex flex-col gap-6 min-h-[calc(100vh-80px)] max-w-[1600px] mx-auto">
+      {/* Premium Header */}
+      <Card className="p-6 bg-gradient-to-r from-surface to-surface-muted/30 border-none shadow-sm relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-primary/5 blur-3xl" />
         
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-            <div className="relative flex h-3 w-3">
-              {isConnected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
-              <span className={`relative inline-flex rounded-full h-3 w-3 ${isConnected ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 relative z-10">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
+                <Navigation className="w-6 h-6" />
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Live Tracking Dashboard
+              </h1>
             </div>
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {isConnected ? 'Socket Connected' : 'Disconnected'}
-            </span>
+            <p className="text-muted-foreground ml-[52px]">Monitor fleet and field workers in real-time across the region</p>
           </div>
-          {lastUpdate && (
-            <p className="text-xs text-slate-400 dark:text-slate-500">
-              Last signal: {lastUpdate.toLocaleTimeString()}
-            </p>
-          )}
+          
+          <div className="flex flex-col items-end gap-3">
+            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-surface border border-border/50 shadow-sm">
+              <div className="relative flex h-3.5 w-3.5">
+                {isConnected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>}
+                <span className={`relative inline-flex rounded-full h-3.5 w-3.5 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+              </div>
+              <span className="text-sm font-semibold text-foreground tracking-wide">
+                {isConnected ? 'Socket Connected' : 'Disconnected'}
+              </span>
+            </div>
+            {lastUpdate && (
+              <p className="text-xs text-muted-foreground font-medium">
+                Last signal: {lastUpdate.toLocaleTimeString()}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Statistics Cards */}
+      {/* KPI Cards (Framer Motion Staggered) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Active Workers', value: activeWorkersList.length, icon: 'users', color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-100 dark:bg-indigo-500/20' },
-          { label: 'Online Now', value: onlineCount, icon: 'wifi', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-500/20' },
-          { label: 'Offline', value: activeWorkersList.length - onlineCount, icon: 'wifi-off', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-100 dark:bg-rose-500/20' },
-          { label: 'Map Status', value: isConnected ? 'Live' : 'Stale', icon: 'activity', color: isConnected ? 'text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-400', bg: isConnected ? 'bg-sky-100 dark:bg-sky-500/20' : 'bg-slate-100 dark:bg-slate-800' },
+          { label: 'Active Workers', value: activeWorkersList.length, icon: Users, colorClass: 'text-indigo-600 dark:text-indigo-400', bgClass: 'bg-indigo-50 dark:bg-indigo-900/20' },
+          { label: 'Online Now', value: onlineCount, icon: Wifi, colorClass: 'text-emerald-600 dark:text-emerald-400', bgClass: 'bg-emerald-50 dark:bg-emerald-900/20' },
+          { label: 'Offline', value: activeWorkersList.length - onlineCount, icon: WifiOff, colorClass: 'text-rose-600 dark:text-rose-400', bgClass: 'bg-rose-50 dark:bg-rose-900/20' },
+          { label: 'Map Status', value: isConnected ? 'Live' : 'Stale', icon: Activity, colorClass: isConnected ? 'text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-400', bgClass: isConnected ? 'bg-sky-50 dark:bg-sky-900/20' : 'bg-slate-50 dark:bg-slate-900/20' },
         ].map((stat, idx) => (
-          <div key={idx} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-4">
-            <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-0.5">{stat.value}</h3>
-            </div>
-          </div>
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+          >
+            <Card className="p-5 flex items-center gap-4 hover:shadow-md transition-shadow group overflow-hidden relative">
+              {/* Subtle hover gradient */}
+              <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-tr from-transparent via-transparent to-${stat.bgClass.split('-')[1]}/5 pointer-events-none`} />
+              
+              <div className={`p-3.5 rounded-xl ${stat.bgClass} ${stat.colorClass} group-hover:scale-110 transition-transform duration-300`}>
+                <stat.icon className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground">{stat.label}</p>
+                <motion.h3 
+                  className="text-3xl font-black text-foreground mt-0.5 tracking-tight"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  key={stat.value} // re-animate on change
+                >
+                  {stat.value}
+                </motion.h3>
+              </div>
+            </Card>
+          </motion.div>
         ))}
       </div>
 
       <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-[600px]">
         {/* Sidebar */}
-        <div className="w-full lg:w-96 flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden shrink-0">
-          <div className="p-5 border-b border-slate-200 dark:border-slate-800 space-y-4">
+        <Card className="w-full lg:w-96 flex flex-col shrink-0 overflow-hidden border-border/50">
+          <div className="p-5 border-b border-border/50 space-y-4 bg-surface-muted/30">
             <div className="flex justify-between items-center">
-              <h2 className="font-bold text-lg text-slate-800 dark:text-white">Directory</h2>
-              <button onClick={() => fetchWorkers()} className="text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
+              <h2 className="font-bold text-lg text-foreground flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                Directory
+              </h2>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => fetchWorkers()}
+                className="gap-2"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
                 Refresh
-              </button>
+              </Button>
             </div>
             
-            <input 
-              type="text" 
-              placeholder="Search by name or ID..." 
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                type="text" 
+                placeholder="Search by name or ID..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
             
             <div className="flex gap-2">
-              <select 
-                value={filterOnline} 
-                onChange={e => setFilterOnline(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:outline-none"
-              >
-                <option value="all">All Status</option>
-                <option value="online">Online</option>
-                <option value="offline">Offline</option>
-              </select>
-              <select 
-                value={filterAttendance} 
-                onChange={e => setFilterAttendance(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:outline-none"
-              >
-                <option value="all">All Attendance</option>
-                <option value="present">Present</option>
-                <option value="late">Late</option>
-              </select>
+              <div className="relative flex-1">
+                <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <select 
+                  value={filterOnline} 
+                  onChange={e => setFilterOnline(e.target.value)}
+                  className="w-full flex h-10 rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                >
+                  <option value="all">All Status</option>
+                  <option value="online">Online</option>
+                  <option value="offline">Offline</option>
+                </select>
+              </div>
+              <div className="relative flex-1">
+                <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <select 
+                  value={filterAttendance} 
+                  onChange={e => setFilterAttendance(e.target.value)}
+                  className="w-full flex h-10 rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                >
+                  <option value="all">All Attendance</option>
+                  <option value="present">Present</option>
+                  <option value="late">Late</option>
+                </select>
+              </div>
             </div>
           </div>
 
           {isNearestMode && (
-            <div className="bg-violet-50 dark:bg-violet-900/20 border-b border-violet-100 dark:border-violet-800 p-4 transition-all duration-300">
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="bg-primary/5 border-b border-primary/10 p-4"
+            >
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h3 className="font-bold text-violet-800 dark:text-violet-300 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+                  <h3 className="font-bold text-primary flex items-center gap-2">
+                    <Target className="w-4 h-4" />
                     Nearest Workers
                   </h3>
-                  <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">
+                  <p className="text-xs text-primary/70 mt-1">
                     {!clickedLocation ? 'Click map to find nearest active workers.' : 'Top 3 closest workers shown.'}
                   </p>
                 </div>
-                <button 
+                <Button 
+                  size="sm"
+                  variant="outline"
                   onClick={clearNearestSearch}
-                  className="text-xs font-medium text-violet-600 hover:text-white hover:bg-violet-600 bg-white dark:bg-slate-800 px-2.5 py-1.5 rounded-lg shadow-sm border border-violet-200 dark:border-slate-700 transition-colors"
+                  className="text-xs h-7 px-2"
                 >
                   Clear
-                </button>
+                </Button>
               </div>
 
               {nearestLoading ? (
-                <div className="flex items-center gap-3 text-sm text-violet-600 bg-white dark:bg-slate-800 p-3 rounded-xl border border-violet-100 dark:border-slate-700 shadow-sm">
-                  <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+                <div className="flex items-center gap-3 text-sm text-primary bg-background p-3 rounded-xl border border-border/50 shadow-sm">
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                   Calculating distances...
                 </div>
               ) : nearestWorkers.length > 0 ? (
@@ -492,16 +540,19 @@ export default function LiveTrackingDashboard() {
                       'text-blue-700 bg-blue-100 dark:text-blue-300 dark:bg-blue-900/40'
                     ];
 
-                    const borderClass = borderColors[idx] || 'border-slate-200 dark:border-slate-700';
-                    const badgeClass = badgeColors[idx] || 'bg-slate-500 text-white';
-                    const distClass = distanceColors[idx] || 'text-slate-700 bg-slate-100 dark:text-slate-300 dark:bg-slate-800';
+                    const borderClass = borderColors[idx] || 'border-border';
+                    const badgeClass = badgeColors[idx] || 'bg-muted text-muted-foreground';
+                    const distClass = distanceColors[idx] || 'text-foreground bg-muted';
                     
                     return (
-                      <div 
+                      <motion.div 
                         key={worker.workerId}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
                         onClick={() => setSelectedWorkerId(worker.workerId)}
-                        className={`cursor-pointer p-3 rounded-xl border flex justify-between items-center shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 bg-white dark:bg-slate-800 ${
-                          isSelected ? 'ring-2 ring-sky-500 border-sky-300' : borderClass
+                        className={`cursor-pointer p-3 rounded-xl border flex justify-between items-center shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 bg-background ${
+                          isSelected ? 'ring-2 ring-primary border-primary/50' : borderClass
                         }`}
                       >
                         <div className="flex items-start gap-3">
@@ -509,16 +560,19 @@ export default function LiveTrackingDashboard() {
                             <div className={`${badgeClass} font-black text-xs px-2 py-1 rounded shadow-sm`}>#{idx + 1}</div>
                           </div>
                           <div>
-                            <div className="font-bold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
+                            <div className="font-bold text-foreground text-sm flex items-center gap-1.5">
                               {worker.workerName}
                             </div>
-                            <div className="text-[10px] text-slate-500 mt-1 space-y-0.5">
+                            <div className="text-[10px] text-muted-foreground mt-1 space-y-0.5">
                               {worker.currentGeofence ? (
-                                <div className="text-indigo-600 dark:text-indigo-400 font-medium truncate w-32">📍 {worker.currentGeofence}</div>
+                                <div className="text-primary font-medium truncate w-32 flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {worker.currentGeofence}
+                                </div>
                               ) : (
                                 <div>No active assignment</div>
                               )}
-                              <div className="text-slate-400">Last seen: {new Date(worker.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                              <div className="text-muted-foreground/70">Last seen: {new Date(worker.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                             </div>
                           </div>
                         </div>
@@ -526,154 +580,174 @@ export default function LiveTrackingDashboard() {
                           <div className={`font-black text-sm px-2 py-0.5 rounded-full ${distClass}`}>
                             {worker.distance.toFixed(2)} km
                           </div>
-                          <div className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${worker.attendanceStatus === 'present' ? 'text-emerald-700 bg-emerald-50 border border-emerald-100' : 'text-amber-700 bg-amber-50 border border-amber-100'}`}>
+                          <Badge variant={worker.attendanceStatus === 'present' ? 'success' : 'warning'} className="text-[9px] px-1.5 py-0.5">
                             {worker.attendanceStatus}
-                          </div>
+                          </Badge>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   })}
                 </div>
               ) : clickedLocation ? (
-                <div className="text-sm text-slate-500 bg-white p-3 rounded-xl border border-slate-200 text-center shadow-sm">No active workers found within range.</div>
+                <div className="text-sm text-muted-foreground bg-background p-3 rounded-xl border border-border/50 text-center shadow-sm">No active workers found within range.</div>
               ) : null}
-            </div>
+            </motion.div>
           )}
           
           <div className="flex-1 overflow-y-auto p-3 space-y-2 relative">
             {loading ? (
               <div className="space-y-3">
-                {[1,2,3].map(i => (
-                  <div key={i} className="animate-pulse flex gap-3 p-3 border border-slate-100 rounded-xl">
-                    <div className="w-12 h-12 bg-slate-200 rounded-full"></div>
+                {[1,2,3,4,5].map(i => (
+                  <div key={i} className="flex gap-3 p-3 border border-border/50 rounded-xl bg-background">
+                    <Skeleton className="w-12 h-12 rounded-full shrink-0" />
                     <div className="flex-1 space-y-2 py-1">
-                      <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                      <div className="h-3 bg-slate-200 rounded w-1/2"></div>
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : filteredWorkers.length === 0 ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-4xl shadow-inner border border-slate-100 dark:border-slate-700">
-                  🗺️
-                </div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2">No Active Workers</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">No workers are currently checked in or sharing live location matching your filters.</p>
-                <div className="flex flex-col w-full gap-3">
-                  <button onClick={() => fetchWorkers()} className="w-full bg-sky-500 hover:bg-sky-600 text-white py-2.5 rounded-xl font-medium transition-colors shadow-sm shadow-sky-500/20">
+              <div className="absolute inset-0 flex flex-col justify-center p-6 text-center h-full">
+                <EmptyState
+                  icon={Map}
+                  title="No Active Workers"
+                  description="No workers are currently checked in or matching your filters."
+                />
+                <div className="flex flex-col w-full gap-3 mt-4">
+                  <Button onClick={() => fetchWorkers()} className="w-full">
                     Refresh Directory
-                  </button>
-                  <button onClick={() => navigate('/admin/attendance')} className="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-2.5 rounded-xl font-medium transition-colors">
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/admin/attendance')} className="w-full">
                     Go to Attendance
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
-              filteredWorkers.map(worker => {
-                const isOnline = worker.timestamp && (new Date() - new Date(worker.timestamp) < 5 * 60 * 1000);
-                return (
-                  <button
-                    key={worker.workerId}
-                    onClick={() => setSelectedWorkerId(worker.workerId)}
-                    className={`w-full text-left p-4 rounded-xl transition-all duration-200 border relative overflow-hidden group ${
-                      selectedWorkerId === worker.workerId 
-                        ? 'bg-sky-50 border-sky-300 dark:bg-sky-900/30 dark:border-sky-700 shadow-md transform scale-[1.02]' 
-                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-sky-200 dark:hover:border-sky-800 hover:shadow-md'
-                    }`}
-                  >
-                    {selectedWorkerId === worker.workerId && <div className="absolute left-0 top-0 bottom-0 w-1 bg-sky-500" />}
-                    <div className="flex gap-4 items-center">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center font-bold text-lg text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                          {(worker.workerName || 'U').charAt(0).toUpperCase()}
+              <div className="space-y-2">
+                {filteredWorkers.map((worker, index) => {
+                  const isOnline = worker.timestamp && (new Date() - new Date(worker.timestamp) < 5 * 60 * 1000);
+                  const isSelected = selectedWorkerId === worker.workerId;
+                  
+                  return (
+                    <motion.button
+                      key={worker.workerId}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      onClick={() => setSelectedWorkerId(worker.workerId)}
+                      className={`w-full text-left p-4 rounded-xl transition-all duration-200 border relative overflow-hidden group ${
+                        isSelected 
+                          ? 'bg-primary/5 border-primary/30 shadow-md transform scale-[1.02]' 
+                          : 'bg-background border-border/50 hover:border-primary/30 hover:shadow-md'
+                      }`}
+                    >
+                      {isSelected && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />}
+                      <div className="flex gap-4 items-center">
+                        <div className="relative shrink-0">
+                          <div className="w-12 h-12 bg-surface-muted rounded-full flex items-center justify-center font-bold text-lg text-foreground border border-border shadow-sm">
+                            {(worker.workerName || 'U').charAt(0).toUpperCase()}
+                          </div>
+                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${isOnline ? 'bg-green-500' : 'bg-red-500'}`} />
                         </div>
-                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-slate-900 ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start mb-1">
-                          <h4 className="font-bold text-slate-800 dark:text-slate-200 truncate pr-2">{worker.workerName || 'Unknown Worker'}</h4>
-                          {worker.attendanceStatus && (
-                            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
-                              worker.attendanceStatus === 'present' ? 'bg-emerald-100 text-emerald-700' : 
-                              worker.attendanceStatus === 'manual_override' ? 'bg-purple-100 text-purple-700' :
-                              'bg-amber-100 text-amber-700'
-                            }`}>
-                              {worker.attendanceStatus === 'manual_override' ? 'Override' : worker.attendanceStatus}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-1.5">ID: {worker.workerId.slice(-6)}</p>
-                        
-                        {worker.currentGeofence && (
-                          <div className="mb-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded p-1.5 flex justify-between items-center text-xs">
-                            <span className="text-indigo-700 dark:text-indigo-300 font-medium flex items-center gap-1 truncate"><span className="text-indigo-500">📍</span> {worker.currentGeofence}</span>
-                            {worker.geofenceArrivalTime && (
-                              <span className="text-indigo-500 dark:text-indigo-400 font-mono pl-2 shrink-0">{new Date(worker.geofenceArrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start mb-1">
+                            <h4 className="font-bold text-foreground truncate pr-2">{worker.workerName || 'Unknown Worker'}</h4>
+                            {worker.attendanceStatus && (
+                              <Badge 
+                                variant={
+                                  worker.attendanceStatus === 'present' ? 'success' : 
+                                  worker.attendanceStatus === 'manual_override' ? 'secondary' :
+                                  'warning'
+                                }
+                                className="text-[10px] px-2 py-0.5"
+                              >
+                                {worker.attendanceStatus === 'manual_override' ? 'Override' : worker.attendanceStatus}
+                              </Badge>
                             )}
                           </div>
-                        )}
+                          <p className="text-xs text-muted-foreground font-mono mb-1.5">ID: {worker.workerId.slice(-6)}</p>
+                          
+                          {worker.currentGeofence && (
+                            <div className="mb-2 bg-primary/5 border border-primary/10 rounded p-1.5 flex justify-between items-center text-xs">
+                              <span className="text-primary font-medium flex items-center gap-1 truncate">
+                                <MapPin className="w-3 h-3 shrink-0" /> 
+                                {worker.currentGeofence}
+                              </span>
+                              {worker.geofenceArrivalTime && (
+                                <span className="text-primary/80 font-mono pl-2 shrink-0">{new Date(worker.geofenceArrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              )}
+                            </div>
+                          )}
 
-                        <div className="flex justify-between items-center text-xs text-slate-400">
-                          <span className="flex items-center gap-1"><span className="text-sky-500">🧭</span> {worker.latitude.toFixed(3)}, {worker.longitude.toFixed(3)}</span>
-                          <span>{worker.timestamp ? new Date(worker.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                          <div className="flex justify-between items-center text-xs text-muted-foreground/70">
+                            <span className="flex items-center gap-1 font-mono">
+                              <Navigation className="w-3 h-3 text-sky-500 shrink-0" /> 
+                              {worker.latitude.toFixed(3)}, {worker.longitude.toFixed(3)}
+                            </span>
+                            <span>{worker.timestamp ? new Date(worker.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </button>
-                );
-              })
+                    </motion.button>
+                  );
+                })}
+              </div>
             )}
           </div>
           
           {selectedWorkerId && (
             <>
-            <div className="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+            <div className="p-5 border-t border-border/50 bg-surface-muted/30">
               <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                  <span className="text-sky-500">🗺️</span> Worker Trail
+                <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
+                  <Map className="w-4 h-4 text-primary" /> Worker Trail
                 </h3>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" className="sr-only peer" checked={showTrail} onChange={(e) => setShowTrail(e.target.checked)} />
-                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-sky-500"></div>
+                  <div className="w-9 h-5 bg-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                 </label>
               </div>
               
               {showTrail && (
-                <div className="space-y-3 animate-in slide-in-from-top-2 duration-200 fade-in">
-                  <input 
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-3"
+                >
+                  <Input 
                     type="date" 
                     value={trailDate} 
                     onChange={(e) => setTrailDate(e.target.value)} 
-                    className="w-full text-sm px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-shadow" 
+                    className="w-full text-sm h-9" 
                   />
                   
                   {trailLoading ? (
-                    <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                      <div className="w-3 h-3 border-2 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium p-2">
+                      <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                       Loading trail data...
                     </div>
                   ) : trailData && trailData.coordinates.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
-                        <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Distance</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{(trailData.totalDistance / 1000).toFixed(2)} km</span>
+                      <div className="bg-background p-2.5 rounded-lg border border-border/50 shadow-sm flex flex-col gap-1">
+                        <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Distance</span>
+                        <span className="font-bold text-foreground">{(trailData.totalDistance / 1000).toFixed(2)} km</span>
                       </div>
-                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
-                        <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Points</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{trailData.totalPoints} ping(s)</span>
+                      <div className="bg-background p-2.5 rounded-lg border border-border/50 shadow-sm flex flex-col gap-1">
+                        <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Points</span>
+                        <span className="font-bold text-foreground">{trailData.totalPoints} ping(s)</span>
                       </div>
-                      <div className="col-span-2 bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
-                        <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Last Updated</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{new Date(trailData.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                      <div className="col-span-2 bg-background p-2.5 rounded-lg border border-border/50 shadow-sm flex flex-col gap-1">
+                        <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Last Updated</span>
+                        <span className="font-bold text-foreground">{new Date(trailData.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-xs text-rose-500 bg-rose-50 dark:bg-rose-900/20 p-2 rounded border border-rose-100 dark:border-rose-800">
+                    <div className="text-xs text-destructive bg-destructive/10 p-2.5 rounded-lg border border-destructive/20 font-medium">
                       No trail data found for this date.
                     </div>
                   )}
-                </div>
+                </motion.div>
               )}
             </div>
             <WorkerDailySummaryCard 
@@ -683,13 +757,13 @@ export default function LiveTrackingDashboard() {
             />
             </>
           )}
-        </div>
+        </Card>
 
         {/* Map Area */}
-        <div className="flex-1 bg-slate-100 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden relative z-0">
+        <Card className="flex-1 bg-surface-muted/10 border-border/50 overflow-hidden relative z-0 p-0">
           {loading && activeWorkersList.length === 0 && (
-            <div className="absolute inset-0 z-[1000] bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm flex flex-col items-center justify-center">
-              <div className="w-12 h-12 border-4 border-slate-200 border-t-sky-500 rounded-full animate-spin mb-4 shadow-lg"></div>
+            <div className="absolute inset-0 z-[1000] bg-background/50 backdrop-blur-sm flex flex-col items-center justify-center">
+              <div className="w-12 h-12 border-4 border-border border-t-primary rounded-full animate-spin mb-4 shadow-lg"></div>
             </div>
           )}
           <LiveMap center={INDIA_CENTER} zoom={DEFAULT_ZOOM}>
@@ -722,66 +796,72 @@ export default function LiveTrackingDashboard() {
                   click: () => setSelectedWorkerId(worker.workerId),
                 }}
               >
-                <Popup className="rounded-xl shadow-2xl border-0 overflow-hidden p-0 custom-popup" minWidth={250}>
-                  <div className="bg-slate-800 text-white p-3 flex justify-between items-center rounded-t-lg">
-                    <h3 className="font-bold text-base truncate">{worker.workerName || 'Unknown Worker'}</h3>
-                    <span className={`w-2.5 h-2.5 rounded-full ${worker.timestamp && (new Date() - new Date(worker.timestamp) < 5 * 60 * 1000) ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                <Popup className="rounded-xl shadow-2xl border-0 overflow-hidden p-0 custom-popup" minWidth={260}>
+                  <div className="bg-foreground text-background p-3.5 flex justify-between items-center rounded-t-lg">
+                    <h3 className="font-bold text-base truncate flex items-center gap-2">
+                      {worker.workerName || 'Unknown Worker'}
+                    </h3>
+                    <span className={`w-2.5 h-2.5 rounded-full ${worker.timestamp && (new Date() - new Date(worker.timestamp) < 5 * 60 * 1000) ? 'bg-green-400' : 'bg-red-400'}`} />
                   </div>
-                  <div className="p-4 space-y-3 bg-white text-slate-700">
-                    <div className="grid grid-cols-2 gap-y-2 text-sm">
-                      <div className="text-slate-500">Worker ID</div>
-                      <div className="font-mono text-xs text-right bg-slate-100 py-0.5 px-1.5 rounded">{worker.workerId}</div>
+                  <div className="p-4 space-y-3.5 bg-background text-foreground">
+                    <div className="grid grid-cols-2 gap-y-2.5 text-sm">
+                      <div className="text-muted-foreground">Worker ID</div>
+                      <div className="font-mono text-xs text-right bg-surface-muted py-0.5 px-1.5 rounded">{worker.workerId}</div>
                       
-                      <div className="text-slate-500">Location</div>
+                      <div className="text-muted-foreground">Location</div>
                       <div className="text-right text-xs font-mono">{worker.latitude.toFixed(5)}, {worker.longitude.toFixed(5)}</div>
                       
-                      <div className="text-slate-500">Status</div>
+                      <div className="text-muted-foreground">Status</div>
                       <div className="text-right capitalize font-medium">{worker.attendanceStatus === 'manual_override' ? 'Override' : (worker.attendanceStatus || 'Active')}</div>
                       
                       {worker.accuracy && (
                         <>
-                          <div className="text-slate-500">Accuracy</div>
-                          <div className="text-right">±{Math.round(worker.accuracy)}m</div>
+                          <div className="text-muted-foreground">Accuracy</div>
+                          <div className="text-right font-mono">±{Math.round(worker.accuracy)}m</div>
                         </>
                       )}
                       
                       {worker.speed !== undefined && (
                         <>
-                          <div className="text-slate-500">Movement</div>
+                          <div className="text-muted-foreground">Movement</div>
                           <div className="text-right font-medium">
-                            {worker.isMoving ? <span className="text-sky-600">Moving ({Math.round(worker.speed * 3.6)} km/h)</span> : <span className="text-slate-400">Stationary</span>}
+                            {worker.isMoving ? <span className="text-primary flex items-center justify-end gap-1"><Gauge className="w-3.5 h-3.5"/> {Math.round(worker.speed * 3.6)} km/h</span> : <span className="text-muted-foreground">Stationary</span>}
                           </div>
                         </>
                       )}
                       
                       {worker.batteryLevel !== undefined && (
                         <>
-                          <div className="text-slate-500">Battery</div>
-                          <div className="text-right text-emerald-600">{worker.batteryLevel}%</div>
+                          <div className="text-muted-foreground">Battery</div>
+                          <div className="text-right text-green-600 flex items-center justify-end gap-1">
+                            <Battery className="w-3.5 h-3.5"/> {worker.batteryLevel}%
+                          </div>
                         </>
                       )}
                     </div>
 
                     {worker.currentGeofence && (
-                      <div className="mt-3 pt-3 border-t border-slate-100">
-                        <div className="text-xs text-indigo-600 font-bold uppercase tracking-wider mb-1">Current Customer Visit</div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="font-medium truncate pr-2 text-slate-800">{worker.currentGeofence}</span>
+                      <div className="mt-3 pt-3 border-t border-border/50">
+                        <div className="text-xs text-primary font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" /> Current Visit
+                        </div>
+                        <div className="flex justify-between items-center text-sm bg-primary/5 p-2 rounded-lg border border-primary/10">
+                          <span className="font-medium truncate pr-2 text-foreground">{worker.currentGeofence}</span>
                           {worker.geofenceArrivalTime && (
-                            <span className="text-xs font-mono text-slate-500">{new Date(worker.geofenceArrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className="text-xs font-mono text-primary/80 shrink-0">{new Date(worker.geofenceArrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           )}
                         </div>
                         {worker.geofenceArrivalTime && (
-                          <div className="text-xs text-slate-400 mt-1">
+                          <div className="text-[10px] text-muted-foreground mt-1.5 text-right font-medium">
                             Duration: {Math.floor((new Date().getTime() - new Date(worker.geofenceArrivalTime).getTime()) / 60000)} mins
                           </div>
                         )}
                       </div>
                     )}
                     
-                    <div className="pt-3 mt-1 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
-                      <span>Last Ping</span>
-                      <span className="font-medium text-slate-600">
+                    <div className="pt-3 mt-1 border-t border-border/50 flex justify-between items-center text-xs text-muted-foreground bg-surface-muted/30 p-2 rounded-lg">
+                      <span className="font-medium">Last Ping</span>
+                      <span className="font-bold text-foreground">
                         {worker.timestamp ? new Date(worker.timestamp).toLocaleTimeString() : 'Just now'}
                       </span>
                     </div>
@@ -790,7 +870,7 @@ export default function LiveTrackingDashboard() {
               </Marker>
             ))}
           </LiveMap>
-        </div>
+        </Card>
       </div>
     </div>
   );

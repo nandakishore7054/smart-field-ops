@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { Clock, CalendarDays, Hourglass, CheckCircle2 } from 'lucide-react';
 import CheckInButton from '../../features/attendance/CheckInButton';
 import api from '../../app/api';
 import toast from 'react-hot-toast';
-
 import { useAuth } from '../../app/auth-context';
+import { Card } from '../../common/components/ui/Card';
+import { Skeleton } from '../../common/components/ui/Skeleton';
 
 export default function CheckIn() {
   const { user } = useAuth();
@@ -49,75 +51,103 @@ export default function CheckIn() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="h-64 rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+      <div className="max-w-3xl mx-auto space-y-6 mt-8">
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="max-w-3xl mx-auto space-y-8 py-8 px-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Time & Attendance</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your daily check-in and check-out</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Time & Attendance</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage your daily check-in and check-out with GPS verification
+          </p>
         </div>
       </div>
 
       {user?.shiftId && typeof user.shiftId === 'object' && (
-        <div className="rounded-2xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/20 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-sky-900 dark:text-sky-300 mb-2">Assigned Shift: {user.shiftId.name}</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-sky-700 dark:text-sky-400 font-medium">Schedule</p>
-              <p className="text-slate-800 dark:text-slate-200">{user.shiftId.startTime} - {user.shiftId.endTime}</p>
+        <Card variant="elevated" className="p-6 bg-primary/5 border-primary/20">
+          <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+            <CalendarDays className="w-5 h-5" />
+            Assigned Shift: {user.shiftId.name}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="bg-background rounded-xl p-4 border border-border shadow-sm">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Schedule</p>
+              <p className="text-lg font-medium text-foreground">{user.shiftId.startTime} - {user.shiftId.endTime}</p>
             </div>
-            <div>
-              <p className="text-sky-700 dark:text-sky-400 font-medium">Grace Period</p>
-              <p className="text-slate-800 dark:text-slate-200">{user.shiftId.gracePeriodMinutes} mins</p>
+            <div className="bg-background rounded-xl p-4 border border-border shadow-sm">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Grace Period</p>
+              <p className="text-lg font-medium text-foreground">{user.shiftId.gracePeriodMinutes} mins</p>
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
-      <CheckInButton currentStatus={currentStatus} onStatusChange={handleStatusChange} />
+      <div className="flex justify-center my-8">
+        <CheckInButton currentStatus={currentStatus} onStatusChange={handleStatusChange} />
+      </div>
 
       {todayRecord && (
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Today's Activity</h3>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700">
-              <span className="text-sm text-slate-500 dark:text-slate-400">Check In</span>
-              <span className="text-sm font-medium text-slate-900 dark:text-white">
-                {todayRecord.checkIn ? new Date(todayRecord.checkIn.time).toLocaleTimeString() : '--:--'}
-              </span>
+        <Card className="p-6">
+          <h3 className="text-xl font-bold text-foreground mb-6">Today's Activity</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-surface-muted border border-border">
+              <div className="p-3 bg-primary/10 rounded-full text-primary">
+                <Clock className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Check In</p>
+                <p className="text-xl font-bold text-foreground">
+                  {todayRecord.checkIn ? new Date(todayRecord.checkIn.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}
+                </p>
+              </div>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700">
-              <span className="text-sm text-slate-500 dark:text-slate-400">Check Out</span>
-              <span className="text-sm font-medium text-slate-900 dark:text-white">
-                {todayRecord.checkOut ? new Date(todayRecord.checkOut.time).toLocaleTimeString() : '--:--'}
-              </span>
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-surface-muted border border-border">
+              <div className="p-3 bg-secondary/10 rounded-full text-secondary-foreground">
+                <Clock className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Check Out</p>
+                <p className="text-xl font-bold text-foreground">
+                  {todayRecord.checkOut ? new Date(todayRecord.checkOut.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}
+                </p>
+              </div>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700">
-              <span className="text-sm text-slate-500 dark:text-slate-400">Status</span>
-              <span className="text-sm font-medium text-slate-900 dark:text-white capitalize">
+          </div>
+
+          <div className="space-y-4 border-t border-border pt-6">
+            <div className="flex justify-between items-center py-2">
+              <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" /> Status
+              </span>
+              <span className="text-sm font-bold text-foreground capitalize px-3 py-1 bg-surface-muted rounded-full">
                 {todayRecord.status}
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700">
-              <span className="text-sm text-slate-500 dark:text-slate-400">Total Hours</span>
-              <span className="text-sm font-medium text-slate-900 dark:text-white">
+            <div className="flex justify-between items-center py-2">
+              <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Hourglass className="w-4 h-4" /> Total Hours
+              </span>
+              <span className="text-sm font-bold text-foreground">
                 {todayRecord.totalHours} hrs
               </span>
             </div>
             <div className="flex justify-between items-center py-2">
-              <span className="text-sm text-slate-500 dark:text-slate-400">Overtime</span>
-              <span className="text-sm font-medium text-slate-900 dark:text-white">
+              <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Hourglass className="w-4 h-4" /> Overtime
+              </span>
+              <span className="text-sm font-bold text-foreground">
                 {todayRecord.overtime} hrs
               </span>
             </div>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

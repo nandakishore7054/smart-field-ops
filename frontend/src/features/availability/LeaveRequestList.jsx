@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import api from '../../app/api';
+import { Card } from '../../common/components/ui/Card';
+import { Badge } from '../../common/components/ui/Badge';
+import { Button } from '../../common/components/ui/Button';
+import { Skeleton } from '../../common/components/ui/Skeleton';
+import { EmptyState } from '../../common/components/ui/EmptyState';
+import { CalendarOff } from 'lucide-react';
 
 export default function LeaveRequestList({ isAdmin = false, refreshTrigger = 0 }) {
   const [requests, setRequests] = useState([]);
@@ -35,75 +41,87 @@ export default function LeaveRequestList({ isAdmin = false, refreshTrigger = 0 }
 
   if (loading) {
     return (
-      <div className="animate-pulse space-y-4">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded-md w-full"></div>
-        ))}
-      </div>
+      <Card className="p-6">
+        <div className="animate-pulse space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-xl" />
+          ))}
+        </div>
+      </Card>
     );
   }
 
   if (requests.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg shadow">
-        No leave requests found.
-      </div>
+      <Card className="p-6">
+        <EmptyState
+          icon={CalendarOff}
+          title="No Leave Requests"
+          description="You don't have any leave requests at the moment."
+        />
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-      <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
+    <Card className="overflow-hidden">
+      <div className="px-6 py-5 border-b border-border bg-surface-muted/50">
+        <h3 className="text-lg font-bold text-foreground">
           {isAdmin ? 'Leave Requests' : 'My Leave Requests'}
         </h3>
       </div>
-      <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+      <ul className="divide-y divide-border">
         {requests.map((req) => (
-          <li key={req._id} className="p-6">
-            <div className="flex items-center justify-between">
+          <li key={req._id} className="p-6 hover:bg-surface-muted/30 transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 {isAdmin && req.workerId && (
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <p className="text-sm font-bold text-foreground mb-1">
                     {req.workerId.name}
                   </p>
                 )}
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  <span className="capitalize font-medium">{req.type} Leave</span> &bull;{' '}
-                  {new Date(req.startDate).toLocaleDateString()} to {new Date(req.endDate).toLocaleDateString()}
+                <div className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <span className="capitalize">{req.type} Leave</span>
+                  <span className="text-muted-foreground">&bull;</span>
+                  <span className="text-muted-foreground font-normal">
+                    {new Date(req.startDate).toLocaleDateString()} to {new Date(req.endDate).toLocaleDateString()}
+                  </span>
                 </div>
                 {req.reason && (
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                  <p className="text-sm text-muted-foreground mt-2 italic bg-surface-muted px-3 py-2 rounded-lg border border-border/50">
                     "{req.reason}"
                   </p>
                 )}
               </div>
               
-              <div className="flex flex-col items-end space-y-2">
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                    ${req.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : ''}
-                    ${req.status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : ''}
-                    ${req.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : ''}
-                  `}
+              <div className="flex flex-col sm:items-end gap-3">
+                <Badge
+                  variant={
+                    req.status === 'approved' ? 'success' :
+                    req.status === 'rejected' ? 'error' :
+                    'warning'
+                  }
+                  className="w-fit"
                 >
                   {req.status}
-                </span>
+                </Badge>
 
                 {isAdmin && req.status === 'pending' && (
-                  <div className="flex space-x-2 mt-2">
-                    <button
+                  <div className="flex space-x-2">
+                    <Button
+                      size="sm"
                       onClick={() => handleApprove(req._id, 'approved')}
-                      className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                      className="bg-green-600 hover:bg-green-700 text-white border-green-600"
                     >
                       Approve
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
                       onClick={() => handleApprove(req._id, 'rejected')}
-                      className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                     >
                       Reject
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -111,6 +129,6 @@ export default function LeaveRequestList({ isAdmin = false, refreshTrigger = 0 }
           </li>
         ))}
       </ul>
-    </div>
+    </Card>
   );
 }

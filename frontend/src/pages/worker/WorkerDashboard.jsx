@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import api from '../../app/api';
 import WorkerTaskList from '../../features/tasks/WorkerTaskList';
 
@@ -67,28 +68,52 @@ export default function WorkerDashboard() {
   const filteredTasks = getFilteredTasks();
 
   return (
-    <section className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-semibold">Your task queue</h2>
+    <motion.section 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-8 p-2 md:p-4 max-w-7xl mx-auto"
+    >
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">Task Queue</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage your assigned tasks, view upcoming deadlines, and track your progress.
+          </p>
+        </div>
       </div>
 
-      <div className="flex space-x-2 border-b border-slate-200 dark:border-slate-800 pb-px">
+      <div className="flex space-x-2 border-b border-border/60 pb-px">
         {['today', 'upcoming', 'completed'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition-colors ${
+            className={`px-5 py-2.5 text-sm font-semibold capitalize border-b-2 transition-all relative ${
               activeTab === tab
-                ? 'border-sky-500 text-sky-600 dark:text-sky-400'
-                : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'
+            } rounded-t-lg`}
           >
             {tab}
+            {activeTab === tab && (
+              <motion.div
+                layoutId="activeTabIndicator"
+                className="absolute -bottom-[2px] left-0 right-0 h-[2px] bg-primary"
+                initial={false}
+              />
+            )}
           </button>
         ))}
       </div>
 
-      <WorkerTaskList tasks={filteredTasks} loading={loading} error={error} />
-    </section>
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <WorkerTaskList tasks={filteredTasks} loading={loading} error={error} />
+      </motion.div>
+    </motion.section>
   );
 }

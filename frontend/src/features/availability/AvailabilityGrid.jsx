@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../../app/api';
+import { Card } from '../../common/components/ui/Card';
+import { Input } from '../../common/components/ui/Input';
+import { Button } from '../../common/components/ui/Button';
+import { Skeleton } from '../../common/components/ui/Skeleton';
 
 const DAYS_OF_WEEK = [
   'Sunday',
@@ -15,6 +19,7 @@ const DAYS_OF_WEEK = [
 export default function AvailabilityGrid({ workerId = 'me', readOnly = false }) {
   const [availabilities, setAvailabilities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   // default grid state
   const [grid, setGrid] = useState(
@@ -88,86 +93,98 @@ export default function AvailabilityGrid({ workerId = 'me', readOnly = false }) 
       }));
 
     try {
+      setSaving(true);
       const endpoint = workerId === 'me' ? '/availability/me' : `/availability/${workerId}`;
       await api.put(endpoint, { availabilities: payload });
       toast.success('Availability saved successfully');
       fetchAvailability();
     } catch (error) {
       toast.error(error.response?.data?.error?.details?.time?.[0] || 'Failed to save availability');
+    } finally {
+      setSaving(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="animate-pulse space-y-4">
-        {[...Array(7)].map((_, i) => (
-          <div key={i} className="h-12 bg-gray-200 dark:bg-gray-700 rounded-md w-full"></div>
-        ))}
-      </div>
+      <Card className="p-6">
+        <div className="animate-pulse space-y-4">
+          {[...Array(7)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Weekly Availability</h2>
+    <Card className="p-6">
+      <h2 className="text-xl font-bold mb-6 text-foreground">Weekly Schedule</h2>
       <div className="space-y-4">
         {grid.map((day) => (
           <div
             key={day.dayOfWeek}
-            className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border ${
+            className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-colors ${
               day.isAvailable
-                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
-                : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750'
+                ? 'border-primary/50 bg-primary/5'
+                : 'border-border bg-surface-muted'
             }`}
           >
-            <div className="flex items-center space-x-3 mb-3 sm:mb-0">
-              <input
-                type="checkbox"
-                checked={day.isAvailable}
-                onChange={() => handleToggleDay(day.dayOfWeek)}
-                disabled={readOnly}
-                className="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 disabled:opacity-50"
-              />
-              <span className="font-medium text-gray-900 dark:text-gray-100">
+            <div className="flex items-center space-x-4 mb-3 sm:mb-0">
+              <label className="relative flex items-center p-3 rounded-full cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={day.isAvailable}
+                  onChange={() => handleToggleDay(day.dayOfWeek)}
+                  disabled={readOnly}
+                  className="before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-border transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-primary before:opacity-0 before:transition-opacity checked:border-primary checked:bg-primary checked:before:bg-primary hover:before:opacity-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <span className="absolute text-white transition-opacity opacity-0 pointer-events-none top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 peer-checked:opacity-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" strokeWidth="1">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                  </svg>
+                </span>
+              </label>
+              <span className={`font-semibold ${day.isAvailable ? 'text-primary' : 'text-muted-foreground'}`}>
                 {DAYS_OF_WEEK[day.dayOfWeek]}
               </span>
             </div>
 
             {day.isAvailable ? (
-              <div className="flex items-center space-x-2">
-                <input
+              <div className="flex items-center space-x-3">
+                <Input
                   type="time"
                   value={day.startTime}
                   onChange={(e) => handleTimeChange(day.dayOfWeek, 'startTime', e.target.value)}
                   disabled={readOnly}
-                  className="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50"
+                  className="w-32 py-1.5"
                 />
-                <span className="text-gray-500 dark:text-gray-400">to</span>
-                <input
+                <span className="text-muted-foreground text-sm font-medium">to</span>
+                <Input
                   type="time"
                   value={day.endTime}
                   onChange={(e) => handleTimeChange(day.dayOfWeek, 'endTime', e.target.value)}
                   disabled={readOnly}
-                  className="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50"
+                  className="w-32 py-1.5"
                 />
               </div>
             ) : (
-              <span className="text-gray-400 dark:text-gray-500 italic text-sm">Unavailable</span>
+              <span className="text-muted-foreground/60 italic text-sm font-medium px-4">Unavailable</span>
             )}
           </div>
         ))}
       </div>
 
       {!readOnly && (
-        <div className="mt-6 flex justify-end">
-          <button
+        <div className="mt-8 flex justify-end">
+          <Button
             onClick={handleSave}
-            className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            isLoading={saving}
           >
             Save Availability
-          </button>
+          </Button>
         </div>
       )}
-    </div>
+    </Card>
   );
 }
