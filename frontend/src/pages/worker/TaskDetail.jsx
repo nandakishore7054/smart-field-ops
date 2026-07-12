@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../app/api';
 import WorkerTaskDetail from '../../features/tasks/WorkerTaskDetail';
+import { Card } from '../../common/components/ui/Card';
+import { Skeleton } from '../../common/components/ui/Skeleton';
+import { EmptyState } from '../../common/components/ui/EmptyState';
+import { AlertTriangle, FileX } from 'lucide-react';
 
 export default function TaskDetail() {
   const { id } = useParams();
@@ -47,15 +51,38 @@ export default function TaskDetail() {
   }, [id]);
 
   if (loading) {
-    return <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 text-slate-300">Loading task...</div>;
+    return (
+      <Card className="p-6 border-border/50 shadow-sm space-y-4">
+        <Skeleton className="h-6 w-48 rounded-lg" />
+        <Skeleton className="h-4 w-72 rounded-lg" />
+        <Skeleton className="h-40 w-full rounded-xl" />
+        <Skeleton className="h-10 w-32 rounded-xl" />
+      </Card>
+    );
   }
 
   if (error) {
-    return <div className="rounded-3xl border border-rose-500/30 bg-rose-500/10 p-6 text-rose-300">{error}</div>;
+    return (
+      <Card className="p-6 border-destructive/20 bg-destructive/5 shadow-sm">
+        <EmptyState
+          icon={AlertTriangle}
+          title="Error"
+          description={error}
+        />
+      </Card>
+    );
   }
 
   if (!task) {
-    return null;
+    return (
+      <Card className="p-6 border-border/50 shadow-sm">
+        <EmptyState
+          icon={FileX}
+          title="Task Not Found"
+          description="The requested task could not be found."
+        />
+      </Card>
+    );
   }
 
   return <WorkerTaskDetail task={task} onStatusUpdated={setTask} />;

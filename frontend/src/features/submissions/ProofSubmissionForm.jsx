@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react';
 import imageCompression from 'browser-image-compression';
 import api from '../../app/api';
-
 import { useLocation } from '../../common/contexts/LocationContext';
+import { Card } from '../../common/components/ui/Card';
+import { Button } from '../../common/components/ui/Button';
+import { Upload, MapPinned, Camera, StickyNote } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 function toDataUrl(file) {
   return URL.createObjectURL(file);
@@ -139,78 +142,104 @@ export default function ProofSubmissionForm({ task, onSubmitted }) {
 
   if (task?.status !== 'in-progress') {
     return (
-      <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5 text-sm text-slate-400">
-        Proof submission becomes available after the task is started.
-      </div>
+      <Card className="p-5 border-border/50 shadow-sm">
+        <p className="text-sm text-muted-foreground">
+          Proof submission becomes available after the task is started.
+        </p>
+      </Card>
     );
   }
 
   return (
-    <form className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6" onSubmit={handleSubmit}>
-      <div className="mb-5">
-        <p className="text-xs uppercase tracking-[0.2em] text-sky-300">Proof submission</p>
-        <h3 className="mt-2 text-2xl font-semibold text-white">Upload evidence</h3>
+    <Card className="p-5 sm:p-6 border-border/50 shadow-sm relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-emerald-500/50" />
+
+      <div className="flex items-center gap-2 mb-5">
+        <Camera className="w-5 h-5 text-emerald-500" />
+        <div>
+          <p className="text-xs uppercase tracking-widest font-bold text-emerald-600 dark:text-emerald-400">Proof Submission</p>
+          <h3 className="text-xl font-bold text-foreground">Upload Evidence</h3>
+        </div>
       </div>
 
-      <div className="grid gap-4">
-        <label className="grid gap-2">
-          <span className="text-sm text-slate-300">Images</span>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileChange}
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-300"
-          />
-        </label>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* File Upload */}
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-foreground">Images</label>
+          <div className="relative">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileChange}
+              className="w-full h-11 rounded-xl border border-input bg-background px-4 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring shadow-sm file:mr-3 file:border-0 file:bg-primary/10 file:text-primary file:font-semibold file:px-3 file:py-1 file:rounded-lg file:text-xs transition-all"
+            />
+          </div>
+        </div>
 
-        {previews.length > 0 ? (
+        {/* Previews */}
+        {previews.length > 0 && (
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {previews.map((preview) => (
-              <figure key={preview.url} className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/60">
+              <motion.figure
+                key={preview.url}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="overflow-hidden rounded-xl border border-border/50 bg-surface-muted/20 shadow-sm"
+              >
                 <img src={preview.url} alt="Submission preview" className="h-40 w-full object-cover" />
-              </figure>
+              </motion.figure>
             ))}
           </div>
-        ) : null}
+        )}
 
-        <label className="grid gap-2">
-          <span className="text-sm text-slate-300">Notes</span>
+        {/* Notes */}
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <StickyNote className="w-4 h-4 text-muted-foreground" />
+            <label className="text-sm font-semibold text-foreground">Notes</label>
+          </div>
           <textarea
             rows={4}
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-sky-400"
+            className="flex min-h-[100px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring shadow-sm transition-all"
             placeholder="Add job notes, observations, or handoff details"
           />
-        </label>
-
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={captureLocation}
-            className="rounded-2xl border border-slate-700 px-5 py-3 font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white"
-          >
-            Capture location
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-2xl bg-sky-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {loading ? 'Submitting...' : 'Submit proof'}
-          </button>
         </div>
 
-        {location ? (
-          <p className="text-sm text-slate-400">
-            Location ready: {location.coordinates[1].toFixed(6)}, {location.coordinates[0].toFixed(6)}
-          </p>
-        ) : null}
+        {/* Actions */}
+        <div className="flex flex-wrap gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={captureLocation}
+            className="gap-2"
+          >
+            <MapPinned className="w-4 h-4" />
+            Capture Location
+          </Button>
+          <Button
+            type="submit"
+            isLoading={loading}
+            className="gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Submit Proof
+          </Button>
+        </div>
 
-        {error ? <p className="rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{error}</p> : null}
-        {success ? <p className="rounded-2xl bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">{success}</p> : null}
-      </div>
-    </form>
+        {/* Location Ready */}
+        {location && (
+          <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 rounded-xl text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+            <MapPinned className="w-4 h-4 shrink-0" />
+            Location ready: {location.coordinates[1].toFixed(6)}, {location.coordinates[0].toFixed(6)}
+          </div>
+        )}
+
+        {error && <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive font-medium">{error}</div>}
+        {success && <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400 font-medium">{success}</div>}
+      </form>
+    </Card>
   );
 }

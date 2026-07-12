@@ -3,6 +3,12 @@ import imageCompression from 'browser-image-compression';
 import api from '../app/api';
 import { useAuth } from '../app/auth-context';
 import { useTheme } from '../app/theme-context';
+import { Card } from '../common/components/ui/Card';
+import { Input } from '../common/components/ui/Input';
+import { Button } from '../common/components/ui/Button';
+import { Badge } from '../common/components/ui/Badge';
+import { Settings as SettingsIcon, User, Camera, Lock, Palette, Save } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Settings() {
   const { user, setUser } = useAuth();
@@ -97,106 +103,150 @@ export default function Settings() {
   }
 
   return (
-    <section className="max-w-3xl space-y-8">
-      <div>
-        <h2 className="text-3xl font-semibold">Settings</h2>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">Manage your profile and application preferences.</p>
-      </div>
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      
+      {/* Premium Header */}
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <Card className="p-6 bg-gradient-to-r from-surface to-surface-muted/30 border-none shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-primary/5 blur-3xl" />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
+              <SettingsIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Settings</h1>
+              <p className="text-muted-foreground mt-0.5">Manage your profile and application preferences.</p>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
 
-      {error && <p className="rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-500">{error}</p>}
-      {success && <p className="rounded-2xl bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">{success}</p>}
+      {/* Status Messages */}
+      {error && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive font-medium">{error}</div>
+        </motion.div>
+      )}
+      {success && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400 font-medium">{success}</div>
+        </motion.div>
+      )}
 
-      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-8 shadow-sm">
-        <h3 className="text-xl font-semibold mb-6">Profile Information</h3>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
+      {/* Profile Information Card */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+        <Card className="p-6 sm:p-8 border-border/50 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/50" />
+
+          <div className="flex items-center gap-2 mb-6">
+            <User className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">Profile Information</h2>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Avatar Section */}
+            <div className="flex flex-col sm:flex-row items-center gap-6 bg-surface-muted/30 p-5 rounded-xl border border-border/50">
+              <div className="relative group">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-4 border-background shadow-md" />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl font-bold border-4 border-background shadow-md">
+                    {name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <label className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 transition shadow-md group-hover:scale-110">
+                  <Camera className="w-4 h-4" />
+                  <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                </label>
+              </div>
+              <div className="text-center sm:text-left">
+                <p className="text-base font-semibold text-foreground">{user?.email}</p>
+                <Badge variant="outline" className="mt-1.5 capitalize">{user?.role} Account</Badge>
+              </div>
+            </div>
+
+            {/* Name & Phone */}
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-foreground">Full Name</label>
+                <Input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="bg-background"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-foreground">Phone Number</label>
+                <Input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 234 567 890"
+                  className="bg-background"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-muted-foreground" />
+                <label className="text-sm font-semibold text-foreground">New Password (Optional)</label>
+              </div>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Leave blank to keep current password"
+                className="bg-background"
+              />
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <Button
+                type="submit"
+                isLoading={loading}
+                className="gap-2"
+              >
+                <Save className="w-4 h-4" />
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </Card>
+      </motion.div>
+
+      {/* Application Preferences Card */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
+        <Card className="p-6 sm:p-8 border-border/50 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <Palette className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">Application Preferences</h2>
+          </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-surface-muted/30 p-5 rounded-xl border border-border/50">
+            <div>
+              <p className="font-semibold text-foreground">Theme Preference</p>
+              <p className="text-sm text-muted-foreground mt-0.5">Select your preferred color theme.</p>
+            </div>
             <div className="relative">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-4 border-slate-100 dark:border-slate-800" />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center text-3xl font-bold border-4 border-slate-100 dark:border-slate-800">
-                  {name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <label className="absolute bottom-0 right-0 p-1.5 bg-sky-500 text-white rounded-full cursor-pointer hover:bg-sky-400 transition shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="17 8 12 3 7 8"/>
-                  <line x1="12" x2="12" y1="3" y2="15"/>
-                </svg>
-                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-              </label>
-            </div>
-            <div className="text-center sm:text-left">
-              <p className="text-sm font-medium text-slate-900 dark:text-slate-200">{user?.email}</p>
-              <p className="text-xs text-slate-500 capitalize mt-1">{user?.role} Account</p>
+              <select
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+                className="w-full sm:w-40 h-10 rounded-xl border border-input bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring shadow-sm appearance-none transition-all"
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="system">System</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+              </div>
             </div>
           </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</span>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-                required
-              />
-            </label>
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number</span>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-                placeholder="+1 234 567 890"
-              />
-            </label>
-          </div>
-
-          <label className="grid gap-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">New Password (Optional)</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2 text-slate-900 dark:text-slate-100 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-              placeholder="Leave blank to keep current password"
-            />
-          </label>
-
-          <div className="pt-4 flex justify-end">
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-xl bg-sky-500 px-6 py-2.5 font-semibold text-white transition hover:bg-sky-400 disabled:opacity-50"
-            >
-              {loading ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-8 shadow-sm">
-        <h3 className="text-xl font-semibold mb-6">Application Preferences</h3>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium text-slate-900 dark:text-slate-100">Theme Preference</p>
-            <p className="text-sm text-slate-500">Select your preferred color theme.</p>
-          </div>
-          <select
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-            className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-          >
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-            <option value="system">System</option>
-          </select>
-        </div>
-      </div>
-    </section>
+        </Card>
+      </motion.div>
+    </div>
   );
 }

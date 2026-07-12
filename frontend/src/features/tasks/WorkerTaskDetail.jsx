@@ -2,6 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../app/api';
 import ProofSubmissionForm from '../submissions/ProofSubmissionForm';
+import { Card } from '../../common/components/ui/Card';
+import { Button } from '../../common/components/ui/Button';
+import { Badge } from '../../common/components/ui/Badge';
+import { MapPin, Clock, FileText, ArrowLeft, Play } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 function formatDate(value) {
   if (!value) {
@@ -20,6 +25,16 @@ function getProgressPercentage(status) {
     default: return 0;
   }
 }
+
+const statusVariant = (status) => {
+  switch (status) {
+    case 'verified': return 'success';
+    case 'completed': return 'info';
+    case 'in-progress': return 'warning';
+    case 'rejected': return 'destructive';
+    default: return 'outline';
+  }
+};
 
 export default function WorkerTaskDetail({ task, onStatusUpdated }) {
   const [submitting, setSubmitting] = useState(false);
@@ -56,83 +71,102 @@ export default function WorkerTaskDetail({ task, onStatusUpdated }) {
   const mapLink = getGoogleMapsLink();
 
   return (
-    <section className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-5 sm:p-6 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-sky-500 dark:text-sky-300">Task detail</p>
-          <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{task.title}</h2>
-          <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-            <span>{task.locationAddress || 'No location specified'}</span>
-            {mapLink && (
-              <a 
-                href={mapLink} 
-                target="_blank" 
-                rel="noreferrer"
-                className="text-sky-500 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-1 bg-sky-50 dark:bg-sky-500/10 px-2 py-0.5 rounded-md transition"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-                Maps
-              </a>
-            )}
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+      <Card className="p-5 sm:p-6 border-border/50 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/50" />
+
+        {/* Header */}
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+          <div>
+            <p className="text-xs uppercase tracking-widest font-bold text-primary mb-2">Task Detail</p>
+            <h2 className="text-2xl font-bold text-foreground">{task.title}</h2>
+            <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+              <MapPin className="w-4 h-4 shrink-0" />
+              <span>{task.locationAddress || 'No location specified'}</span>
+              {mapLink && (
+                <a 
+                  href={mapLink} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="text-primary hover:text-primary/80 flex items-center gap-1 bg-primary/5 px-2.5 py-1 rounded-lg transition font-medium text-xs"
+                >
+                  <MapPin className="w-3 h-3" />
+                  Open in Maps
+                </a>
+              )}
+            </div>
+          </div>
+          <Badge variant={statusVariant(task.status)} className="capitalize text-xs px-3 py-1 font-bold tracking-wider uppercase">
+            {task.status}
+          </Badge>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-6 bg-surface-muted/30 p-4 rounded-xl border border-border/50">
+          <div className="flex justify-between text-[10px] mb-2 text-muted-foreground uppercase tracking-wider font-bold">
+            <span>Assigned</span>
+            <span>In Progress</span>
+            <span>Completed</span>
+            <span>Verified</span>
+          </div>
+          <div className="w-full bg-border/30 rounded-full h-2.5">
+            <motion.div 
+              className="bg-primary h-2.5 rounded-full" 
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+            />
           </div>
         </div>
-        <div className="flex flex-col items-end">
-          <span className="rounded-full border border-slate-200 dark:border-slate-700 px-3 py-1 text-xs capitalize text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50">
-            {task.status}
-          </span>
+
+        {/* Info Cards */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-xl border border-border/50 bg-surface-muted/20 p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="w-4 h-4 text-muted-foreground" />
+              <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Description</p>
+            </div>
+            <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{task.description || 'No description provided.'}</p>
+          </div>
+          <div className="rounded-xl border border-border/50 bg-surface-muted/20 p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Deadline</p>
+            </div>
+            <p className="text-sm text-foreground font-mono">{formatDate(task.deadline)}</p>
+          </div>
         </div>
-      </div>
 
-      <div className="mb-6">
-        <div className="flex justify-between text-xs mb-1 text-slate-500">
-          <span>Assigned</span>
-          <span>In Progress</span>
-          <span>Completed</span>
-          <span>Verified</span>
-        </div>
-        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
-          <div 
-            className="bg-sky-500 h-2 rounded-full transition-all duration-500" 
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      </div>
-
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <article className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Description</p>
-          <p className="mt-2 text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap">{task.description || 'No description provided.'}</p>
-        </article>
-        <article className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Deadline</p>
-          <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">{formatDate(task.deadline)}</p>
-        </article>
-      </div>
-
-      {message ? <p className="mt-5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-300">{message}</p> : null}
-
-      <div className="mt-6 flex flex-wrap gap-3">
-        {task.status === 'assigned' ? (
-          <button
-            type="button"
-            onClick={startTask}
-            disabled={submitting}
-            className="rounded-2xl bg-sky-500 px-5 py-3 font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {submitting ? 'Starting...' : 'Start Task'}
-          </button>
+        {/* Status Message */}
+        {message ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-5">
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400 font-medium">{message}</div>
+          </motion.div>
         ) : null}
-        <Link to="/worker/dashboard" className="rounded-2xl border border-slate-300 dark:border-slate-700 px-5 py-3 font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:border-slate-500 dark:hover:text-white">
-          Back to tasks
-        </Link>
-      </div>
 
-      <div className="mt-6">
-        <ProofSubmissionForm task={task} onSubmitted={onStatusUpdated} />
-      </div>
-    </section>
+        {/* Actions */}
+        <div className="mt-6 flex flex-wrap gap-3">
+          {task.status === 'assigned' ? (
+            <Button
+              onClick={startTask}
+              isLoading={submitting}
+              className="gap-2"
+            >
+              <Play className="w-4 h-4" />
+              Start Task
+            </Button>
+          ) : null}
+          <Button as={Link} to="/worker/dashboard" variant="outline" className="gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to tasks
+          </Button>
+        </div>
+
+        {/* Proof Submission */}
+        <div className="mt-6">
+          <ProofSubmissionForm task={task} onSubmitted={onStatusUpdated} />
+        </div>
+      </Card>
+    </motion.div>
   );
 }
