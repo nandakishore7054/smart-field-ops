@@ -3,6 +3,14 @@ import api from '../../app/api';
 import LiveMap from '../../features/tracking/LiveMap';
 import GeofenceEditor from '../../features/tracking/GeofenceEditor';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
+import { Card } from '../../common/components/ui/Card';
+import { Input } from '../../common/components/ui/Input';
+import { Button } from '../../common/components/ui/Button';
+import { Badge } from '../../common/components/ui/Badge';
+import { Skeleton } from '../../common/components/ui/Skeleton';
+import { EmptyState } from '../../common/components/ui/EmptyState';
+import { Map, Layers, Building2, Briefcase, Trash2, Search, Filter, X, Info } from 'lucide-react';
 
 const INDIA_CENTER = [22.5937, 78.9629];
 const DEFAULT_ZOOM = 5;
@@ -37,7 +45,6 @@ export default function GeofenceManager() {
   }, []);
 
   const handleGeofenceCreated = (payload) => {
-    // payload has { type: 'polygon', boundary: { type: 'Polygon', coordinates: [...] } }
     setPendingGeofence({
       name: '',
       category: 'general',
@@ -143,216 +150,268 @@ export default function GeofenceManager() {
 
   const selectedGeofence = geofences.find(g => g._id === selectedGeofenceId);
 
+  // Statistics
+  const totalGeofences = geofences.length;
+  const activeGeofences = geofences.filter(g => g.isActive).length;
+  const customerGeofences = geofences.filter(g => g.category === 'customer').length;
+  const officeGeofences = geofences.filter(g => g.category === 'office').length;
+
   return (
-    <div className="flex flex-col gap-6 min-h-[calc(100vh-80px)]">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-            <span className="p-2 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl text-indigo-600 dark:text-indigo-400">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </span>
-            Geofence Management
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 ml-12">Draw and manage operational boundaries</p>
-        </div>
-      </div>
-
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-[600px]">
-        {/* Sidebar */}
-        <div className="w-full lg:w-96 flex flex-col gap-4 shrink-0">
+    <div className="flex flex-col gap-6 min-h-[calc(100vh-80px)] max-w-[1600px] mx-auto pb-10">
+      
+      {/* Premium Header */}
+      <Card className="p-6 bg-gradient-to-r from-surface to-surface-muted/30 border-none shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-primary/5 blur-3xl" />
+        
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 relative z-10">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
+                <Map className="w-6 h-6" />
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Geofence Management
+              </h1>
+            </div>
+            <p className="text-muted-foreground ml-[52px]">Draw and manage operational boundaries, offices, and customer locations.</p>
+          </div>
           
-          {/* Create/Edit Panel */}
-          {pendingGeofence ? (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-sky-200 dark:border-sky-800 overflow-hidden">
-              <div className="p-4 bg-sky-50 dark:bg-sky-900/20 border-b border-sky-100 dark:border-sky-800/50 flex justify-between items-center">
-                <h3 className="font-bold text-sky-800 dark:text-sky-300">Save New Geofence</h3>
-                <button onClick={() => setPendingGeofence(null)} className="text-slate-400 hover:text-slate-600">✕</button>
-              </div>
-              <form onSubmit={handleSavePending} className="p-4 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Geofence Name</label>
-                  <input 
-                    type="text"
-                    required
-                    autoFocus
-                    value={pendingGeofence.name}
-                    onChange={e => setPendingGeofence({...pendingGeofence, name: e.target.value})}
-                    className="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm focus:ring-2 focus:ring-sky-500"
-                    placeholder="e.g. North Zone Depot"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
-                  <select 
-                    value={pendingGeofence.category || 'general'}
-                    onChange={e => setPendingGeofence({...pendingGeofence, category: e.target.value})}
-                    className="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm focus:ring-2 focus:ring-sky-500"
-                  >
-                    <option value="general">General</option>
-                    <option value="office">Office (Auto Check-In)</option>
-                    <option value="customer">Customer (Visit Tracking)</option>
-                  </select>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="checkbox"
-                    id="isActiveNew"
-                    checked={pendingGeofence.isActive}
-                    onChange={e => setPendingGeofence({...pendingGeofence, isActive: e.target.checked})}
-                    className="rounded text-sky-500 focus:ring-sky-500"
-                  />
-                  <label htmlFor="isActiveNew" className="text-sm text-slate-700 dark:text-slate-300">Active immediately</label>
-                </div>
-                <div className="pt-2">
-                  <button type="submit" className="w-full bg-sky-500 hover:bg-sky-600 text-white py-2.5 rounded-xl font-medium transition-colors">
-                    Save Geofence
-                  </button>
-                </div>
-              </form>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
+            <div className="bg-background rounded-xl p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground mb-1">Total</p>
+              <p className="text-xl font-bold text-foreground">{totalGeofences}</p>
             </div>
-          ) : selectedGeofence ? (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                <h3 className="font-bold text-slate-800 dark:text-white">Geofence Details</h3>
-                <button onClick={() => setSelectedGeofenceId(null)} className="text-slate-400 hover:text-slate-600">✕</button>
-              </div>
-              <div className="p-4 space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Name</label>
-                  <p className="font-semibold text-slate-800 dark:text-slate-200">{selectedGeofence.name}</p>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Type</label>
-                    <p className="capitalize text-slate-700 dark:text-slate-300">{selectedGeofence.type}</p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Category</label>
-                    <p className="capitalize text-slate-700 dark:text-slate-300">
-                      {selectedGeofence.category === 'office' ? '🏢 Office' : selectedGeofence.category === 'customer' ? '🤝 Customer' : '🌐 General'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Vertices</label>
-                    <p className="text-slate-700 dark:text-slate-300">
-                      {selectedGeofence.boundary?.coordinates?.[0]?.length || 0} points
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Created</label>
-                    <p className="text-slate-700 dark:text-slate-300">{new Date(selectedGeofence.createdAt).toLocaleDateString()}</p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Status</span>
-                  <button 
-                    onClick={() => handleUpdateStatus(selectedGeofence._id, !selectedGeofence.isActive)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${
-                      selectedGeofence.isActive 
-                        ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    {selectedGeofence.isActive ? 'Active' : 'Inactive'}
-                  </button>
-                </div>
-                
-                <div className="pt-2">
-                  <button 
-                    onClick={() => handleGeofenceDeleted([selectedGeofence._id])}
-                    className="w-full text-rose-600 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 py-2 rounded-xl font-medium transition-colors text-sm"
-                  >
-                    Delete Geofence
-                  </button>
-                </div>
-              </div>
+            <div className="bg-background rounded-xl p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 dark:text-emerald-400 mb-1">Active</p>
+              <p className="text-xl font-bold text-foreground">{activeGeofences}</p>
             </div>
-          ) : null}
-
-          {/* List Panel */}
-          <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="font-bold text-lg text-slate-800 dark:text-white">Saved Geofences</h2>
-                <span className="bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 text-xs font-bold px-2 py-1 rounded-full">
-                  {geofences.length}
-                </span>
-              </div>
-              
-              <input 
-                type="text" 
-                placeholder="Search geofences..." 
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-              />
-              
-              <select 
-                value={statusFilter} 
-                onChange={e => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:outline-none"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active Only</option>
-                <option value="inactive">Inactive Only</option>
-              </select>
+            <div className="bg-background rounded-xl p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-sky-600 dark:text-sky-400 mb-1">Customer</p>
+              <p className="text-xl font-bold text-foreground">{customerGeofences}</p>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-3 space-y-2 relative min-h-[300px]">
-              {loading ? (
-                <div className="space-y-3">
-                  {[1,2,3].map(i => (
-                    <div key={i} className="animate-pulse flex gap-3 p-3 border border-slate-100 rounded-xl">
-                      <div className="w-10 h-10 bg-slate-200 rounded-lg"></div>
-                      <div className="flex-1 space-y-2 py-1">
-                        <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                        <div className="h-3 bg-slate-200 rounded w-1/2"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : filteredGeofences.length === 0 ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                  <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-3xl shadow-inner border border-slate-100 dark:border-slate-700">
-                    🛑
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2">No Geofences Found</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Use the polygon tool on the map to draw a new operational boundary.</p>
-                </div>
-              ) : (
-                filteredGeofences.map(gf => (
-                  <button
-                    key={gf._id}
-                    onClick={() => setSelectedGeofenceId(gf._id)}
-                    className={`w-full text-left p-3 rounded-xl transition-all duration-200 border relative overflow-hidden group ${
-                      selectedGeofenceId === gf._id 
-                        ? 'bg-indigo-50 border-indigo-300 dark:bg-indigo-900/30 dark:border-indigo-700 shadow-sm' 
-                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 hover:shadow-sm'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="font-semibold text-slate-800 dark:text-slate-200 truncate pr-2">{gf.name}</h4>
-                      <div className={`w-2 h-2 rounded-full mt-1.5 ${gf.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`} title={gf.isActive ? 'Active' : 'Inactive'} />
-                    </div>
-                    <div className="flex justify-between items-center text-xs text-slate-500">
-                      <span className="capitalize">{gf.category || 'General'}</span>
-                      <span>{new Date(gf.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  </button>
-                ))
-              )}
+            <div className="bg-background rounded-xl p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">Office</p>
+              <p className="text-xl font-bold text-foreground">{officeGeofences}</p>
             </div>
           </div>
         </div>
+      </Card>
+
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-[700px]">
+        {/* Sidebar */}
+        <div className="w-full lg:w-[400px] flex flex-col gap-6 shrink-0 h-full">
+          
+          {/* Create/Edit Panel */}
+          {pendingGeofence ? (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <Card className="border-primary/50 shadow-md overflow-hidden relative">
+                <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
+                <div className="p-4 bg-primary/5 border-b border-border/50 flex justify-between items-center">
+                  <h3 className="font-bold text-primary flex items-center gap-2"><Map className="w-4 h-4" /> Save New Geofence</h3>
+                  <button onClick={() => setPendingGeofence(null)} className="text-muted-foreground hover:text-foreground transition-colors p-1"><X className="w-4 h-4" /></button>
+                </div>
+                <form onSubmit={handleSavePending} className="p-5 space-y-5">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-foreground">Geofence Name</label>
+                    <Input 
+                      type="text"
+                      required
+                      autoFocus
+                      value={pendingGeofence.name}
+                      onChange={e => setPendingGeofence({...pendingGeofence, name: e.target.value})}
+                      placeholder="e.g. North Zone Depot"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-foreground">Category</label>
+                    <div className="relative">
+                      <select 
+                        value={pendingGeofence.category || 'general'}
+                        onChange={e => setPendingGeofence({...pendingGeofence, category: e.target.value})}
+                        className="w-full h-10 rounded-xl border border-input bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring focus:border-input shadow-sm appearance-none transition-all"
+                      >
+                        <option value="general">General (Boundary)</option>
+                        <option value="office">Office (Auto Check-In)</option>
+                        <option value="customer">Customer (Visit Tracking)</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-surface-muted/30 rounded-xl border border-border/50">
+                    <input 
+                      type="checkbox"
+                      id="isActiveNew"
+                      checked={pendingGeofence.isActive}
+                      onChange={e => setPendingGeofence({...pendingGeofence, isActive: e.target.checked})}
+                      className="w-4 h-4 rounded text-primary focus:ring-primary bg-background border-input"
+                    />
+                    <label htmlFor="isActiveNew" className="text-sm font-medium text-foreground cursor-pointer">Active immediately</label>
+                  </div>
+                  <Button type="submit" className="w-full">
+                    Save Geofence
+                  </Button>
+                </form>
+              </Card>
+            </motion.div>
+          ) : selectedGeofence ? (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <Card className="border-border/50 shadow-sm overflow-hidden">
+                <div className="p-4 border-b border-border/50 flex justify-between items-center bg-surface-muted/30">
+                  <h3 className="font-bold text-foreground flex items-center gap-2"><Info className="w-4 h-4" /> Geofence Details</h3>
+                  <button onClick={() => setSelectedGeofenceId(null)} className="text-muted-foreground hover:text-foreground transition-colors p-1"><X className="w-4 h-4" /></button>
+                </div>
+                <div className="p-5 space-y-6">
+                  <div>
+                    <h4 className="text-xl font-bold text-foreground mb-2">{selectedGeofence.name}</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant={selectedGeofence.isActive ? 'success' : 'secondary'} className="uppercase text-[10px] tracking-wider px-2 py-0.5">
+                        {selectedGeofence.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                      <Badge variant="outline" className="uppercase text-[10px] tracking-wider px-2 py-0.5 flex items-center gap-1 bg-surface-muted/30">
+                        {selectedGeofence.category === 'office' ? <Building2 className="w-3 h-3" /> : selectedGeofence.category === 'customer' ? <Briefcase className="w-3 h-3" /> : <Layers className="w-3 h-3" />}
+                        {selectedGeofence.category || 'General'}
+                      </Badge>
+                      <Badge variant="outline" className="uppercase text-[10px] tracking-wider px-2 py-0.5 bg-surface-muted/30">
+                        {selectedGeofence.type}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 bg-surface-muted/30 p-4 rounded-xl border border-border/50">
+                    <div>
+                      <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Vertices</label>
+                      <p className="text-sm font-semibold text-foreground">
+                        {selectedGeofence.boundary?.coordinates?.[0]?.length || 0} points
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Radius/Address</label>
+                      <p className="text-sm font-semibold text-muted-foreground">N/A (Polygon)</p>
+                    </div>
+                    <div className="col-span-2 pt-2 border-t border-border/50">
+                      <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Created Date</label>
+                      <p className="text-sm font-semibold text-foreground">{new Date(selectedGeofence.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex gap-3">
+                    <Button 
+                      variant={selectedGeofence.isActive ? 'outline' : 'secondary'}
+                      className="flex-1"
+                      onClick={() => handleUpdateStatus(selectedGeofence._id, !selectedGeofence.isActive)}
+                    >
+                      {selectedGeofence.isActive ? 'Deactivate' : 'Activate'}
+                    </Button>
+                    <Button 
+                      variant="destructive"
+                      onClick={() => handleGeofenceDeleted([selectedGeofence._id])}
+                      className="px-4"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ) : null}
+
+          {/* List Panel */}
+          <Card className="flex-1 flex flex-col border-border/50 shadow-sm overflow-hidden h-full max-h-[800px]">
+            <div className="p-4 border-b border-border/50 space-y-4 bg-surface-muted/30">
+              <div className="flex justify-between items-center">
+                <h2 className="font-bold text-foreground">Saved Geofences</h2>
+                <Badge variant="secondary" className="px-2 py-0.5">{geofences.length}</Badge>
+              </div>
+              
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Input 
+                  type="text" 
+                  placeholder="Search geofences..." 
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="pl-9 bg-background"
+                />
+              </div>
+              
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <select 
+                  value={statusFilter} 
+                  onChange={e => setStatusFilter(e.target.value)}
+                  className="w-full h-10 pl-9 pr-8 rounded-xl border border-input bg-background text-sm text-foreground outline-none focus:ring-2 focus:ring-ring focus:border-input shadow-sm appearance-none transition-all"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="active">Active Only</option>
+                  <option value="inactive">Inactive Only</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar relative">
+              {loading ? (
+                <div className="space-y-3">
+                  {[1,2,3,4].map(i => (
+                    <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                  ))}
+                </div>
+              ) : filteredGeofences.length === 0 ? (
+                <div className="absolute inset-0 flex items-center justify-center p-6">
+                  <EmptyState 
+                    icon={Map}
+                    title="No Geofences Found"
+                    description="Use the polygon tool on the map to draw a new operational boundary."
+                  />
+                </div>
+              ) : (
+                filteredGeofences.map((gf, idx) => (
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    key={gf._id}
+                    onClick={() => setSelectedGeofenceId(gf._id)}
+                    className={`w-full text-left p-4 rounded-xl transition-all duration-200 border relative group focus:outline-none ${
+                      selectedGeofenceId === gf._id 
+                        ? 'bg-primary/5 border-primary shadow-sm' 
+                        : 'bg-background border-border/50 hover:border-primary/50 hover:shadow-sm'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold text-foreground truncate pr-4 leading-tight">{gf.name}</h4>
+                      <div className={`w-2 h-2 rounded-full mt-1 shrink-0 ${gf.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300'}`} title={gf.isActive ? 'Active' : 'Inactive'} />
+                    </div>
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
+                      <Badge variant="outline" className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-surface-muted/50 border-border/50 text-muted-foreground flex items-center gap-1">
+                        {gf.category === 'office' ? <Building2 className="w-2.5 h-2.5" /> : gf.category === 'customer' ? <Briefcase className="w-2.5 h-2.5" /> : <Layers className="w-2.5 h-2.5" />}
+                        {gf.category || 'General'}
+                      </Badge>
+                      <Badge variant="outline" className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-surface-muted/50 border-border/50 text-muted-foreground">
+                        {gf.type}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center text-xs text-muted-foreground border-t border-border/30 pt-2">
+                      <span className="font-mono">{gf.boundary?.coordinates?.[0]?.length || 0} pts</span>
+                      <span>{new Date(gf.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </motion.button>
+                ))
+              )}
+            </div>
+          </Card>
+        </div>
 
         {/* Map Area */}
-        <div className="flex-1 bg-slate-100 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden relative z-0 min-h-[400px]">
+        <Card className="flex-1 rounded-2xl shadow-sm border-border/50 overflow-hidden relative z-0 h-[600px] lg:h-auto min-h-[500px]">
           <LiveMap center={INDIA_CENTER} zoom={DEFAULT_ZOOM}>
             <GeofenceEditor 
               geofences={geofences}
@@ -364,10 +423,11 @@ export default function GeofenceManager() {
             />
           </LiveMap>
           
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-md text-sm font-medium text-slate-700 border border-slate-200 pointer-events-none z-[400]">
-            Use the polygon tool ⬟ to draw boundaries
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-md px-6 py-2.5 rounded-full shadow-lg text-sm font-bold text-foreground border border-border/50 pointer-events-none z-[400] flex items-center gap-2">
+            <Layers className="w-4 h-4 text-primary" />
+            Use the polygon tool to draw boundaries
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

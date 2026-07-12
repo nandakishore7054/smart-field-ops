@@ -136,7 +136,7 @@ export default function GeofenceEditor({
 
         const layer = L.geoJSON(geojson, {
           style: {
-            color: selectedGeofenceId === gf._id ? '#ef4444' : '#0ea5e9',
+            color: selectedGeofenceId === gf._id ? '#ef4444' : '#0ea5e9', // Tailwind rose-500 : sky-500
             weight: selectedGeofenceId === gf._id ? 4 : 2,
             fillOpacity: selectedGeofenceId === gf._id ? 0.3 : 0.1
           },
