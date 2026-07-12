@@ -23,6 +23,7 @@ import CheckIn from './pages/worker/CheckIn';
 import ForgotPassword from './features/auth/ForgotPassword';
 import ResetPassword from './features/auth/ResetPassword';
 import SocketTest from './pages/dev/SocketTest';
+import DesignSystemShowcase from './pages/dev/DesignSystemShowcase';
 import LiveTrackingDashboard from './pages/admin/LiveTrackingDashboard';
 import GeofenceManager from './pages/admin/GeofenceManager';
 
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dev/socket-test" element={<SocketTest />} />
+          <Route path="/dev/design-system" element={<DesignSystemShowcase />} />
           <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'dispatcher' ]} />}>
             <Route element={<AdminLayout />}>
               <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

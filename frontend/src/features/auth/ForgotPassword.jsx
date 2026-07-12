@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../app/api';
+import AuthLayout from '../../common/layouts/AuthLayout';
+import { Input } from '../../common/components/ui/Input';
+import { Button } from '../../common/components/ui/Button';
+import { Mail, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -35,56 +40,72 @@ export default function ForgotPassword() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-12">
-      <section className="w-full max-w-md rounded-3xl border border-slate-700/60 bg-slate-900/80 p-8 shadow-glow backdrop-blur">
-        <div className="mb-8 space-y-2 text-center">
-          <p className="text-sm uppercase tracking-[0.3em] text-sky-300">Smart Field Ops</p>
-          <h1 className="text-3xl font-semibold text-white">Reset Password</h1>
-          <p className="text-sm text-slate-400">Enter your email to receive a reset link.</p>
-        </div>
-
-        {success ? (
-          <div className="space-y-6 text-center">
-            <div className="rounded-2xl bg-sky-500/10 px-4 py-4 border border-sky-500/20">
-              <p className="text-sky-300 font-medium">Reset link sent!</p>
-              <p className="text-sm text-slate-400 mt-2">Check your email for the password reset link.</p>
+    <AuthLayout 
+      title="Reset password" 
+      subtitle="Enter your email to receive a reset link."
+    >
+      {success ? (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="space-y-6 text-center"
+        >
+          <div className="rounded-2xl bg-primary/10 px-6 py-8 border border-primary/20 flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4 text-primary">
+              <CheckCircle2 className="w-6 h-6" />
             </div>
-            <Link to="/login" className="inline-block font-semibold text-sky-300 hover:text-sky-200">
-              Return to login
+            <p className="text-foreground font-semibold text-lg">Reset link sent!</p>
+            <p className="text-sm text-muted-foreground mt-2 max-w-[250px] mx-auto">
+              Check your email for the password reset link. It may take a few minutes.
+            </p>
+          </div>
+          <Link to="/login" className="inline-block font-semibold text-primary hover:text-primary-hover transition-colors">
+            Return to login
+          </Link>
+        </motion.div>
+      ) : (
+        <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">Email</label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@example.com"
+              leftIcon={<Mail className="w-4 h-4" />}
+              error={error}
+            />
+          </div>
+
+          <AnimatePresence>
+            {serverMessage && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="rounded-lg bg-destructive/10 px-4 py-3 border border-destructive/20 text-sm text-destructive"
+              >
+                {serverMessage}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <Button
+            type="submit"
+            isLoading={isSubmitting}
+            className="w-full mt-2"
+            size="lg"
+          >
+            Send reset link
+          </Button>
+          
+          <div className="mt-6 text-center">
+            <Link to="/login" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
+              Cancel
             </Link>
           </div>
-        ) : (
-          <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-            <label className="block space-y-2">
-              <span className="text-sm font-medium text-slate-200">Email</span>
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-400"
-                placeholder="you@example.com"
-              />
-              {error ? <p className="text-sm text-rose-400">{error}</p> : null}
-            </label>
-
-            {serverMessage ? <p className="rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{serverMessage}</p> : null}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex w-full items-center justify-center rounded-2xl bg-sky-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isSubmitting ? 'Sending...' : 'Send reset link'}
-            </button>
-            
-            <div className="mt-4 text-center">
-              <Link to="/login" className="text-sm font-semibold text-slate-400 hover:text-slate-300">
-                Cancel
-              </Link>
-            </div>
-          </form>
-        )}
-      </section>
-    </main>
+        </form>
+      )}
+    </AuthLayout>
   );
 }

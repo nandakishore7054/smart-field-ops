@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/auth-context';
+import AuthLayout from '../../common/layouts/AuthLayout';
+import { Input } from '../../common/components/ui/Input';
+import { Button } from '../../common/components/ui/Button';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function validateLoginForm(formState) {
   const errors = {};
@@ -63,78 +68,83 @@ export default function Login() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-12">
-      <section className="w-full max-w-md rounded-3xl border border-slate-700/60 bg-slate-900/80 p-8 shadow-glow backdrop-blur">
-        <div className="mb-8 space-y-2 text-center">
-          <p className="text-sm uppercase tracking-[0.3em] text-sky-300">Smart Field Ops</p>
-          <h1 className="text-3xl font-semibold text-white">Sign in</h1>
-          <p className="text-sm text-slate-400">Use your account to manage field operations.</p>
+    <AuthLayout 
+      title="Welcome back" 
+      subtitle="Sign in to your account to continue."
+    >
+      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-foreground">Email</label>
+          <Input
+            type="email"
+            value={formState.email}
+            onChange={(event) => setFormState({ ...formState, email: event.target.value })}
+            placeholder="you@example.com"
+            leftIcon={<Mail className="w-4 h-4" />}
+            error={errors.email}
+          />
         </div>
 
-        <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-slate-200">Email</span>
-            <input
-              type="email"
-              value={formState.email}
-              onChange={(event) => setFormState({ ...formState, email: event.target.value })}
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-400"
-              placeholder="you@example.com"
-            />
-            {errors.email ? <p className="text-sm text-rose-400">{errors.email}</p> : null}
-          </label>
-
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-slate-200">Password</span>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={formState.password}
-                onChange={(event) => setFormState({ ...formState, password: event.target.value })}
-                className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 pr-12 text-slate-100 outline-none transition focus:border-sky-400"
-                placeholder="Enter your password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
-                tabIndex="-1"
-              >
-                {showPassword ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                )}
-              </button>
-            </div>
-            {errors.password ? <p className="text-sm text-rose-400">{errors.password}</p> : null}
-            <div className="flex justify-end pt-1">
-              <Link to="/forgot-password" className="text-sm text-sky-400 hover:text-sky-300">
-                Forgot Password?
-              </Link>
-            </div>
-          </label>
-
-          {serverMessage ? <p className="rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{serverMessage}</p> : null}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex w-full items-center justify-center rounded-2xl bg-sky-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center text-sm text-slate-400">
-          <p>
-            No account yet?{' '}
-            <Link to="/register" className="font-semibold text-sky-300 hover:text-sky-200">
-              Create one
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-foreground">Password</label>
+            <Link to="/forgot-password" className="text-sm font-medium text-primary hover:text-primary-hover transition-colors">
+              Forgot password?
             </Link>
-          </p>
+          </div>
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              value={formState.password}
+              onChange={(event) => setFormState({ ...formState, password: event.target.value })}
+              placeholder="Enter your password"
+              leftIcon={<Lock className="w-4 h-4" />}
+              error={errors.password}
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-[9px] text-muted-foreground hover:text-foreground transition-colors"
+              tabIndex="-1"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
-      </section>
-    </main>
+
+        <AnimatePresence>
+          {serverMessage && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="rounded-lg bg-destructive/10 px-4 py-3 border border-destructive/20 text-sm text-destructive"
+            >
+              {serverMessage}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <Button
+          type="submit"
+          isLoading={isSubmitting}
+          className="w-full mt-2"
+          size="lg"
+        >
+          Sign in
+        </Button>
+      </form>
+
+      <div className="mt-8 text-center text-sm text-muted-foreground">
+        <p>
+          Don't have an account?{' '}
+          <Link to="/register" className="font-semibold text-primary hover:text-primary-hover transition-colors">
+            Create an account
+          </Link>
+        </p>
+      </div>
+    </AuthLayout>
   );
 }
