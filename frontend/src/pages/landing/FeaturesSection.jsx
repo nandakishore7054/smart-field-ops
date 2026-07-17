@@ -1,100 +1,84 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Navigation, Camera, WifiOff, Users, LineChart, Moon } from 'lucide-react';
-import { Card } from '../../common/components/ui/Card';
+import { 
+  Navigation, Map, ShieldAlert, ClipboardList, Users, 
+  CalendarCheck, CalendarOff, Radio, PieChart, Route, 
+  BrainCircuit, Bell, Smartphone, Lock, Cpu
+} from 'lucide-react';
 
 const features = [
-  { 
-    icon: Navigation, 
-    title: 'Real-time Dispatch', 
-    desc: 'Assign tasks and track your workforce with live Socket.IO updates and GPS integration.' 
-  },
-  { 
-    icon: Camera, 
-    title: 'Proof of Work', 
-    desc: 'Workers submit photos, signatures, and verified coordinates for irrefutable job completion.' 
-  },
-  { 
-    icon: WifiOff, 
-    title: 'Offline Ready', 
-    desc: 'Our Progressive Web App (PWA) architecture ensures tasks can be viewed without a cellular signal.' 
-  },
-  { 
-    icon: Users, 
-    title: 'Role-based Access', 
-    desc: 'Secure, tailored environments for Admins, Dispatchers, and Field Workers in one platform.' 
-  },
-  { 
-    icon: LineChart, 
-    title: 'Live Analytics', 
-    desc: 'Monitor completion rates, worker performance, and operational bottlenecks instantly.' 
-  },
-  { 
-    icon: Moon, 
-    title: 'Dark Mode Support', 
-    desc: 'Easy on the eyes with complete light, dark, and system theme synchronization.' 
-  },
+  { icon: Navigation, title: 'Live GPS Tracking', desc: 'Monitor your workforce in real-time on a live interactive dashboard.' },
+  { icon: Map, title: 'Interactive Maps', desc: 'Detailed geographic visualization with historical path trails and worker pins.' },
+  { icon: ShieldAlert, title: 'Geofencing', desc: 'Draw virtual boundaries to automatically verify job site attendance.' },
+  { icon: ClipboardList, title: 'Smart Task Management', desc: 'Dispatch tasks to the nearest available worker with a click.' },
+  { icon: Users, title: 'User & Role Management', desc: 'Securely manage Admin, Dispatcher, and Worker privileges.' },
+  { icon: CalendarCheck, title: 'Attendance Management', desc: 'Automated shift tracking driven by physical GPS verification.' },
+  { icon: CalendarOff, title: 'Leave Management', desc: 'Streamlined time-off requests directly from the mobile app.' },
+  { icon: Radio, title: 'Real-Time Socket Communication', desc: 'Low-latency bidirectional streaming ensures no manual page refreshes.' },
+  { icon: PieChart, title: 'Dashboard Analytics', desc: 'Visualize key performance indicators and operational metrics instantly.' },
+  { icon: Route, title: 'Distance Analytics', desc: 'Accurate Haversine-based calculations for travel tracking and reimbursements.' },
+  { icon: BrainCircuit, title: 'AI Operations Summary', desc: 'Generative AI synthesizes thousands of telemetry points into human-readable reports.' },
+  { icon: Bell, title: 'Notifications', desc: 'Instant alerts for task assignments, geofence breaches, and system updates.' },
+  { icon: Smartphone, title: 'Progressive Web App', desc: 'Lightweight, installable mobile experience optimized for battery life.' },
+  { icon: Lock, title: 'JWT Authentication', desc: 'Stateless, cryptographically secure session management.' },
+  { icon: Cpu, title: 'Groq + Gemini AI Integration', desc: 'High-speed Llama 3 inference with automated Google Gemini failover.' },
 ];
 
 const containerVariants = {
-  hidden: {},
+  hidden: { opacity: 0 },
   visible: {
-    transition: {
-      staggerChildren: 0.1
-    }
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
   }
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
 };
 
 export default function FeaturesSection() {
   return (
-    <section className="py-24 md:py-32 px-6 overflow-hidden">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-16 md:mb-24">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-4"
-          >
-            Everything you need to run the field
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-muted-foreground max-w-2xl mx-auto"
-          >
-            Smart Field Ops replaces fragmented tools with a single, unified platform designed specifically for mobile workforces.
-          </motion.p>
+    <section className="py-24 relative overflow-hidden bg-background">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <h2 className="text-sm font-bold tracking-widest text-primary uppercase mb-3">Platform Capabilities</h2>
+          <h3 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">Everything you need to scale operations.</h3>
+          <p className="text-lg text-muted-foreground">
+            A comprehensive suite of tools built specifically for modern, distributed workforces. No bloated features—just exactly what you need.
+          </p>
         </div>
 
         <motion.div 
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {features.map((feature, i) => (
-            <motion.div key={i} variants={itemVariants}>
-              <Card variant="interactive" className="h-full p-6 bg-surface/50 backdrop-blur-sm border-border/50 hover:bg-surface transition-colors">
-                <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-6">
-                  <feature.icon className="w-6 h-6" />
+          {features.map((feature, idx) => (
+            <motion.div 
+              key={idx}
+              variants={itemVariants}
+              className="group relative p-6 rounded-2xl bg-surface border border-border shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+            >
+              {/* Subtle hover gradient background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <feature.icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <h4 className="text-xl font-bold mb-3 tracking-tight">{feature.title}</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {feature.desc}
                 </p>
-              </Card>
+              </div>
             </motion.div>
           ))}
         </motion.div>
+
       </div>
     </section>
   );

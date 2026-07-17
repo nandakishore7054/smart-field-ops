@@ -22,7 +22,7 @@ export default function AuthLayout({ children, title, subtitle }) {
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Compass className="w-6 h-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold tracking-tight">Smart Field Ops</span>
+            <span className="text-xl font-bold tracking-tight">FieldIntel</span>
           </Link>
 
           <motion.div
@@ -31,7 +31,7 @@ export default function AuthLayout({ children, title, subtitle }) {
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-6 tracking-tight">
-              Manage your field operations with precision.
+              AI-Powered Field Operations Intelligence Platform.
             </h1>
             <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-md">
               A comprehensive workforce management system designed for scale, speed, and real-time visibility.
@@ -64,7 +64,7 @@ export default function AuthLayout({ children, title, subtitle }) {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Compass className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-lg font-bold tracking-tight">Smart Field Ops</span>
+            <span className="text-lg font-bold tracking-tight">FieldIntel</span>
           </Link>
         </div>
 

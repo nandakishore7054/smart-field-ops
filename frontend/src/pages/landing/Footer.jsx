@@ -13,10 +13,10 @@ export default function Footer() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <Compass className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-bold tracking-tight">Smart Field Ops</span>
+              <span className="font-bold tracking-tight">FieldIntel</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mb-6">
-              A modern workforce management system for creating tasks, dispatching workers, verifying proofs, and tracking real-time analytics.
+              AI-Powered Field Operations Intelligence Platform for creating tasks, dispatching workers, verifying proofs, and tracking real-time analytics.
             </p>
             <div className="flex gap-4">
                <a href="#" className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors">
@@ -61,7 +61,7 @@ export default function Footer() {
         
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Smart Field Operations. Built with MongoDB, Express, React, Node.
+            &copy; {new Date().getFullYear()} FieldIntel. Built with MongoDB, Express, React, Node.
           </p>
           <div className="flex gap-4 text-sm text-muted-foreground">
             <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>

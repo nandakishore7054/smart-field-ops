@@ -84,7 +84,7 @@ export default function AiOperationsSummary() {
             </h3>
             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
               <BrainCircuit className="w-3.5 h-3.5" />
-              Powered by {data?.provider === 'gemini' ? 'Google Gemini' : data?.provider || 'Smart Field Ops AI'}
+              Powered by {data?.provider === 'gemini' ? 'Google Gemini' : data?.provider || 'FieldIntel AI'}
             </p>
           </div>
         </div>

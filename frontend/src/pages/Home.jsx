@@ -6,10 +6,11 @@ import { Button } from '../common/components/ui/Button';
 import ThemeSwitcher from '../common/components/layout/ThemeSwitcher';
 
 import HeroSection from './landing/HeroSection';
-import StatsSection from './landing/StatsSection';
 import FeaturesSection from './landing/FeaturesSection';
-import TestimonialsSection from './landing/TestimonialsSection';
-import FaqSection from './landing/FaqSection';
+import WhyFieldIntelSection from './landing/WhyFieldIntelSection';
+import HowItWorksSection from './landing/HowItWorksSection';
+import TechStackSection from './landing/TechStackSection';
+import StatsSection from './landing/StatsSection';
 import Footer from './landing/Footer';
 
 export default function Home() {
@@ -26,7 +27,6 @@ export default function Home() {
     );
   }
 
-  // Determine dashboard link
   let dashboardLink = '/admin/dashboard';
   if (user?.role === 'worker') dashboardLink = '/worker/dashboard';
   if (user?.role === 'dispatcher') dashboardLink = '/admin/dispatch-board';
@@ -40,14 +40,14 @@ export default function Home() {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Compass className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-bold tracking-tight text-lg hidden sm:inline-block">Smart Field Ops</span>
+          <span className="font-bold tracking-tight text-lg hidden sm:inline-block">FieldIntel</span>
         </div>
         
         <nav className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground mr-4">
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#testimonials" className="hover:text-foreground transition-colors">Customers</a>
-            <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
+            <a href="#why" className="hover:text-foreground transition-colors">Why FieldIntel</a>
+            <a href="#how" className="hover:text-foreground transition-colors">How it Works</a>
           </div>
 
           <ThemeSwitcher />
@@ -62,7 +62,7 @@ export default function Home() {
                 Sign in
               </Link>
               <Button as={Link} to="/register" size="sm" className="hidden sm:inline-flex">
-                Start for free
+                Get Started
               </Button>
             </div>
           )}
@@ -71,35 +71,36 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col w-full">
         <HeroSection isAuthenticated={isAuthenticated} dashboardLink={dashboardLink} />
-        <StatsSection />
         <div id="features"><FeaturesSection /></div>
-        <div id="testimonials"><TestimonialsSection /></div>
+        <div id="why"><WhyFieldIntelSection /></div>
+        <div id="how"><HowItWorksSection /></div>
+        <TechStackSection />
+        <StatsSection />
         
         {/* Call to Action Section */}
-        <section className="py-24 relative overflow-hidden">
+        <section className="py-24 relative overflow-hidden bg-background">
            <div className="absolute inset-0 bg-primary/5" />
            <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
            
            <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Ready to upgrade your operations?</h2>
+              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-6">Ready to Transform Your Field Operations?</h2>
               <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
-                 Join the thousands of teams using Smart Field Ops to manage tasks, dispatch workers, and track everything in real-time.
+                 Join modern teams using FieldIntel to manage tasks, dispatch workers, and track operations with real-time AI intelligence.
               </p>
               
               {!isAuthenticated && (
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Button as={Link} to="/register" size="lg" className="w-full sm:w-auto h-14 px-8 text-base shadow-glow">
-                    Get started for free
+                    Launch FieldIntel
                   </Button>
                   <Button as={Link} to="/login" variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base bg-surface">
-                    Sign in to workspace
+                    Sign into Workspace
                   </Button>
                 </div>
               )}
            </div>
         </section>
 
-        <div id="faq"><FaqSection /></div>
       </main>
 
       <Footer />
