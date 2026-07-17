@@ -64,7 +64,7 @@ function MapController({ workers, selectedWorkerId, onResetCenter, isNearestMode
     <div className="leaflet-bottom leaflet-right mb-6 mr-2 flex flex-col gap-2 pointer-events-auto" style={{ zIndex: 1000 }}>
       <button 
         onClick={() => {
-          console.log("Nearest Mode:", isNearestMode);
+          
           onToggleNearestMode();
         }} 
         className={`${isNearestMode ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-surface text-primary hover:bg-primary/5'} shadow-lg p-3 rounded-full transition-all group relative border border-border/50`} 
@@ -80,10 +80,10 @@ function MapController({ workers, selectedWorkerId, onResetCenter, isNearestMode
       </button>
       <button onClick={() => {
         if (navigator.geolocation) {
-          console.log('[LOCATION] Admin requested Locate Me (getCurrentPosition)');
+          
           navigator.geolocation.getCurrentPosition(
             (pos) => {
-              console.log('[LOCATION] Admin located successfully');
+              
               map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { animate: true, duration: 1.5 });
             },
             (error) => {
@@ -148,24 +148,24 @@ export default function LiveTrackingDashboard() {
   };
 
   const handleMapClick = async (latlng) => {
-    console.log("handleMapClick entered");
-    console.log("Clicked lat/lng:", latlng);
+    
+    
 
     if (!isNearestMode) {
-      console.log("Exiting early: isNearestMode is false");
+      
       return;
     }
     
     setClickedLocation(latlng);
-    console.log("clickedLocation state updated");
+    
     setNearestLoading(true);
     
     try {
-      console.log("Sending GET /tracking/nearest");
+      
       const response = await api.get(`/tracking/nearest?lat=${latlng.lat}&lng=${latlng.lng}`);
-      console.log("Response data:", response.data);
+      
       setNearestWorkers(response.data.data || []);
-      console.log("nearestWorkers state updated");
+      
     } catch (err) {
       console.error('Failed to fetch nearest workers', err);
       setNearestWorkers([]);

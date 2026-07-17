@@ -32,10 +32,10 @@ export default function NearestWorkerFinder({
 }) {
   const map = useMapEvents({
     click(e) {
-      console.log("Map clicked", e.latlng);
-      console.log("isNearestMode value:", isNearestMode);
+      
+      
       if (isNearestMode) {
-        console.log("Calling onMapClick", e.latlng);
+        
         onMapClick(e.latlng);
       }
     },

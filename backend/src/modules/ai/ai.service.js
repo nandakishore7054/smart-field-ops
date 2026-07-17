@@ -6,17 +6,17 @@ const { generateFallbackSummary } = require('./ai.fallback');
 const GeminiProvider = require('./providers/gemini.provider');
 
 // Factory to get the active AI provider
-function getProvider() {
-  switch (environment.aiProvider.toLowerCase()) {
+function getProvider(name) {
+  const providerName = name || environment.aiProvider || 'groq';
+  switch (providerName.toLowerCase()) {
     case 'gemini':
       return new GeminiProvider();
-    // Support for future providers:
-    // case 'openai': return new OpenAiProvider();
-    // case 'groq': return new GroqProvider();
-    // case 'ollama': return new OllamaProvider();
+    case 'groq':
+      const GroqProvider = require('./providers/groq.provider');
+      return new GroqProvider();
     default:
-      console.warn(`[AI] Provider '${environment.aiProvider}' not supported, defaulting to Gemini`);
-      return new GeminiProvider();
+      const DefaultProvider = require('./providers/groq.provider');
+      return new DefaultProvider();
   }
 }
 
@@ -105,24 +105,45 @@ async function getOperationsSummary(forceRefresh = false) {
 
   // 3. Attempt AI generation
   let aiResult = null;
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = buildUserPrompt(contextData);
+  let usedProvider = 'groq';
+
   try {
-    const provider = getProvider();
-    const systemPrompt = buildSystemPrompt();
-    const userPrompt = buildUserPrompt(contextData);
-    
+    console.log('[AI] Trying Groq...');
+    const provider = getProvider('groq');
     const response = await provider.generateSummary(systemPrompt, userPrompt);
     
     aiResult = {
       ...response,
       generatedAt: new Date().toISOString(),
-      provider: environment.aiProvider,
+      provider: usedProvider,
       cached: false,
       isFallback: false
     };
+    console.log('[AI] Groq succeeded.');
   } catch (error) {
-    console.error(`[AI] Generation failed with provider '${environment.aiProvider}':`, error.message);
-    // 4. Fallback if AI fails (or no API key)
-    aiResult = generateFallbackSummary(contextData);
+    console.error(`[AI] Groq failed:`, error.message);
+    console.log('[AI] Falling back to Gemini...');
+    
+    try {
+      usedProvider = 'gemini';
+      const geminiProvider = getProvider('gemini');
+      const response = await geminiProvider.generateSummary(systemPrompt, userPrompt);
+      console.log('[AI] Gemini succeeded.');
+
+      aiResult = {
+        ...response,
+        generatedAt: new Date().toISOString(),
+        provider: usedProvider,
+        cached: false,
+        isFallback: false
+      };
+    } catch (geminiError) {
+      console.error(`[AI] Gemini failed:`, geminiError.message);
+      // 4. Fallback if AI fails (or no API key)
+      aiResult = generateFallbackSummary(contextData);
+    }
   }
 
   // 5. Store in cache (only if not fallback)

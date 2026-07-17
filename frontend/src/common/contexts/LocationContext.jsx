@@ -14,7 +14,6 @@ export function LocationProvider({ children }) {
 
     let watchId;
     if ('geolocation' in navigator) {
-      console.log('[LOCATION] Started watchPosition');
       watchId = navigator.geolocation.watchPosition(
         (position) => {
           positionRef.current = position;
@@ -35,9 +34,9 @@ export function LocationProvider({ children }) {
         },
         (error) => {
           if (error.code === error.PERMISSION_DENIED) {
-            console.warn('[LOCATION] Permission denied');
+            // Permission denied
           } else {
-            console.warn('[LOCATION] Watch warning:', error.message);
+            // Watch warning
           }
         },
         {
@@ -47,12 +46,11 @@ export function LocationProvider({ children }) {
         }
       );
     } else {
-      console.warn('[LOCATION] Geolocation is not supported');
+      // Geolocation is not supported
     }
 
     return () => {
       if (watchId !== undefined && 'geolocation' in navigator) {
-        console.log('[LOCATION] Cleared watchPosition');
         navigator.geolocation.clearWatch(watchId);
       }
     };
@@ -64,25 +62,20 @@ export function LocationProvider({ children }) {
       const MAX_CACHE_AGE_MS = 60000; // 1 minute
 
       if (cached && (Date.now() - cached.timestamp < MAX_CACHE_AGE_MS)) {
-        console.log('[LOCATION] Using cached position');
         return resolve(cached);
       }
 
-      console.log('[LOCATION] Cache stale or missing, requesting fresh GPS fix...');
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log('[LOCATION] Using fresh GPS fix');
           positionRef.current = position;
           setLastPosition(position);
           resolve(position);
         },
         (error) => {
           if (error.code === error.TIMEOUT && cached) {
-            console.log('[LOCATION] Timeout - using previous live location');
             return resolve(cached);
           }
           if (error.code === error.PERMISSION_DENIED) {
-            console.warn('[LOCATION] Permission denied');
             return reject(error);
           }
           reject(error);

@@ -32,8 +32,13 @@ export default function AiOperationsSummary() {
     }
   };
 
+  const fetchedRef = React.useRef(false);
+
   useEffect(() => {
-    fetchSummary();
+    if (!fetchedRef.current) {
+      fetchedRef.current = true;
+      fetchSummary();
+    }
   }, []);
 
   const getHealthColor = (health) => {
