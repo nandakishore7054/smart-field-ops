@@ -65,8 +65,8 @@ export default function NearestWorkerFinder({
     <>
       <Marker position={clickedLocation} icon={targetIcon}>
         <Popup className="rounded-xl shadow-lg border-0 overflow-hidden" autoPan={false}>
-          <div className="font-bold text-violet-600 mb-1">Target Location</div>
-          <div className="text-xs text-slate-500">
+          <div className="font-bold text-primary mb-1">Target Location</div>
+          <div className="text-xs text-muted-foreground">
             {clickedLocation.lat.toFixed(5)}, {clickedLocation.lng.toFixed(5)}
           </div>
         </Popup>
@@ -100,7 +100,7 @@ export default function NearestWorkerFinder({
                 opacity: 0.9
               }}
             >
-              <Tooltip permanent direction="center" className="bg-white px-2 py-1 rounded shadow-sm border border-slate-200 text-xs font-bold text-slate-700">
+              <Tooltip permanent direction="center" className="bg-surface px-2 py-1 rounded shadow-sm border border-border text-xs font-bold text-foreground">
                 {worker.distance.toFixed(2)} km
               </Tooltip>
             </Polyline>

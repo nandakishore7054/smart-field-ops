@@ -70,7 +70,7 @@ export default function Home() {
       </header>
 
       <main className="flex-1 flex flex-col w-full">
-        <HeroSection isAuthenticated={isAuthenticated} />
+        <HeroSection isAuthenticated={isAuthenticated} dashboardLink={dashboardLink} />
         <StatsSection />
         <div id="features"><FeaturesSection /></div>
         <div id="testimonials"><TestimonialsSection /></div>

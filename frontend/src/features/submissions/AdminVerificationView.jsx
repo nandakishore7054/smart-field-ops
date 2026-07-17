@@ -135,7 +135,7 @@ export default function AdminVerificationView({ task, onVerified }) {
                 type="button"
                 onClick={() => setIsVerified(true)}
                 variant={isVerified ? 'default' : 'outline'}
-                className={`gap-2 ${isVerified ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : ''}`}
+                className={`gap-2 ${isVerified ? 'bg-success hover:bg-success-hover text-success-foreground' : ''}`}
               >
                 <CheckCircle2 className="w-4 h-4" />
                 Approve
@@ -163,7 +163,7 @@ export default function AdminVerificationView({ task, onVerified }) {
             {/* Status Message */}
             {message && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400 font-medium">{message}</div>
+                <div className="rounded-xl bg-success/10 border border-success/20 px-4 py-3 text-sm text-success dark:text-success-hover font-medium">{message}</div>
               </motion.div>
             )}
 

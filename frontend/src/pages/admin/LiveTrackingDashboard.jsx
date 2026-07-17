@@ -72,11 +72,11 @@ function MapController({ workers, selectedWorkerId, onResetCenter, isNearestMode
       >
         <Target className="w-5 h-5" />
       </button>
-      <button onClick={() => onResetCenter(true)} className="bg-surface hover:bg-sky-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors border border-border/50" title="Center on Workers">
-        <Users className="w-5 h-5 text-sky-600" />
+      <button onClick={() => onResetCenter(true)} className="bg-surface hover:bg-primary/5 text-foreground shadow-md p-2.5 rounded-full transition-colors border border-border/50" title="Center on Workers">
+        <Users className="w-5 h-5 text-primary" />
       </button>
-      <button onClick={() => map.flyTo(INDIA_CENTER, DEFAULT_ZOOM, { animate: true })} className="bg-surface hover:bg-slate-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors border border-border/50" title="Center on Region">
-        <Globe className="w-5 h-5 text-indigo-600" />
+      <button onClick={() => map.flyTo(INDIA_CENTER, DEFAULT_ZOOM, { animate: true })} className="bg-surface hover:bg-surface-muted text-foreground shadow-md p-2.5 rounded-full transition-colors border border-border/50" title="Center on Region">
+        <Globe className="w-5 h-5 text-info" />
       </button>
       <button onClick={() => {
         if (navigator.geolocation) {
@@ -92,8 +92,8 @@ function MapController({ workers, selectedWorkerId, onResetCenter, isNearestMode
             { enableHighAccuracy: false, maximumAge: 60000, timeout: 10000 }
           );
         }
-      }} className="bg-surface hover:bg-emerald-50 text-slate-700 shadow-md p-2.5 rounded-full transition-colors border border-border/50" title="Locate Me">
-        <LocateFixed className="w-5 h-5 text-emerald-600" />
+      }} className="bg-surface hover:bg-success/5 text-foreground shadow-md p-2.5 rounded-full transition-colors border border-border/50" title="Locate Me">
+        <LocateFixed className="w-5 h-5 text-success" />
       </button>
     </div>
   );
@@ -384,8 +384,8 @@ export default function LiveTrackingDashboard() {
           <div className="flex flex-col items-end gap-3">
             <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-surface border border-border/50 shadow-sm">
               <div className="relative flex h-3.5 w-3.5">
-                {isConnected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>}
-                <span className={`relative inline-flex rounded-full h-3.5 w-3.5 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                {isConnected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>}
+                <span className={`relative inline-flex rounded-full h-3.5 w-3.5 ${isConnected ? 'bg-success' : 'bg-destructive'}`}></span>
               </div>
               <span className="text-sm font-semibold text-foreground tracking-wide">
                 {isConnected ? 'Socket Connected' : 'Disconnected'}
@@ -403,10 +403,10 @@ export default function LiveTrackingDashboard() {
       {/* KPI Cards (Framer Motion Staggered) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Active Workers', value: activeWorkersList.length, icon: Users, colorClass: 'text-indigo-600 dark:text-indigo-400', bgClass: 'bg-indigo-50 dark:bg-indigo-900/20' },
-          { label: 'Online Now', value: onlineCount, icon: Wifi, colorClass: 'text-emerald-600 dark:text-emerald-400', bgClass: 'bg-emerald-50 dark:bg-emerald-900/20' },
-          { label: 'Offline', value: activeWorkersList.length - onlineCount, icon: WifiOff, colorClass: 'text-rose-600 dark:text-rose-400', bgClass: 'bg-rose-50 dark:bg-rose-900/20' },
-          { label: 'Map Status', value: isConnected ? 'Live' : 'Stale', icon: Activity, colorClass: isConnected ? 'text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-400', bgClass: isConnected ? 'bg-sky-50 dark:bg-sky-900/20' : 'bg-slate-50 dark:bg-slate-900/20' },
+          { label: 'Active Workers', value: activeWorkersList.length, icon: Users, colorClass: 'text-info dark:text-info-hover', bgClass: 'bg-info/10' },
+          { label: 'Online Now', value: onlineCount, icon: Wifi, colorClass: 'text-success dark:text-success-hover', bgClass: 'bg-success/10' },
+          { label: 'Offline', value: activeWorkersList.length - onlineCount, icon: WifiOff, colorClass: 'text-destructive dark:text-destructive-hover', bgClass: 'bg-destructive/10' },
+          { label: 'Map Status', value: isConnected ? 'Live' : 'Stale', icon: Activity, colorClass: isConnected ? 'text-primary dark:text-primary-hover' : 'text-muted-foreground', bgClass: isConnected ? 'bg-primary/10' : 'bg-surface-muted' },
         ].map((stat, idx) => (
           <motion.div
             key={idx}
@@ -532,12 +532,12 @@ export default function LiveTrackingDashboard() {
                   {nearestWorkers.map((worker, idx) => {
                     const isSelected = selectedWorkerId === worker.workerId;
                     
-                    const borderColors = ['border-orange-500 ring-1 ring-orange-500/30', 'border-violet-500 ring-1 ring-violet-500/30', 'border-blue-500 ring-1 ring-blue-500/30'];
-                    const badgeColors = ['bg-orange-500 text-white', 'bg-violet-500 text-white', 'bg-blue-500 text-white'];
+                    const borderColors = ['border-warning ring-1 ring-warning/30', 'border-primary ring-1 ring-primary/30', 'border-info ring-1 ring-info/30'];
+                    const badgeColors = ['bg-warning text-warning-foreground', 'bg-primary text-primary-foreground', 'bg-info text-info-foreground'];
                     const distanceColors = [
-                      'text-orange-700 bg-orange-100 dark:text-orange-300 dark:bg-orange-900/40',
-                      'text-violet-700 bg-violet-100 dark:text-violet-300 dark:bg-violet-900/40',
-                      'text-blue-700 bg-blue-100 dark:text-blue-300 dark:bg-blue-900/40'
+                      'text-warning bg-warning/10',
+                      'text-primary bg-primary/10',
+                      'text-info bg-info/10'
                     ];
 
                     const borderClass = borderColors[idx] || 'border-border';
@@ -648,7 +648,7 @@ export default function LiveTrackingDashboard() {
                           <div className="w-12 h-12 bg-surface-muted rounded-full flex items-center justify-center font-bold text-lg text-foreground border border-border shadow-sm">
                             {(worker.workerName || 'U').charAt(0).toUpperCase()}
                           </div>
-                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${isOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${isOnline ? 'bg-success' : 'bg-destructive'}`} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start mb-1">
@@ -682,7 +682,7 @@ export default function LiveTrackingDashboard() {
 
                           <div className="flex justify-between items-center text-xs text-muted-foreground/70">
                             <span className="flex items-center gap-1 font-mono">
-                              <Navigation className="w-3 h-3 text-sky-500 shrink-0" /> 
+                              <Navigation className="w-3 h-3 text-primary shrink-0" /> 
                               {worker.latitude.toFixed(3)}, {worker.longitude.toFixed(3)}
                             </span>
                             <span>{worker.timestamp ? new Date(worker.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
@@ -731,7 +731,7 @@ export default function LiveTrackingDashboard() {
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="bg-background p-2.5 rounded-lg border border-border/50 shadow-sm flex flex-col gap-1">
                         <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Distance</span>
-                        <span className="font-bold text-foreground">{(trailData.totalDistance / 1000).toFixed(2)} km</span>
+                        <span className="font-bold text-foreground">{trailData.totalDistance.toFixed(2)} km</span>
                       </div>
                       <div className="bg-background p-2.5 rounded-lg border border-border/50 shadow-sm flex flex-col gap-1">
                         <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Points</span>
@@ -801,7 +801,7 @@ export default function LiveTrackingDashboard() {
                     <h3 className="font-bold text-base truncate flex items-center gap-2">
                       {worker.workerName || 'Unknown Worker'}
                     </h3>
-                    <span className={`w-2.5 h-2.5 rounded-full ${worker.timestamp && (new Date() - new Date(worker.timestamp) < 5 * 60 * 1000) ? 'bg-green-400' : 'bg-red-400'}`} />
+                    <span className={`w-2.5 h-2.5 rounded-full ${worker.timestamp && (new Date() - new Date(worker.timestamp) < 5 * 60 * 1000) ? 'bg-success' : 'bg-destructive'}`} />
                   </div>
                   <div className="p-4 space-y-3.5 bg-background text-foreground">
                     <div className="grid grid-cols-2 gap-y-2.5 text-sm">
@@ -833,7 +833,7 @@ export default function LiveTrackingDashboard() {
                       {worker.batteryLevel !== undefined && (
                         <>
                           <div className="text-muted-foreground">Battery</div>
-                          <div className="text-right text-green-600 flex items-center justify-end gap-1">
+                          <div className="text-right text-success flex items-center justify-end gap-1">
                             <Battery className="w-3.5 h-3.5"/> {worker.batteryLevel}%
                           </div>
                         </>

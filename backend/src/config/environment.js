@@ -9,6 +9,14 @@ const environment = {
   accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m',
   refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  
+  // AI Feature Config
+  aiProvider: process.env.AI_PROVIDER || 'gemini',
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
+  openAiApiKey: process.env.OPENAI_API_KEY || '',
+  groqApiKey: process.env.GROQ_API_KEY || '',
+  ollamaApiKey: process.env.OLLAMA_API_KEY || '',
+  aiCacheTtlMinutes: Number(process.env.AI_CACHE_TTL_MINUTES) || 15,
 };
 
 function validateEnvironment() {

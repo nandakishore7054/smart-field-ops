@@ -152,12 +152,12 @@ export default function ProofSubmissionForm({ task, onSubmitted }) {
 
   return (
     <Card className="p-5 sm:p-6 border-border/50 shadow-sm relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-emerald-500/50" />
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-success to-success/50" />
 
       <div className="flex items-center gap-2 mb-5">
-        <Camera className="w-5 h-5 text-emerald-500" />
+        <Camera className="w-5 h-5 text-success" />
         <div>
-          <p className="text-xs uppercase tracking-widest font-bold text-emerald-600 dark:text-emerald-400">Proof Submission</p>
+          <p className="text-xs uppercase tracking-widest font-bold text-success dark:text-success-hover">Proof Submission</p>
           <h3 className="text-xl font-bold text-foreground">Upload Evidence</h3>
         </div>
       </div>
@@ -231,14 +231,14 @@ export default function ProofSubmissionForm({ task, onSubmitted }) {
 
         {/* Location Ready */}
         {location && (
-          <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 rounded-xl text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+          <div className="flex items-center gap-2 bg-success/10 border border-success/20 px-4 py-2.5 rounded-xl text-sm text-success dark:text-success-hover font-medium">
             <MapPinned className="w-4 h-4 shrink-0" />
             Location ready: {location.coordinates[1].toFixed(6)}, {location.coordinates[0].toFixed(6)}
           </div>
         )}
 
         {error && <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive font-medium">{error}</div>}
-        {success && <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400 font-medium">{success}</div>}
+        {success && <div className="rounded-xl bg-success/10 border border-success/20 px-4 py-3 text-sm text-success dark:text-success-hover font-medium">{success}</div>}
       </form>
     </Card>
   );

@@ -86,39 +86,39 @@ export default function AttendanceDashboard() {
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-              <Card className="p-6 flex items-center justify-between hover:shadow-md transition-all group relative overflow-hidden bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30">
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Card className="p-6 flex items-center justify-between hover:shadow-md transition-all group relative overflow-hidden bg-success/5 border-success/20">
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div>
-                  <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Present</p>
+                  <p className="text-xs font-bold text-success dark:text-success-hover uppercase tracking-wider">Present</p>
                   <p className="mt-1 text-4xl font-black text-foreground">{presentCount}</p>
                 </div>
-                <div className="p-4 rounded-full bg-emerald-100/50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                <div className="p-4 rounded-full bg-success/10 text-success dark:text-success-hover group-hover:scale-110 transition-transform">
                   <UserCheck className="w-7 h-7" />
                 </div>
               </Card>
             </motion.div>
             
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="p-6 flex items-center justify-between hover:shadow-md transition-all group relative overflow-hidden bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/30">
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Card className="p-6 flex items-center justify-between hover:shadow-md transition-all group relative overflow-hidden bg-warning/5 border-warning/20">
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-warning/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div>
-                  <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Late</p>
+                  <p className="text-xs font-bold text-warning dark:text-warning-hover uppercase tracking-wider">Late</p>
                   <p className="mt-1 text-4xl font-black text-foreground">{lateCount}</p>
                 </div>
-                <div className="p-4 rounded-full bg-amber-100/50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
+                <div className="p-4 rounded-full bg-warning/10 text-warning dark:text-warning-hover group-hover:scale-110 transition-transform">
                   <Clock className="w-7 h-7" />
                 </div>
               </Card>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <Card className="p-6 flex items-center justify-between hover:shadow-md transition-all group relative overflow-hidden bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-900/30">
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Card className="p-6 flex items-center justify-between hover:shadow-md transition-all group relative overflow-hidden bg-destructive/5 border-destructive/20">
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div>
-                  <p className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">Absent</p>
+                  <p className="text-xs font-bold text-destructive dark:text-destructive-hover uppercase tracking-wider">Absent</p>
                   <p className="mt-1 text-4xl font-black text-foreground">{absentCount}</p>
                 </div>
-                <div className="p-4 rounded-full bg-rose-100/50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform">
+                <div className="p-4 rounded-full bg-destructive/10 text-destructive dark:text-destructive-hover group-hover:scale-110 transition-transform">
                   <UserX className="w-7 h-7" />
                 </div>
               </Card>

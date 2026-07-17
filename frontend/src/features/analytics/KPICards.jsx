@@ -4,12 +4,12 @@ import { motion } from 'framer-motion';
 export default function KPICards({ data }) {
   const cards = [
     { label: 'Total Tasks', value: data.totalTasks, color: 'text-foreground', bg: 'bg-primary/10' },
-    { label: 'Completed', value: data.completedTasks, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10' },
-    { label: 'Pending', value: data.pendingTasks, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10' },
-    { label: 'Verified', value: data.verifiedTasks, color: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-500/10' },
-    { label: 'Rejected', value: data.rejectedTasks, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500/10' },
-    { label: 'Completion Rate', value: `${data.completionRate}%`, color: 'text-foreground', bg: 'bg-indigo-500/10' },
-    { label: 'Active Workers', value: data.activeWorkers, color: 'text-foreground', bg: 'bg-fuchsia-500/10' },
+    { label: 'Completed', value: data.completedTasks, color: 'text-success dark:text-success-hover', bg: 'bg-success/10' },
+    { label: 'Pending', value: data.pendingTasks, color: 'text-warning dark:text-warning-hover', bg: 'bg-warning/10' },
+    { label: 'Verified', value: data.verifiedTasks, color: 'text-info dark:text-info-hover', bg: 'bg-info/10' },
+    { label: 'Rejected', value: data.rejectedTasks, color: 'text-destructive dark:text-destructive-hover', bg: 'bg-destructive/10' },
+    { label: 'Completion Rate', value: `${data.completionRate}%`, color: 'text-foreground', bg: 'bg-primary/10' },
+    { label: 'Active Workers', value: data.activeWorkers, color: 'text-foreground', bg: 'bg-secondary' },
   ];
 
   return (

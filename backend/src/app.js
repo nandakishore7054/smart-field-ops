@@ -11,6 +11,7 @@ const notificationsRoutes = require('./modules/notifications/notifications.route
 const analyticsRoutes = require('./modules/analytics/analytics.routes');
 const dashboardRoutes = require('./modules/dashboard/dashboard.routes');
 const availabilityRoutes = require('./modules/availability/availability.routes');
+const aiRoutes = require('./modules/ai/ai.routes');
 const errorMiddleware = require('./core/middlewares/error.middleware');
 const ApiError = require('./core/utils/apiError');
 const { environment } = require('./config/environment');
@@ -52,6 +53,7 @@ app.use('/api/attendance', attendanceRouter);
 app.use('/api/shifts', shiftsRouter);
 app.use('/api/tracking', trackingRouter);
 app.use('/api/geofences', geofenceRouter);
+app.use('/api/ai', aiRoutes);
 app.use('/api', availabilityRoutes);
 app.use('/api', submissionsRoutes);
 

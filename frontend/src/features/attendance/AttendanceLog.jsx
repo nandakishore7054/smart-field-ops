@@ -98,7 +98,7 @@ export default function AttendanceLog({ records, loading }) {
             </td>
             <td className="px-6 py-4">
               {record.checkIn?.method === 'gps' ? (
-                <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 px-2 py-1 rounded-md w-fit">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-success dark:text-success-hover bg-success/10 px-2 py-1 rounded-md w-fit">
                   <ShieldCheck className="w-3.5 h-3.5" /> Verified
                 </div>
               ) : (

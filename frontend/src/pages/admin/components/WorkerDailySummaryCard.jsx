@@ -82,9 +82,9 @@ export default function WorkerDailySummaryCard({ workerId, date, onClose }) {
 
   // Determine score color classes based on semantic variables
   let scoreClass = 'text-destructive';
-  if (performanceScore >= 90) scoreClass = 'text-green-500';
-  else if (performanceScore >= 75) scoreClass = 'text-blue-500';
-  else if (performanceScore >= 60) scoreClass = 'text-orange-500';
+  if (performanceScore >= 90) scoreClass = 'text-success';
+  else if (performanceScore >= 75) scoreClass = 'text-info';
+  else if (performanceScore >= 60) scoreClass = 'text-warning';
 
   return (
     <motion.div 
@@ -103,7 +103,7 @@ export default function WorkerDailySummaryCard({ workerId, date, onClose }) {
         <div>
           <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
             {workerName}
-            <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500 ring-2 ring-green-500/20' : 'bg-muted-foreground'}`} title={isOnline ? 'Online' : 'Offline'}></div>
+            <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-success ring-2 ring-success/20' : 'bg-muted-foreground'}`} title={isOnline ? 'Online' : 'Offline'}></div>
           </h3>
           <div className="mt-1 flex items-center gap-2">
             <Badge variant={attendanceStatus?.toLowerCase() === 'present' ? 'success' : attendanceStatus?.toLowerCase() === 'late' ? 'warning' : 'destructive'} className="text-[10px] px-2 uppercase">
@@ -125,7 +125,7 @@ export default function WorkerDailySummaryCard({ workerId, date, onClose }) {
           <div className="absolute top-1/2 left-8 right-8 h-px bg-border/50 -translate-y-1/2 hidden sm:block"></div>
           <div className="bg-background p-3 rounded-xl border border-border/50 shadow-sm relative z-10 hover:border-primary/30 transition-colors">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-bold flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Check In
+              <span className="w-1.5 h-1.5 rounded-full bg-success"></span> Check In
             </div>
             <div className="font-black text-foreground text-lg">{checkIn || '--:--'}</div>
           </div>
@@ -146,11 +146,11 @@ export default function WorkerDailySummaryCard({ workerId, date, onClose }) {
             <div className="text-xs text-primary font-bold tracking-wide mb-1 uppercase">Working Hours</div>
             <div className="font-black text-2xl text-foreground">{workingHours}</div>
           </div>
-          <div className="bg-sky-500/5 p-4 rounded-xl border border-sky-500/10 shadow-sm relative overflow-hidden group">
+          <div className="bg-info/5 p-4 rounded-xl border border-info/10 shadow-sm relative overflow-hidden group">
             <div className="absolute right-2 top-2 opacity-10 group-hover:opacity-20 transition-opacity">
-              <Map className="w-10 h-10 text-sky-500" />
+              <Map className="w-10 h-10 text-info" />
             </div>
-            <div className="text-xs text-sky-600 dark:text-sky-400 font-bold tracking-wide mb-1 uppercase">Distance Travelled</div>
+            <div className="text-xs text-info font-bold tracking-wide mb-1 uppercase">Distance Travelled</div>
             <div className="font-black text-2xl text-foreground">{distanceTravelled}</div>
           </div>
         </div>
@@ -162,18 +162,18 @@ export default function WorkerDailySummaryCard({ workerId, date, onClose }) {
               <UserCheck className="w-4 h-4 text-primary" />
               Customer Visits
             </div>
-            <div className="font-bold text-foreground bg-surface px-2.5 py-0.5 rounded-md border border-border">{customerVisits}</div>
+            <div className="font-bold text-foreground bg-surface px-2.5 py-0.5 rounded-lg border border-border">{customerVisits}</div>
           </div>
           <div className="p-3.5 flex justify-between items-center group hover:bg-surface-muted/30 transition-colors">
             <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-emerald-500" />
+              <Briefcase className="w-4 h-4 text-success" />
               Customer Time
             </div>
             <div className="font-bold text-foreground">{customerTime}</div>
           </div>
           <div className="p-3.5 flex justify-between items-center group hover:bg-surface-muted/30 transition-colors">
             <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
-              <Timer className="w-4 h-4 text-orange-500" />
+              <Timer className="w-4 h-4 text-warning" />
               Travel Time
             </div>
             <div className="font-bold text-foreground">{travelTime}</div>

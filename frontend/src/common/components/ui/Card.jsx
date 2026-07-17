@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from './utils';
 
-export const Card = React.forwardRef(({ className, variant = 'default', ...props }, ref) => {
+export const Card = React.forwardRef(({ className, variant = 'default', as: Component = 'div', ...props }, ref) => {
   const variants = {
     default: "bg-surface border-border",
     elevated: "bg-surface border-transparent shadow-card",
@@ -9,7 +9,7 @@ export const Card = React.forwardRef(({ className, variant = 'default', ...props
   };
 
   return (
-    <div
+    <Component
       ref={ref}
       className={cn("rounded-xl border text-foreground shadow-sm overflow-hidden", variants[variant], className)}
       {...props}

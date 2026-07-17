@@ -253,7 +253,7 @@ export default function ShiftManager() {
                   <div className="p-6 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-4">
                       <h4 className="text-lg font-bold text-foreground pr-4 line-clamp-1">{shift.name}</h4>
-                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${shift.isActive !== false ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-400'}`} />
+                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${shift.isActive !== false ? 'bg-success shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground'}`} />
                     </div>
                     
                     <div className="space-y-4 flex-1">

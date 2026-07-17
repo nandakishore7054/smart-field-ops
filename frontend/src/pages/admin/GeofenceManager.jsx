@@ -182,11 +182,11 @@ export default function GeofenceManager() {
               <p className="text-xl font-bold text-foreground">{totalGeofences}</p>
             </div>
             <div className="bg-background rounded-xl p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center">
-              <p className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 dark:text-emerald-400 mb-1">Active</p>
+              <p className="text-[10px] uppercase font-bold tracking-wider text-success mb-1">Active</p>
               <p className="text-xl font-bold text-foreground">{activeGeofences}</p>
             </div>
             <div className="bg-background rounded-xl p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center">
-              <p className="text-[10px] uppercase font-bold tracking-wider text-sky-600 dark:text-sky-400 mb-1">Customer</p>
+              <p className="text-[10px] uppercase font-bold tracking-wider text-primary mb-1">Customer</p>
               <p className="text-xl font-bold text-foreground">{customerGeofences}</p>
             </div>
             <div className="bg-background rounded-xl p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center">
@@ -388,7 +388,7 @@ export default function GeofenceManager() {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-bold text-foreground truncate pr-4 leading-tight">{gf.name}</h4>
-                      <div className={`w-2 h-2 rounded-full mt-1 shrink-0 ${gf.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300'}`} title={gf.isActive ? 'Active' : 'Inactive'} />
+                      <div className={`w-2 h-2 rounded-full mt-1 shrink-0 ${gf.isActive ? 'bg-success shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground'}`} title={gf.isActive ? 'Active' : 'Inactive'} />
                     </div>
                     <div className="flex items-center gap-2 mb-3 flex-wrap">
                       <Badge variant="outline" className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-surface-muted/50 border-border/50 text-muted-foreground flex items-center gap-1">

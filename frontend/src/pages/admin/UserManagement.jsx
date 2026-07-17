@@ -114,9 +114,9 @@ export default function UserManagement() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Page Total', value: users.length, icon: Users, colorClass: 'text-indigo-600 dark:text-indigo-400', bgClass: 'bg-indigo-50 dark:bg-indigo-900/20' },
-          { label: 'Active (Page)', value: activeCount, icon: Activity, colorClass: 'text-emerald-600 dark:text-emerald-400', bgClass: 'bg-emerald-50 dark:bg-emerald-900/20' },
-          { label: 'Admins (Page)', value: adminCount, icon: Shield, colorClass: 'text-purple-600 dark:text-purple-400', bgClass: 'bg-purple-50 dark:bg-purple-900/20' },
-          { label: 'Workers (Page)', value: workerCount, icon: UserCircle, colorClass: 'text-sky-600 dark:text-sky-400', bgClass: 'bg-sky-50 dark:bg-sky-900/20' },
+          { label: 'Active (Page)', value: activeCount, icon: Activity, colorClass: 'text-success dark:text-success-hover', bgClass: 'bg-success/10' },
+          { label: 'Admins (Page)', value: adminCount, icon: Shield, colorClass: 'text-primary dark:text-primary-hover', bgClass: 'bg-primary/10' },
+          { label: 'Workers (Page)', value: workerCount, icon: UserCircle, colorClass: 'text-info dark:text-info-hover', bgClass: 'bg-info/10' },
         ].map((stat, idx) => (
           <motion.div
             key={idx}
@@ -282,7 +282,7 @@ export default function UserManagement() {
                         variant={u.status === 'active' ? 'outline' : 'default'}
                         size="sm"
                         onClick={() => handleStatusChange(u._id, u.status === 'active' ? 'inactive' : 'active')}
-                        className={`gap-2 ${u.status === 'active' ? 'hover:text-destructive hover:bg-destructive/10 hover:border-destructive/30' : 'bg-emerald-500 hover:bg-emerald-600 text-white'}`}
+                        className={`gap-2 ${u.status === 'active' ? 'hover:text-destructive hover:bg-destructive/10 hover:border-destructive/30' : 'bg-success hover:bg-success-hover text-success-foreground'}`}
                       >
                         {u.status === 'active' ? (
                           <><PowerOff className="w-3.5 h-3.5" /> Deactivate</>

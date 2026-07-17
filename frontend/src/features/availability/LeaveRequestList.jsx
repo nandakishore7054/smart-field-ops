@@ -140,7 +140,7 @@ export default function LeaveRequestList({ isAdmin = false, refreshTrigger = 0 }
                   <Button
                     size="sm"
                     onClick={() => handleApprove(req._id, 'approved')}
-                    className="flex-1 sm:flex-none bg-emerald-500 hover:bg-emerald-600 text-white gap-1.5"
+                    className="flex-1 sm:flex-none bg-success hover:bg-success-hover text-success-foreground gap-1.5"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     Approve

@@ -6,6 +6,7 @@ import api from '../../app/api';
 import DashboardKPIs from '../../pages/admin/components/DashboardKPIs';
 import DashboardCharts from '../../pages/admin/components/DashboardCharts';
 import { Card } from '../../common/components/ui/Card';
+import AiOperationsSummary from '../ai/AiOperationsSummary';
 
 export default function AnalyticsDashboard() {
   return (
@@ -25,6 +26,15 @@ export default function AnalyticsDashboard() {
           <span>Last 7 Days</span>
         </div>
       </div>
+
+      {/* AI Summary Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <AiOperationsSummary />
+      </motion.div>
 
       {/* Quick Actions */}
       <motion.div 
@@ -49,14 +59,14 @@ export default function AnalyticsDashboard() {
           </Card>
 
           <Card variant="interactive" as={Link} to="/admin/live-tracking" className="p-4 flex items-center gap-3 bg-surface/50 hover:bg-surface">
-            <div className="w-8 h-8 rounded-lg bg-fuchsia-500/10 text-fuchsia-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-info/10 text-info flex items-center justify-center">
               <Map className="w-4 h-4" />
             </div>
             <span className="text-sm font-medium text-foreground">Live Tracking</span>
           </Card>
 
           <Card variant="interactive" as={Link} to="/admin/dispatch-board" className="p-4 flex items-center gap-3 bg-surface/50 hover:bg-surface">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-success/10 text-success flex items-center justify-center">
               <LayoutDashboard className="w-4 h-4" />
             </div>
             <span className="text-sm font-medium text-foreground">Dispatch Board</span>

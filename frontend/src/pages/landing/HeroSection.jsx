@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../common/components/ui/Button';
 import { ChevronRight, ShieldCheck, Zap, BarChart3 } from 'lucide-react';
 
-export default function HeroSection({ isAuthenticated }) {
+export default function HeroSection({ isAuthenticated, dashboardLink = '/admin/dashboard' }) {
   return (
     <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden px-6">
       {/* Background gradients */}
@@ -59,7 +59,7 @@ export default function HeroSection({ isAuthenticated }) {
               </Button>
             </>
           ) : (
-            <Button as={Link} to="/admin/dashboard" size="lg" className="w-full sm:w-auto text-base h-12 px-8 shadow-glow">
+            <Button as={Link} to={dashboardLink} size="lg" className="w-full sm:w-auto text-base h-12 px-8 shadow-glow">
               Go to Dashboard
             </Button>
           )}

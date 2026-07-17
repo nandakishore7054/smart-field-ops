@@ -12,7 +12,7 @@ export default function ProtectedRoute({ allowedRoles }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-300">
+      <div className="flex min-h-screen items-center justify-center bg-background px-4 text-muted-foreground">
         Loading session...
       </div>
     );

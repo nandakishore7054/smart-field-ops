@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { Marker, Popup, useMap } from 'react-leaflet';
+import { Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet-polylinedecorator';
 
 // Custom Map Pin Icons using Leaflet divIcon
 const createLabeledIcon = (label, bgColor) => L.divIcon({
@@ -33,60 +32,17 @@ export default function WorkerTrailMapLayer({ trailData, isVisible }) {
   const layerGroupRef = useRef(null);
 
   useEffect(() => {
-    // Clear previous raw leaflet layers if any
-    if (layerGroupRef.current) {
-      layerGroupRef.current.clearLayers();
-      map.removeLayer(layerGroupRef.current);
-      layerGroupRef.current = null;
-    }
-
     if (!isVisible || !trailData || trailData.coordinates.length === 0) {
       return;
     }
 
-    // Map coordinates to Leaflet Polyline format [lat, lng]
     const polylinePositions = trailData.coordinates.map(coord => [coord.lat, coord.lng]);
     
-    // Create a new LayerGroup
-    const layerGroup = L.layerGroup().addTo(map);
-    layerGroupRef.current = layerGroup;
-
-    // Create the Polyline
-    const polyline = L.polyline(polylinePositions, {
-      color: '#0ea5e9', // Sky 500
-      weight: 4,
-      opacity: 0.8,
-    }).addTo(layerGroup);
-
-    // Create Direction Arrows
-    if (polylinePositions.length > 1) {
-      L.polylineDecorator(polyline, {
-        patterns: [
-          {
-            offset: '5%',
-            repeat: '100px',
-            symbol: L.Symbol.arrowHead({
-              pixelSize: 12,
-              polygon: false,
-              pathOptions: { stroke: true, weight: 3, color: '#0ea5e9', opacity: 0.9 }
-            })
-          }
-        ]
-      }).addTo(layerGroup);
-    }
-
     // Automatically fit bounds
     if (polylinePositions.length > 0) {
-      map.fitBounds(polyline.getBounds(), { padding: [50, 50], maxZoom: 16, animate: true });
+      const polylineBounds = L.polyline(polylinePositions).getBounds();
+      map.fitBounds(polylineBounds, { padding: [50, 50], maxZoom: 16, animate: true });
     }
-
-    return () => {
-      if (layerGroupRef.current) {
-        layerGroupRef.current.clearLayers();
-        map.removeLayer(layerGroupRef.current);
-        layerGroupRef.current = null;
-      }
-    };
   }, [trailData, isVisible, map]);
 
   if (!isVisible || !trailData || trailData.coordinates.length === 0) {
@@ -113,8 +69,8 @@ export default function WorkerTrailMapLayer({ trailData, isVisible }) {
       {startPoint && (
         <Marker position={startPoint} icon={startIcon}>
           <Popup className="rounded-xl shadow-lg border-0 overflow-hidden">
-            <div className="font-medium text-slate-800">
-              <div className="text-emerald-600 font-bold mb-1">START POINT</div>
+            <div className="font-medium text-foreground">
+              <div className="text-success font-bold mb-1">START POINT</div>
               <div className="text-sm">Date: {startInfo.date}</div>
               <div className="text-sm">Time: {startInfo.time}</div>
             </div>
@@ -125,13 +81,20 @@ export default function WorkerTrailMapLayer({ trailData, isVisible }) {
       {endPoint && polylinePositions.length > 1 && (
         <Marker position={endPoint} icon={endIcon}>
           <Popup className="rounded-xl shadow-lg border-0 overflow-hidden">
-            <div className="font-medium text-slate-800">
-              <div className="text-rose-600 font-bold mb-1">END POINT</div>
+            <div className="font-medium text-foreground">
+              <div className="text-destructive font-bold mb-1">END POINT</div>
               <div className="text-sm">Date: {endInfo.date}</div>
               <div className="text-sm">Time: {endInfo.time}</div>
             </div>
           </Popup>
         </Marker>
+      )}
+
+      {polylinePositions.length > 1 && (
+        <Polyline 
+          positions={polylinePositions} 
+          pathOptions={{ color: '#0ea5e9', weight: 4, opacity: 0.8 }} 
+        />
       )}
     </>
   );

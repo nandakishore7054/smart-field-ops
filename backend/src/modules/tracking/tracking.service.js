@@ -132,8 +132,8 @@ async function getWorkerTrail(workerId, dateStr) {
 
   const coordinates = [];
   
-  for (let i = 0; i < validLocations.length; i++) {
-    const loc = validLocations[i];
+  for (let i = 0; i < locations.length; i++) {
+    const loc = locations[i];
     if (loc.location && loc.location.coordinates) {
       coordinates.push({
         lat: loc.location.coordinates[1],
@@ -144,14 +144,13 @@ async function getWorkerTrail(workerId, dateStr) {
   }
 
   const totalDistanceKm = calculateTotalDistance(validLocations);
-  const totalDistanceMeters = Math.round(totalDistanceKm * 1000);
 
   return {
     coordinates,
     startTime: validLocations.length > 0 ? validLocations[0].timestamp : null,
     endTime: validLocations.length > 0 ? validLocations[validLocations.length - 1].timestamp : null,
     totalPoints: coordinates.length,
-    totalDistance: totalDistanceMeters
+    totalDistance: totalDistanceKm
   };
 }
 
