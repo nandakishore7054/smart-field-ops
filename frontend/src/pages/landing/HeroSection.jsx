@@ -48,7 +48,7 @@ export default function HeroSection({ isAuthenticated, dashboardLink = '/admin/d
             transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
             className="text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-6"
           >
-            🌍 FieldIntel
+            🌍 OpsGrid
           </motion.h1>
 
           <motion.h2
@@ -66,7 +66,7 @@ export default function HeroSection({ isAuthenticated, dashboardLink = '/admin/d
             transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
             className="text-lg text-muted-foreground mb-10 leading-relaxed max-w-xl"
           >
-            FieldIntel enables organizations to monitor, coordinate, and optimize field workforce operations using real-time GPS tracking, geofencing, task management, live analytics, and AI-powered operational insights.
+            OpsGrid enables organizations to monitor, coordinate, and optimize field workforce operations using real-time GPS tracking, geofencing, task management, live analytics, and AI-powered operational insights.
           </motion.p>
 
           <motion.div

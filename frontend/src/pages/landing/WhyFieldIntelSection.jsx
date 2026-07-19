@@ -44,12 +44,12 @@ export default function WhyFieldIntelSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-sm font-bold tracking-widest text-primary uppercase mb-3">Why FieldIntel</h2>
+              <h2 className="text-sm font-bold tracking-widest text-primary uppercase mb-3">Why OpsGrid</h2>
               <h3 className="text-4xl font-extrabold tracking-tight mb-6 leading-tight">
                 Move from reactive management to proactive intelligence.
               </h3>
               <p className="text-lg text-muted-foreground mb-10 leading-relaxed">
-                Traditional workforce management relies on trust and paper trails. FieldIntel replaces guesswork with deterministic geographic data and AI analysis.
+                Traditional workforce management relies on trust and paper trails. OpsGrid replaces guesswork with deterministic geographic data and AI analysis.
               </p>
             </motion.div>
 

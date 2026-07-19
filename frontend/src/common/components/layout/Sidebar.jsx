@@ -83,7 +83,7 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }) {
                 transition={{ duration: 0.2 }}
                 className="whitespace-nowrap font-bold text-foreground tracking-tight"
               >
-                FieldIntel
+                OpsGrid
               </motion.div>
             )}
           </AnimatePresence>

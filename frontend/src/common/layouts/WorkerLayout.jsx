@@ -22,7 +22,7 @@ export default function WorkerLayout() {
         {/* Desktop Sidebar (Workers get a simple sidebar on Desktop instead of mobile nav) */}
         <aside className="hidden lg:flex w-64 border-r border-border bg-surface flex-col flex-shrink-0 z-30">
            <div className="flex items-center h-16 px-6 border-b border-border bg-surface-muted/30">
-              <span className="font-bold text-lg tracking-tight">FieldIntel</span>
+              <span className="font-bold tracking-tight text-lg text-primary">OpsGrid</span>
            </div>
            <nav className="flex-1 px-3 py-6 space-y-1">
              {workerNavItems.map((item) => (

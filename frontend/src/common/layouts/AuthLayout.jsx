@@ -22,7 +22,7 @@ export default function AuthLayout({ children, title, subtitle }) {
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Compass className="w-6 h-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold tracking-tight">FieldIntel</span>
+            <span className="font-bold tracking-tight text-lg text-primary">OpsGrid</span>
           </Link>
 
           <motion.div
@@ -64,7 +64,7 @@ export default function AuthLayout({ children, title, subtitle }) {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Compass className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-lg font-bold tracking-tight">FieldIntel</span>
+            <span className="text-lg font-bold tracking-tight">OpsGrid</span>
           </Link>
         </div>
 

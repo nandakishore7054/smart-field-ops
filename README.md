@@ -1,4 +1,4 @@
-# 🌍 FieldIntel
+# 🌍 OpsGrid
 
 **AI-Powered Field Operations Intelligence Platform**
 
@@ -12,9 +12,9 @@
 ![Groq AI](https://img.shields.io/badge/Groq_AI-F55036?style=for-the-badge&logo=google&logoColor=white)
 ![Gemini AI](https://img.shields.io/badge/Gemini_AI-8E75B2?style=for-the-badge&logo=google-gemini&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
-![Last Commit](https://img.shields.io/github/last-commit/username/fieldintel?style=for-the-badge)
+![Last Commit](https://img.shields.io/github/last-commit/username/opsgrid?style=for-the-badge)
 
-FieldIntel is a centralized, event-driven platform that bridges the physical gap between administrative dispatchers and remote field workers. By combining live geographic telemetry with active task management and Generative AI, it provides total situational awareness and eliminates the manual overhead of workforce coordination.
+OpsGrid is a centralized, event-driven platform that bridges the physical gap between administrative dispatchers and remote field workers. By combining live geographic telemetry with active task management and Generative AI, it provides total situational awareness and eliminates the manual overhead of workforce coordination.
 
 > *Transforming traditional field workforce management into an intelligent, AI-driven operational platform.*
 
@@ -34,13 +34,13 @@ FieldIntel is a centralized, event-driven platform that bridges the physical gap
 
 Managing a team of field workers—such as delivery drivers, maintenance technicians, or sales agents—is incredibly difficult when you lack visibility into their live locations. 
 
-FieldIntel solves this by giving every worker a mobile app that silently streams their geographic coordinates back to headquarters. Dispatchers receive a real-time command center showing exactly where everyone is, allowing them to dynamically assign tasks based on proximity. At the end of the shift, instead of forcing managers to read raw metrics, an integrated AI agent analyzes all the data and writes a comprehensive executive summary of the day's operations.
+OpsGrid solves this by giving every worker a mobile app that silently streams their geographic coordinates back to headquarters. Dispatchers receive a real-time command center showing exactly where everyone is, allowing them to dynamically assign tasks based on proximity. At the end of the shift, instead of forcing managers to read raw metrics, an integrated AI agent analyzes all the data and writes a comprehensive executive summary of the day's operations.
 
 ---
 
-## ❓ Why FieldIntel?
+## ❓ Why OpsGrid?
 
-Traditional workforce management systems are highly reactive. They rely on workers remembering to text managers or click "check-in" buttons on clunky software. FieldIntel exists to make field management **proactive and passive**. It solves the problem of "blind dispatching" by proving exactly where workers are in real-time, verifying they actually arrived at a job site using virtual boundaries (geofences), and removing the tedious administrative burden of manually calculating distances and writing end-of-day reports.
+Traditional workforce management systems are highly reactive. They rely on workers remembering to text managers or click "check-in" buttons on clunky software. OpsGrid exists to make field management **proactive and passive**. It solves the problem of "blind dispatching" by proving exactly where workers are in real-time, verifying they actually arrived at a job site using virtual boundaries (geofences), and removing the tedious administrative burden of manually calculating distances and writing end-of-day reports.
 
 ---
 
@@ -52,13 +52,13 @@ Organizations with distributed, mobile workforces face immense logistical fricti
 
 ## 💡 Solution
 
-FieldIntel is a unified Progressive Web App (PWA) backed by a low-latency, event-driven Node.js architecture. It provides dispatchers with a real-time command center while giving field workers a lightweight, battery-optimized mobile interface. By integrating WebSockets for live telemetry and Large Language Models (LLMs) for automated reporting, the platform effectively synchronizes field execution with office administration.
+OpsGrid is a unified Progressive Web App (PWA) backed by a low-latency, event-driven Node.js architecture. It provides dispatchers with a real-time command center while giving field workers a lightweight, battery-optimized mobile interface. By integrating WebSockets for live telemetry and Large Language Models (LLMs) for automated reporting, the platform effectively synchronizes field execution with office administration.
 
 ---
 
-## 🌟 What Makes FieldIntel Different?
+## 🌟 What Makes OpsGrid Different?
 
-Unlike standard CRUD-based employee management systems that just store task tickets, FieldIntel merges passive telemetry with active workflows. 
+Unlike standard CRUD-based employee management systems that just store task tickets, OpsGrid merges passive telemetry with active workflows. 
 
 - 📍 **Live GPS & Real-Time Telemetry:** Workers' locations move smoothly on the map without refreshing the page.
 - 🛡️ **Geofencing:** The system automatically mathematically detects when a worker crosses a physical boundary.
@@ -101,7 +101,7 @@ Unlike standard CRUD-based employee management systems that just store task tick
 
 ## 🏗️ System Architecture
 
-FieldIntel utilizes a modern Client-Server Architecture with a Domain-Driven Monolithic Backend. The application layer handles HTTP/REST requests for state changes while maintaining persistent WebSocket connections for high-frequency telemetry streaming.
+OpsGrid utilizes a modern Client-Server Architecture with a Domain-Driven Monolithic Backend. The application layer handles HTTP/REST requests for state changes while maintaining persistent WebSocket connections for high-frequency telemetry streaming.
 
 <!-- Insert Architecture Diagram -->
 <!-- Insert System Architecture -->
@@ -192,7 +192,7 @@ Core REST endpoints driving the application state:
 
 ## 🤖 AI Integration
 
-FieldIntel goes beyond basic data aggregation by employing LLMs to act as an automated operational analyst.
+OpsGrid goes beyond basic data aggregation by employing LLMs to act as an automated operational analyst.
 
 - **Prompt Generation:** The backend gathers raw KPIs (offline workers, total distance, completed tasks) and constructs a dynamic, deterministic prompt context.
 - **Groq Primary Strategy:** The prompt is dispatched to the Groq API (Llama 3.3) for sub-second, natural-language inference.
@@ -250,8 +250,8 @@ FieldIntel goes beyond basic data aggregation by employing LLMs to act as an aut
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/yourusername/fieldintel.git
-cd fieldintel
+git clone https://github.com/yourusername/opsgrid.git
+cd opsgrid
 ```
 
 ### 2. Install Backend

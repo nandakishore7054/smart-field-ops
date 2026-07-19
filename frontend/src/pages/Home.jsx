@@ -40,13 +40,13 @@ export default function Home() {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Compass className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-bold tracking-tight text-lg hidden sm:inline-block">FieldIntel</span>
+          <span className="font-bold tracking-tight text-lg hidden sm:inline-block">OpsGrid</span>
         </div>
         
         <nav className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground mr-4">
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#why" className="hover:text-foreground transition-colors">Why FieldIntel</a>
+            <a href="#why" className="hover:text-foreground transition-colors">Why OpsGrid</a>
             <a href="#how" className="hover:text-foreground transition-colors">How it Works</a>
           </div>
 
@@ -85,13 +85,13 @@ export default function Home() {
            <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
               <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-6">Ready to Transform Your Field Operations?</h2>
               <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
-                 Join modern teams using FieldIntel to manage tasks, dispatch workers, and track operations with real-time AI intelligence.
+                 Join modern teams using OpsGrid to manage tasks, dispatch workers, and track operations with real-time AI intelligence.
               </p>
               
               {!isAuthenticated && (
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Button as={Link} to="/register" size="lg" className="w-full sm:w-auto h-14 px-8 text-base shadow-glow">
-                    Launch FieldIntel
+                    Launch OpsGrid
                   </Button>
                   <Button as={Link} to="/login" variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base bg-surface">
                     Sign into Workspace
